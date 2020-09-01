@@ -10,7 +10,11 @@ const setupStart = require('./commands/start')
 
 // Commands
 setupStart(bot)
-bot.command('test_message', ctx => ctx.reply('success'))
+
+bot.command('msg', ctx => {
+  ctx.scene.enter('step1')
+})
+
 
 
 // Let's start!
@@ -33,24 +37,3 @@ startBot();
 // }, 1000);
 
 
-// const Telegraf = require("telegraf");
-// const RedisSession = require("telegraf-session-redis");
-
-// const session = require("telegraf/session");
-// const Stage = require("telegraf/stage");
-
-// const { step1, step2, step3, step4 } = require("./src/scens/start");
-// const getPicScene = require("./src/scens/getPic");
-
-// const bot = new Telegraf(process.env.TOKEN);
-
-// const stage = new Stage([step1, step2, step3, step4, getPicScene]);
-// bot.use(session());
-// bot.use(stage.middleware());
-
-// bot.command("start", (ctx) => ctx.scene.enter("step1"));
-// // actions.map((item) => bot.action(item.name, item.act));
-
-// bot.command("getPic", (ctx) => ctx.scene.enter("getRaspPic"));
-
-// bot.launch();

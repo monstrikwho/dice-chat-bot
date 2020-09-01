@@ -1,8 +1,6 @@
 // Dependencies
 const Telegraf = require("telegraf");
-// const { report } = require("../helpers/report");
 const cluster = require("cluster");
-// const uuid = require("uuid/v4");
 const { v4: uuid } = require('uuid');
 
 // Create bot
@@ -29,7 +27,7 @@ function startBot() {
       const domain = process.env.WEBHOOK_DOMAIN;
       bot.telegram
         .deleteWebhook()
-        .then(async () => {
+        .then(async () => { 
           const secretPath = uuid();
           bot.startWebhook(`/${secretPath}`, undefined, 5000);
           await bot.telegram.setWebhook(
