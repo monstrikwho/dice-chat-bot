@@ -15,10 +15,6 @@ bot.telegram
     bot.options.username = info.username;
   })
   .catch(console.info);
-// Bot catch
-bot.catch((err) => {
-  report(bot, err, "bot.catch");
-});
 // Start bot
 function startBot() {
   if (cluster.isMaster) {

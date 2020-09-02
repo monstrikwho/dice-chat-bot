@@ -2,38 +2,23 @@ require("dotenv").config();
 // Init
 const { bot, startBot } = require("./init/startBot");
 // Commands
-const setupStart = require('./commands/start')
-
-
-
-
+const setupStart = require("./commands/start");
 
 // Commands
-setupStart(bot)
+setupStart(bot);
 
-bot.command('msg', ctx => {
-  ctx.scene.enter('step1')
-})
-
-
+bot.command("msg", (ctx) => {
+  setInterval(function () {
+    const curDate =
+      new Date().getHours() +
+      ":" +
+      new Date().getMinutes() +
+      ":" +
+      new Date().getSeconds();
+    bot.telegram.sendMessage(ctx.from.id, curDate);
+  }, 1000);
+  console.log(ctx.from.id);
+});
 
 // Let's start!
 startBot();
-
-
-
-
-
-
-
-// setInterval(function(){
-//   for (var i = 0; i < notes.length; i++) {
-//   const curDate = new Date().getHours() + ':' + new Date().getMinutes();
-//   if (notes[i]['time'] === curDate) {
-//     bot.sendMessage(notes[i]['uid'], 'Напоминаю, что вы должны: '+ notes[i]['text'] + ' сейчас.');
-//     notes.splice(i, 1);
-//   }
-// }
-// }, 1000);
-
-

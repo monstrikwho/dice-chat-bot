@@ -1,8 +1,8 @@
-const setupSingupScenes = require("../scens/singupSetup");
+const setupScenes = require("../scens/setupScenes");
 
 function setupStart(bot) {
   // Setup scens
-  setupSingupScenes(bot);
+  setupScenes(bot);
 
   // Start command
   bot.start(async (ctx) => {

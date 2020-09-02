@@ -129,7 +129,7 @@ step4.enter((ctx) => {
 });
 step4.hears(/./, (ctx) => ctx.reply("Стой, нажми на кнопку выше"));
 step4.leave((ctx) => {
-  console.log(ctx.session.state);
+  console.log(ctx.session);
 
   ctx.replyWithHTML(
     `Вы успешно выбрали группу: <pre language="c++">👉🏻 ${ctx.session.state.group}</pre>`
@@ -142,7 +142,7 @@ step4.action(reGex4, (ctx) => {
     ...ctx.session.state,
     group: ctx.update.callback_query.data,
   };
-  ctx.scene.leave();
+  ctx.scene.enter('showMainMenu');
 });
 
 //
