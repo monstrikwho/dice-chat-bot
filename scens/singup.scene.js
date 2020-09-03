@@ -4,6 +4,8 @@ const Extra = require("telegraf/extra");
 const buttonNames = require("../keyboards/buttonNames");
 const groupsHook = require("../keyboards/getGroupsHook");
 
+const User = require("../models/user");
+
 // *************************** STEP 1 *******************************************
 const step1 = new Scene("step1");
 step1.enter((ctx) => {
@@ -128,21 +130,39 @@ step4.enter((ctx) => {
   );
 });
 step4.hears(/./, (ctx) => ctx.reply("Стой, нажми на кнопку выше"));
-step4.leave((ctx) => {
-  console.log(ctx.session);
-
+step4.leave(async (ctx) => {
+  const statusId = await User.findOne({ userId: ctx.from.id });
+  ctx.deleteMessage()
+  if(statusId) return
   ctx.replyWithHTML(
     `Вы успешно выбрали группу: <pre language="c++">👉🏻 ${ctx.session.state.group}</pre>`
   );
-  ctx.deleteMessage();
 });
-// step4.action(reGex4, (ctx) => ctx.scene.enter("step5"));
-step4.action(reGex4, (ctx) => {
+step4.action(reGex4, async (ctx) => {
   ctx.session.state = {
     ...ctx.session.state,
     group: ctx.update.callback_query.data,
   };
-  ctx.scene.enter('showMainMenu');
+
+  const statusId = await User.findOne({ userId: ctx.from.id });
+  if (!statusId) {
+    const user = new User({
+      userId: ctx.from.id,
+      firstName: ctx.from.first_name,
+      lastName: ctx.from.last_name,
+      userName: ctx.from.username,
+      person: ctx.session.state.person,
+      faculty: ctx.session.state.faculty,
+      group: ctx.session.state.group,
+    });
+    await user.save();
+  } else {
+    ctx.reply(
+      "Вы уже зарегестрировались, попробуйте выбрать что-нибудь из меню."
+    );
+  }
+
+  ctx.scene.enter("showMainMenu");
 });
 
 //

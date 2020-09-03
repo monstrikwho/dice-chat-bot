@@ -7,9 +7,8 @@ const nodeHtmlToImage = require("node-html-to-image");
 const Stage = require("telegraf/stage");
 const Scene = require("telegraf/scenes/base");
 
-
-const getRaspPic = new Scene("getRaspPic");
-getRaspPic.enter(async (ctx) => {
+const requestToday = async (ctx) => {
+  return 'sdfsdf'
   await axios
     .post(
       `http://rasp.barsu.by/stud.php`,
@@ -78,8 +77,6 @@ getRaspPic.enter(async (ctx) => {
       });
     })
     .catch((er) => console.log(er));
-});
+};
 
-
-
-module.exports = getRaspPic;
+module.exports = requestToday;
