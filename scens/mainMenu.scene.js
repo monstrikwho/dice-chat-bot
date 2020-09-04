@@ -12,14 +12,14 @@ showMainMenu.enter((ctx) => {
     Extra.markup(
       Markup.keyboard([
         ["Сегодня", "Завтра", "Неделю"],
-        ["⚙️ Настройки", "🚌 Автобусы"],
+        ["⚙️ Другое", "🚌 Автобусы"],
       ])
       .resize()
     )
   );
 });
 
-showMainMenu.hears('⚙️ Настройки', (ctx) => {
+showMainMenu.hears('⚙️ Другое', (ctx) => {
   ctx.scene.enter('showSettingsMenu')
 })
 showMainMenu.hears('Сегодня', (ctx) => {
