@@ -11,13 +11,11 @@ async function parseWeeks() {
 
     $(optionElem).each(async (i, item) => {
       if ($(item).val() === "0") return;
-      console.log($(item).val().split('-'));
 
       const status = await Weeks.findOne({ weekString: $(item).val() });
       if (!status) {
         const week = new Weeks({
           weekString: $(item).val(),
-          weekItems: $(item).val().split('-'),
         });
         await week.save();
       }
