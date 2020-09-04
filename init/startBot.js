@@ -1,5 +1,9 @@
 // Dependencies
 const Telegraf = require("telegraf");
+<<<<<<< HEAD
+=======
+const cluster = require("cluster");
+>>>>>>> 55652efb6f46ce77d657a3acddbd9d16c8608c7d
 const { v4: uuid } = require("uuid");
 
 const cors = require("cors");
