@@ -22,10 +22,10 @@ showMainMenu.hears("⚙️ Другое", (ctx) => {
   ctx.scene.enter("showSettingsMenu");
 });
 showMainMenu.hears("Сегодня", (ctx) => {
-  ctx.reply("Сейчас скинем");
+  requestToday(ctx)
 });
 showMainMenu.hears("Завтра", (ctx) => {
-  ctx.reply("Сейчас скинем");
+  requestToday(ctx, 9)
 });
 showMainMenu.hears("Неделю", (ctx) => {
   ctx.scene.enter("weekMenu");
