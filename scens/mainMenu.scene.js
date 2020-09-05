@@ -2,7 +2,7 @@ const Scene = require("telegraf/scenes/base");
 const Extra = require("telegraf/extra");
 const Markup = require("telegraf/markup");
 
-const requestToday = require("../helpers/requestToday");
+const getRasp = require("../helpers/getRasp");
 
 // *************************** STEP 1 *******************************************
 const showMainMenu = new Scene("showMainMenu");
@@ -12,26 +12,26 @@ showMainMenu.enter((ctx) => {
     Extra.markup(
       Markup.keyboard([
         ["Сегодня", "Завтра", "Неделю"],
-        ["⚙️ Другое", "🚌 Автобусы"],
+        // ["⚙️ Другое", "🚌 Автобусы"],
       ]).resize()
     )
   );
 });
 
-showMainMenu.hears("⚙️ Другое", (ctx) => {
-  ctx.scene.enter("showSettingsMenu");
-});
 showMainMenu.hears("Сегодня", (ctx) => {
-  requestToday(ctx, 8)
+  getRasp(ctx, 8);
 });
 showMainMenu.hears("Завтра", (ctx) => {
-  requestToday(ctx, 9)
+  getRasp(ctx, 9);
 });
 showMainMenu.hears("Неделю", (ctx) => {
   ctx.scene.enter("weekMenu");
 });
-showMainMenu.hears("🚌 Автобусы", (ctx) => {
-  ctx.scene.enter("autobusMenu");
-});
+// showMainMenu.hears("⚙️ Другое", (ctx) => {
+//   ctx.scene.enter("showSettingsMenu");
+// });
+// showMainMenu.hears("🚌 Автобусы", (ctx) => {
+//   ctx.scene.enter("autobusMenu");
+// });
 
 module.exports = { showMainMenu };

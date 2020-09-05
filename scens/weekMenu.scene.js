@@ -2,7 +2,7 @@ const Scene = require("telegraf/scenes/base");
 const Extra = require("telegraf/extra");
 const Markup = require("telegraf/markup");
 
-const requestToday = require("../helpers/requestToday");
+const getRasp = require("../helpers/getRasp");
 
 // *************************** STEP 1 *******************************************
 const weekMenu = new Scene("weekMenu");
@@ -22,19 +22,19 @@ weekMenu.hears("↪️ Вернуться назад", (ctx) => {
   ctx.scene.enter("showMainMenu");
 });
 weekMenu.hears("Пн", (ctx) => {
-  requestToday(ctx, 0)
+  getRasp(ctx, 0)
 });
 weekMenu.hears("Вт", (ctx) => {
-  requestToday(ctx, 1)
+  getRasp(ctx, 1)
 });
 weekMenu.hears("Ср", (ctx) => {
-  requestToday(ctx, 2)
+  getRasp(ctx, 2)
 });
 weekMenu.hears("Чт", (ctx) => {
-  requestToday(ctx, 3)
+  getRasp(ctx, 3)
 });
 weekMenu.hears("Пт", (ctx) => {
-  requestToday(ctx, 4)
+  getRasp(ctx, 4)
 });
 
 module.exports = { weekMenu };

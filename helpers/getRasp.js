@@ -4,10 +4,11 @@ const cheerio = require("cheerio");
 const querystring = require("querystring");
 const nodeHtmlToImage = require("node-html-to-image");
 const User = require("../models/user");
+const { set } = require("mongoose");
 
 const nowDate = require("./getNowDay")();
 
-const requestToday = async (ctx, setDay) => {
+const getRasp = async (ctx, setDay) => {
   const selectUser = await User.findOne({ userId: ctx.from.id });
 
   // console.log(nowDate);
@@ -37,18 +38,16 @@ const requestToday = async (ctx, setDay) => {
       const week = [Monday, Tuesday, Wednesday, Thursday, Friday, Saturday];
       const today = new Date().getDay();
 
+      if((today === 6 || today === 7) && (setDay === 8 || setDay === 9)) {
+        return ctx.reply('Как бы выходной, не? 🙃')
+      }
+
       // 0=Пн, 1=Вт, 2=Ср, 3=Чт, 4=Пт, 8=Сегодня, 9=Завтра
       const tr = setDay.toString().match(/(?:0|1|2|3|4)/)
         ? week[setDay]
         : setDay !== 9
-        ? week[today - 3]
-        : week[today - 2];
-      // const tr =
-      //   setDay && setDay !== 9
-      //     ? week[setDay]
-      //     : setDay !== 9
-      //     ? week[today]
-      //     : week[today + 1];
+        ? week[today]
+        : week[today+1];
 
       for (let i = 0; i < tr.length; i++) {
         let td;
@@ -117,4 +116,4 @@ ${teacherText}  ${(lectureHallText.replace(/\s/g, "").length > 0) ? `➖ ${lectu
     });
 };
 
-module.exports = requestToday;
+module.exports = getRasp;
