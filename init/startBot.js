@@ -56,9 +56,6 @@ async function startBot() {
     await bot.telegram
       .deleteWebhook()
       .then(async () => {
-        if (bot.isPolling()) {
-          await bot.stopPolling();
-        }
         await bot.startPolling();
         console.info("Bot is up and running");
       })
