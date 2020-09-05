@@ -22,7 +22,7 @@ showMainMenu.hears("⚙️ Другое", (ctx) => {
   ctx.scene.enter("showSettingsMenu");
 });
 showMainMenu.hears("Сегодня", (ctx) => {
-  requestToday(ctx)
+  requestToday(ctx, 8)
 });
 showMainMenu.hears("Завтра", (ctx) => {
   requestToday(ctx, 9)
