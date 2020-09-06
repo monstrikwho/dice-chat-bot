@@ -11,7 +11,7 @@ weekMenu.enter((ctx) => {
     "Выберите день недели",
     Extra.markup(
       Markup.keyboard([
-        ["Пн", "Вт", "Ср", "Чт", "Пт", 'Всю'],
+        ["Пн", "Вт", "Ср", "Чт", "Пт"],
         ["↪️ Вернуться назад"],
       ]).resize()
     )
@@ -36,8 +36,8 @@ weekMenu.hears("Чт", (ctx) => {
 weekMenu.hears("Пт", (ctx) => {
   getRasp(ctx, 4)
 });
-weekMenu.hears("Всю", (ctx) => {
-  getRasp(ctx, 5)
-});
+// weekMenu.hears("Всю", (ctx) => {
+//   getRasp(ctx, 5)
+// });
 
 module.exports = { weekMenu };
