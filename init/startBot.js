@@ -28,13 +28,6 @@ const PORT = process.env.PORT || 5000;
 
 // Start bot
 async function startBot() {
-  process.on("uncaughtException", function (error) {
-    console.log("\x1b[31m", "Exception: ", error, "\x1b[0m");
-  });
-
-  process.on("unhandledRejection", function (error, p) {
-    console.log("\x1b[31m", "Error: ", error.message, "\x1b[0m");
-  });
   // Start bot
   if (process.env.USE_WEBHOOK === "true") {
     const domain = process.env.WEBHOOK_DOMAIN;

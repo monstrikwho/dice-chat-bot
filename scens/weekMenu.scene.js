@@ -36,5 +36,8 @@ weekMenu.hears("Чт", (ctx) => {
 weekMenu.hears("Пт", (ctx) => {
   getRasp(ctx, 4)
 });
+weekMenu.hears("Всю", (ctx) => {
+  getRasp(ctx, 5)
+});
 
 module.exports = { weekMenu };
