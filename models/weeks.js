@@ -1,7 +1,13 @@
 const { Schema, model } = require("mongoose");
 
 const schema = new Schema({
-  weekString: {
+  year: {
+    type: String,
+  },
+  month: {
+    type: String,
+  },
+  day: {
     type: String,
   },
 });
