@@ -2,20 +2,32 @@ const axios = require("axios");
 const cheerio = require("cheerio");
 const querystring = require("querystring");
 
+const dateHelper = require('./getNowDay')
+
 const User = require("../models/user");
 
 module.exports = async (ctx, reqWeek, setDay) => {
   const selectUser = await User.findOne({ userId: ctx.from.id });
+  let data = {
+    ft: 0,
+    sp: 0,
+    gp: selectUser.group,
+    nd: reqWeek,
+    go: "Показать",
+  }
+  let URL = () => {
+    if(selectUser.person === 'Студент') return `http://rasp.barsu.by/stud.php`
+    data = {
+      kf: 0,
+      tch: selectUser.teacherName,
+      nd: reqWeek,
+      go: 'Показать',
+    }
+    return `http://rasp.barsu.by/teach.php`
+  }
+
   await axios
-    .post(
-      `http://rasp.barsu.by/stud.php`,
-      querystring.stringify({
-        ft: 0,
-        sp: 0,
-        gp: selectUser.group,
-        nd: reqWeek,
-        go: "Показать",
-      })
+    .post(URL(), querystring.stringify(data)
     )
     .then(async (res) => {
       const $ = cheerio.load(res.data, { decodeEntities: false });
@@ -35,8 +47,22 @@ module.exports = async (ctx, reqWeek, setDay) => {
       const tr = setDay.toString().match(/(?:0|1|2|3|4)/)
         ? week[setDay]
         : setDay !== 9
-        ? week[today]
-        : week[today+1];
+        ? week[today-1]
+        : week[today];
+
+      // const dayWeek = {
+      //   0: 'Понедельник',
+      //   1: 'Вторник',
+      //   2: 'Среда',
+      //   3: 'Четверг',
+      //   4: 'Пятница',
+      // }
+
+      // ctx.reply(`${dateHelper.nowDate().day}.${dateHelper.nowDate().month}.${dateHelper.nowDate().year} - ${setDay.toString().match(/(?:0|1|2|3|4)/)
+      //   ? dayWeek[setDay]
+      //   : setDay !== 9
+      //   ? dayWeek[today-1]
+      //   : dayWeek[today]}`)
 
       for (let i = 0; i < tr.length; i++) {
         let td;
@@ -96,8 +122,8 @@ ${teacherText[1]} ➖ ${lectureHallText.length > 1
             await ctx.replyWithHTML(answer);
           } else {
             let answer = `[<i>${timeText}</i>]
-${disciplineText}${(subgroupText.replace(/\s/g, "").length > 0) ? `➖ ${subgroupText} подгр.` : ''}
-${teacherText}  ${(lectureHallText.replace(/\s/g, "").length > 0) ? `➖ ${lectureHallText}` : ''}`;
+${disciplineText}${(subgroupText.replace(/\s/g, "").length > 0) ? `➖ ${subgroupText} ${(selectUser.person === 'Студент') ? 'подгр.' : ''}` : ''}
+${teacherText}  ${(lectureHallText.replace(/\s/g, "").length > 0 && selectUser.person === 'Студент') ? `➖ ${lectureHallText}` : ''}`;
             await ctx.replyWithHTML(answer);
           }
         }
