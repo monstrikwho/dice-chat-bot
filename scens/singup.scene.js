@@ -1,10 +1,12 @@
 const Scene = require("telegraf/scenes/base");
 const Extra = require("telegraf/extra");
+const Markup = require("telegraf/markup");
 
 const buttonNames = require("../keyboards/buttonNames");
 const groupsHook = require("../keyboards/getGroupsHook");
 
 const User = require("../models/user");
+const Teachers = require("../models/teachers");
 
 // *************************** STEP 1 *******************************************
 const step1 = new Scene("step1");
@@ -47,15 +49,45 @@ step2.enter((ctx) => {
     ctx.reply("Пожалуйста, введите свою фамилию.");
   }
 });
-step2.hears(/./, (ctx) => {
+step2.hears(/./, async (ctx) => {
   if (ctx.session.state.person === "Студент") {
-    ctx.reply("Стой, нажми на кнопку выше");
-  } else {
-    if (ctx.session.state.person === "Преподаватель") {
-      ctx.reply("Такой фамилии нету. Попробуйте еще раз.");
-    } else {
-      ctx.reply("Такой команды нету.");
+    return ctx.reply("Стой, нажми на кнопку выше");
+  }
+
+  if (ctx.session.state.person === "Преподаватель") {
+    const statusUser = await User.findOne({ userId: ctx.from.id });
+    if (statusUser) {
+      await User.updateOne(
+        { userId: ctx.from.id },
+        { teacherName: ctx.update.message.text }
+      );
+      return ctx.scene.enter("showMainMenu");
     }
+
+    const message = ctx.update.message.text.replace(/\s/g, "");
+    const statusId = await Teachers.find({
+      lastName: message[0].toUpperCase() + message.slice(1),
+    });
+    if (statusId) {
+      const user = new User({
+        userId: ctx.from.id,
+        firstName: ctx.from.first_name,
+        lastName: ctx.from.last_name,
+        userName: ctx.from.username,
+        person: ctx.session.state.person,
+      });
+      await user.save();
+      return ctx.reply(
+        "Подтвердите, это вы?",
+        Extra.markup(
+          Markup.keyboard([statusId.map((item) => item.teacher)]).resize()
+        )
+      );
+    } else {
+      ctx.reply("Такой фамилии нету. Попробуйте еще раз.");
+    }
+  } else {
+    ctx.reply("Такой команды нету.");
   }
 });
 step2.leave((ctx) => ctx.deleteMessage());
@@ -132,8 +164,8 @@ step4.enter((ctx) => {
 step4.hears(/./, (ctx) => ctx.reply("Стой, нажми на кнопку выше"));
 step4.leave(async (ctx) => {
   const statusId = await User.findOne({ userId: ctx.from.id });
-  ctx.deleteMessage()
-  if(statusId) return
+  ctx.deleteMessage();
+  if (statusId) return;
   ctx.replyWithHTML(
     `Вы успешно выбрали группу: <pre language="c++">👉🏻 ${ctx.session.state.group}</pre>`
   );

@@ -23,6 +23,9 @@ const schema = new Schema({
   group: {
     type: String,
   },
+  teacherName: {
+    type: String,
+  },
 });
 
 module.exports = model("Users", schema);
