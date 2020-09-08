@@ -1,6 +1,3 @@
-// const fs = require("fs");
-// const nodeHtmlToImage = require("node-html-to-image");
-
 const dateHelper = require("./getNowDay");
 const request = require("./request");
 

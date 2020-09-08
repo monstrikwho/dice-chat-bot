@@ -40,10 +40,11 @@ async function parseTeachers() {
     $(optionElem).each(async (i, item) => {
       if ($(item).val() === "0") return;
 
-      const status = await Teachers.findOne({ lastName: $(item).val() });
+      const status = await Teachers.findOne({ lastName: $(item).val().split(' ')[0] });
       if (!status) {
         const teachers = new Teachers({
-          lastName: $(item).val(),
+          lastName: $(item).val().split(' ')[0],
+          teacher: $(item).val(),
         });
         await teachers.save();
       }
