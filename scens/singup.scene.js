@@ -55,6 +55,7 @@ step2.hears(/./, async (ctx) => {
   }
 
   if (ctx.session.state.person === "Преподаватель") {
+    // После того, как сохранили инфу ниже, сохраняем ФИО преподавателя
     const statusUser = await User.findOne({ userId: ctx.from.id });
     if (statusUser) {
       await User.updateOne(
@@ -63,12 +64,12 @@ step2.hears(/./, async (ctx) => {
       );
       return ctx.scene.enter("showMainMenu");
     }
-
+    // Сохраняем преподавателя, как юзера
     const message = ctx.update.message.text.replace(/\s/g, "");
     const statusId = await Teachers.find({
       lastName: message[0].toUpperCase() + message.slice(1),
     });
-    if (statusId) {
+    if (statusId.length !== 0) { 
       const user = new User({
         userId: ctx.from.id,
         firstName: ctx.from.first_name,
@@ -163,9 +164,7 @@ step4.enter((ctx) => {
 });
 step4.hears(/./, (ctx) => ctx.reply("Стой, нажми на кнопку выше"));
 step4.leave(async (ctx) => {
-  const statusId = await User.findOne({ userId: ctx.from.id });
   ctx.deleteMessage();
-  if (statusId) return;
   ctx.replyWithHTML(
     `Вы успешно выбрали группу: <pre language="c++">👉🏻 ${ctx.session.state.group}</pre>`
   );
@@ -176,23 +175,16 @@ step4.action(reGex4, async (ctx) => {
     group: ctx.update.callback_query.data,
   };
 
-  const statusId = await User.findOne({ userId: ctx.from.id });
-  if (!statusId) {
-    const user = new User({
-      userId: ctx.from.id,
-      firstName: ctx.from.first_name,
-      lastName: ctx.from.last_name,
-      userName: ctx.from.username,
-      person: ctx.session.state.person,
-      faculty: ctx.session.state.faculty,
-      group: ctx.session.state.group,
-    });
-    await user.save();
-  } else {
-    ctx.reply(
-      "Вы уже зарегестрировались, попробуйте выбрать что-нибудь из меню."
-    );
-  }
+  const user = new User({
+    userId: ctx.from.id,
+    firstName: ctx.from.first_name,
+    lastName: ctx.from.last_name,
+    userName: ctx.from.username,
+    person: ctx.session.state.person,
+    faculty: ctx.session.state.faculty,
+    group: ctx.session.state.group,
+  });
+  await user.save();
 
   ctx.scene.enter("showMainMenu");
 });
