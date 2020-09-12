@@ -6,7 +6,7 @@ const Markup = require("telegraf/markup");
 const autobusMenu = new Scene("autobusMenu");
 autobusMenu.enter((ctx) => {
   return ctx.reply(
-    "Выберите день недели",
+    "Вы вошли в меню автобусов",
     Extra.markup(
       Markup.keyboard([
         ["Указать остановки", "Выбрать автобусы"],
@@ -18,6 +18,9 @@ autobusMenu.enter((ctx) => {
 
 autobusMenu.hears("↪️ Вернуться назад", (ctx) => {
   ctx.scene.enter("showMainMenu");
+});
+autobusMenu.hears("Выбрать автобусы", (ctx) => {
+  ctx.scene.enter("takeAutobus");
 });
 
 module.exports = { autobusMenu };
