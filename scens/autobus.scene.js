@@ -53,6 +53,14 @@ takePlaces.enter(async (ctx) => {
   );
 });
 
+<<<<<<< HEAD
+=======
+// bot.telegram.sendMessage(
+//   ctx.chat.id, msg, Extra.markdown().markup(Markup.inlineKeyboard([
+//   arr[0], arr[1], arr[2]
+// ]).oneTime()
+
+>>>>>>> master
 takePlaces.action(/(?:back)/, (ctx) => {
   ctx.scene.enter("takeAutobus");
 });
