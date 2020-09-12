@@ -53,6 +53,7 @@ module.exports = async (ctx, reqWeek, setDay) => {
       const today = new Date().getDay();
 
       // SETDAY === 0=Пн, 1=Вт, 2=Ср, 3=Чт, 4=Пт, 5=Вся неделя, 8=Сегодня, 9=Завтра
+      // TODAY === 0-Вс, 1-Пн, 2-Вт, 3-Ср, 4-Чт, 5-Пт, 6-Сб.
       const tr = setDay.toString().match(/(?:0|1|2|3|4)/)
         ? week[setDay]
         : setDay !== 9 // Если жмем на "сегодня"

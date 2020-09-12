@@ -38,7 +38,7 @@ module.exports = async ($, td, selectUser) => {
   if (disciplineText.length > 1) {
     if (Array.isArray(subgroupText)) {
       // НЕ МЕНЯТЬ ОТСТУПЫ НИЖЕ!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-      let answer = `[<i>${timeText}</i>] 
+      return `[<i>${timeText}</i>] 
 ${disciplineText[0]}➖ ${subgroupText[0]} подгр.
 ${teacherText[0]}  ➖ ${lectureHallText[0]}
 
@@ -46,12 +46,12 @@ ${disciplineText[1]}➖ ${subgroupText[1]} подгр.
 ${teacherText[1]} ➖ ${lectureHallText.length > 1
   ? lectureHallText[1]
   : lectureHallText[0]}`;
-      return answer
+
     } else {
-      let answer = `[<i>${timeText}</i>]
+      
+      return `[<i>${timeText}</i>]
 ${disciplineText}${(subgroupText.replace(/\s/g, "").length > 0) ? `➖ ${subgroupText} ${(selectUser.person === 'Студент') ? 'подгр.' : ''}` : ''}
 ${teacherText}  ${(lectureHallText.replace(/\s/g, "").length > 0 && selectUser.person === 'Студент') ? `➖ ${lectureHallText}` : ''}`;
-      return answer
     }
   }
 }

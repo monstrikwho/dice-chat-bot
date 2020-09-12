@@ -5,7 +5,6 @@ function nowDate() {
   const today = new Date()
   const dateDay = (today.getDate() < 10) ? `0${today.getDate()}` : today.getDate();
   const dateMonth = (today.getMonth()+1 < 10) ? `0${today.getMonth()+1}` : today.getMonth()+1;
-  // const date = today.getFullYear() + "-" + dateMonth + "-" + dateDay;
   return {year: today.getFullYear(), month: dateMonth, day: dateDay};
 };
 
@@ -80,7 +79,7 @@ async function countWeek() {
   return `${selectYear}-${selectMonth}-${selectDay}`
 }
 
-// 
+// EXPORTS
 module.exports.nowDate = nowDate
 module.exports.nextMonth = nextMonth
 module.exports.today = new Date().getDay();
