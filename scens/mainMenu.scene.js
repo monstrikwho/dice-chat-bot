@@ -17,7 +17,7 @@ showMainMenu.enter((ctx) => {
         (dateHelper.today.toString().match(/(?:4|5|6|0)/)) 
         ? ["Сегодня", "Завтра", "🟢 Неделя"]
         : ["Сегодня", "Завтра", "Неделя"],
-        // ["⚙️ Другое", "🚌 Автобусы"],
+        ["⚙️ Другое", "🚌 Автобусы"],
       ]).resize()
     )
   );
@@ -35,8 +35,8 @@ showMainMenu.hears("Неделя", (ctx) => {
 // showMainMenu.hears("⚙️ Другое", (ctx) => {
 //   ctx.scene.enter("showSettingsMenu");
 // });
-// showMainMenu.hears("🚌 Автобусы", (ctx) => {
-//   ctx.scene.enter("autobusMenu");
-// });
+showMainMenu.hears("🚌 Автобусы", (ctx) => {
+  ctx.scene.enter("autobusMenu");
+});
 
 module.exports = { showMainMenu };
