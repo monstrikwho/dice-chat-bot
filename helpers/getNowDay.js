@@ -67,7 +67,7 @@ async function countWeek() {
   
   let selectYear = nowDate().year
   let selectMonth = nowDate().month
-  let selectDay = daysArr[0]
+  let selectDay = daysArr[daysArr.length-1]
   // Если у нас 
   if(daysArr.length === 0) {
     selectMonth = prevMonth()
