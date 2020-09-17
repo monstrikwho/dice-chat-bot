@@ -29,12 +29,13 @@ showMainMenu.hears("Сегодня", (ctx) => {
 showMainMenu.hears("Завтра", (ctx) => {
   getRasp(ctx, 9);
 });
-showMainMenu.hears("Неделя", (ctx) => {
+showMainMenu.hears(/(?:Неделя|🟢 Неделя)/, (ctx) => {
   ctx.scene.enter("weekMenu");
 });
-// showMainMenu.hears("⚙️ Другое", (ctx) => {
-//   ctx.scene.enter("showSettingsMenu");
-// });
+showMainMenu.hears("⚙️ Другое", (ctx) => {
+  ctx.reply('Раздел в доработке. В ближайшее время будет готов. Мы оповестим вас, как только он будет готов 🌵')
+  // ctx.scene.enter("showSettingsMenu");
+});
 showMainMenu.hears("🚌 Автобусы", (ctx) => {
   ctx.scene.enter("autobusMenu");
 });

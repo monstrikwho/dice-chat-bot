@@ -69,13 +69,14 @@ step2.hears(/./, async (ctx) => {
     const statusId = await Teachers.find({
       lastName: message[0].toUpperCase() + message.slice(1),
     });
-    if (statusId.length !== 0) { 
+    if (statusId.length !== 0) {
       const user = new User({
         userId: ctx.from.id,
         firstName: ctx.from.first_name,
         lastName: ctx.from.last_name,
         userName: ctx.from.username,
         person: ctx.session.state.person,
+        autobus: [],
       });
       await user.save();
       return ctx.reply(
@@ -148,7 +149,7 @@ step3.action(reGex3, (ctx) => {
 const step4 = new Scene("step4");
 let reGex4 = /./;
 step4.enter((ctx) => {
-  let resGroupHook = [...groupsHook(ctx)];
+  let resGroupHook = [...groupsHook(ctx.session.state)];
   reGex4 = resGroupHook[0];
 
   ctx.reply(

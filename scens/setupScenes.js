@@ -6,7 +6,10 @@ const { showMainMenu } = require("./mainMenu.scene");
 const { showSettingsMenu } = require("./settingsMenu.scene");
 const { weekMenu } = require("./weekMenu.scene");
 const { autobusMenu } = require("./autobusMenu.scene");
-const { takeAutobus, takePlaces } = require("./autobus.scene");
+const { nearestAutobus } = require("./nearestAutobus.scene");
+const { otherAutobus } = require("./otherAutobus.scene");
+const { yourAutobus } = require("./yourAutobus.scene");
+const { takeAutobus, takePlaces, deleteAutobus } = require("./autobus.scene");
 
 function setupScenes(bot) {
   const stage = new Stage([
@@ -18,8 +21,12 @@ function setupScenes(bot) {
     showSettingsMenu,
     weekMenu,
     autobusMenu,
-    takeAutobus, 
-    takePlaces
+    takeAutobus,
+    takePlaces,
+    nearestAutobus,
+    otherAutobus,
+    yourAutobus,
+    deleteAutobus
   ]);
   bot.use(session());
   bot.use(stage.middleware());

@@ -26,6 +26,9 @@ const schema = new Schema({
   teacherName: {
     type: String,
   },
+  autobus: {
+    type: Object
+  }
 });
 
 module.exports = model("Users", schema);

@@ -10,10 +10,10 @@ const getRasp = async (ctx, setDay) => {
   if ((dateHelper.today === 6 || dateHelper.today === 0) && setDay === 8) {
     return ctx.reply("Как бы выходной, не? 🙃"); // Если суббота или воскр. и жмем на кнопку "Сегодня"
   }
-
+  
   // Если у нас выходные, но мы клацаем во кладке "Неделя"
   if (
-    (dateHelper.today === 6 || dateHelper.today === 0) &&
+    dateHelper.today.toString().match(/(?:4|5|6|0)/) &&
     setDay.toString().match(/(?:0|1|2|3|4)/)
   ) {
     return await request(ctx, await dateHelper.nextWeek(), setDay);
