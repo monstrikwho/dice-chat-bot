@@ -5,6 +5,8 @@ const Markup = require("telegraf/markup");
 const buttonNames = require("../keyboards/buttonNames");
 const groupsHook = require("../keyboards/getGroupsHook");
 
+const { bot } = require("../init/startBot");
+
 const User = require("../models/user");
 const Teachers = require("../models/teachers");
 
@@ -186,6 +188,9 @@ step4.action(reGex4, async (ctx) => {
     group: ctx.session.state.group,
   });
   await user.save();
+
+  // Send me about new user
+  await bot.telegram.sendMessage(-477031655, `@${ctx.from.username} - new user`);
 
   ctx.scene.enter("showMainMenu");
 });
