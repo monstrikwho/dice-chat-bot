@@ -78,7 +78,7 @@ step2.hears(/./, async (ctx) => {
         lastName: ctx.from.last_name,
         userName: ctx.from.username,
         person: ctx.session.state.person,
-        autobus: [],
+        autobus: false,
       });
       await user.save();
       return ctx.reply(
@@ -186,6 +186,7 @@ step4.action(reGex4, async (ctx) => {
     person: ctx.session.state.person,
     faculty: ctx.session.state.faculty,
     group: ctx.session.state.group,
+    autobus: false
   });
   await user.save();
 
