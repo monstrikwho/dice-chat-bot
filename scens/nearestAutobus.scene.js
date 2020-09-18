@@ -9,7 +9,7 @@ const User = require("../models/user");
 // *************************** STEP 1 *******************************************
 const nearestAutobus = new Scene("nearestAutobus");
 nearestAutobus.enter(async (ctx) => {
-  return ctx.reply(
+  return await ctx.reply(
     "Выберите направление",
     Extra.markup(
       Markup.keyboard([
@@ -22,18 +22,22 @@ nearestAutobus.enter(async (ctx) => {
 
 nearestAutobus.hears("В университет", async (ctx) => {
   const user = await User.findOne({ userId: ctx.from.id });
-  if(!user.autobus.length) return ctx.reply('Вы не выбрали ни одного автобуса')
+  if (user.autobus === {})
+    return await ctx.reply("Вы не выбрали ни одного автобуса");
   await nearest(ctx, user.autobus, "in");
-  ctx.scene.enter('showMainMenu')
+  await ctx.scene.enter("showMainMenu");
 });
 nearestAutobus.hears("С университета", async (ctx) => {
   const user = await User.findOne({ userId: ctx.from.id });
-  if(!user.autobus.length) return ctx.reply('Вы не выбрали ни одного автобуса')
+  if (user.autobus === {})
+    return await ctx.reply("Вы не выбрали ни одного автобуса");
   await nearest(ctx, user.autobus, "out");
-  ctx.scene.enter('showMainMenu')
+  await ctx.scene.enter("showMainMenu");
 });
-nearestAutobus.hears("↪️ Вернуться назад", (ctx) => {
-  ctx.scene.enter("autobusMenu");
+nearestAutobus.hears(/./, async (ctx) => {
+  if (ctx.update.message.text === "↪️ Вернуться назад") {
+    return await ctx.scene.enter("autobusMenu");
+  }
+  await ctx.reply("Пожалуйста, выберите действие.");
 });
-
 module.exports = { nearestAutobus };

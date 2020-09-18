@@ -2,8 +2,6 @@ const { places, inUniversity, outUniversity } = require("../keyboards/autobus");
 
 module.exports.nearest = async (ctx, autobusObj, flag) => {
   const date = new Date();
-  // const hoursToday = 9
-  // const minutesToday = 58
   const hoursToday = date.getHours();
   const minutesToday =
     date.getMinutes() < 10 ? `0${date.getMinutes()}` : date.getMinutes();
