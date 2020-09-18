@@ -23,11 +23,6 @@ yourAutobus.enter(async (ctx) => {
 });
 
 yourAutobus.hears("Добавить", async (ctx) => {
-  const status = await User.findOne({ userId: ctx.from.id });
-  const autobus = Object.keys(status.autobus);
-  if (autobus.length === 4) {
-    return ctx.reply("Вы выбрали все автобусы.");
-  }
   await ctx.scene.enter("takeAutobus");
 });
 yourAutobus.hears("Изменить", async (ctx) => {

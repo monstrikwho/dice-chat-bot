@@ -18,6 +18,12 @@ takeAutobus.enter(async (ctx) => {
   const autobusObj = await User.findOne({ userId: ctx.from.id });
   const autobusArr = Object.keys(autobusObj.autobus);
 
+  if (autobusArr.length === 4) {
+    await ctx.reply("Вы выбрали все автобусы.");
+    await ctx.scene.enter('yourAutobus')
+    return
+  }
+
   const autobus = () => {
     let arr = ["6", "14", "29", "31"];
     for (let item of autobusArr) {
