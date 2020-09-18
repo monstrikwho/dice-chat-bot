@@ -10,7 +10,7 @@ const User = require("../models/user");
 const otherAutobus = new Scene("otherAutobus");
 otherAutobus.enter(async (ctx) => {
   return await ctx.reply(
-    "Данного раздел не работает. Мне нужен ваш отклик: надо ли КОНКРЕТНО ВАМ расписание других автобусов? ",
+    "Данный раздел не работает. Мне нужен ваш отклик: надо ли КОНКРЕТНО ВАМ расписание других автобусов? ",
     // "Введите номер автобуса, чтобы посмотреть рассписание",
     Extra.markup(
       Markup.keyboard([
