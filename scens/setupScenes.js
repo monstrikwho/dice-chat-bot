@@ -9,7 +9,7 @@ const { autobusMenu } = require("./autobusMenu.scene");
 const { nearestAutobus } = require("./nearestAutobus.scene");
 const { otherAutobus } = require("./otherAutobus.scene");
 const { yourAutobus } = require("./yourAutobus.scene");
-const { takeAutobus, takePlaces, deleteAutobus } = require("./autobus.scene");
+const { takeAutobus, takePlaces, changeAutobus, deleteAutobus } = require("./autobus.scene");
 
 function setupScenes(bot) {
   const stage = new Stage([
@@ -26,6 +26,7 @@ function setupScenes(bot) {
     nearestAutobus,
     otherAutobus,
     yourAutobus,
+    changeAutobus,
     deleteAutobus
   ]);
   bot.use(session());

@@ -7,27 +7,40 @@ const User = require("../models/user");
 // *************************** STEP 1 *******************************************
 const yourAutobus = new Scene("yourAutobus");
 yourAutobus.enter(async (ctx) => {
-  const [status] = await User.find({ userId: ctx.from.id });
-  const autobus = Object.keys(status.autobus)
-  return ctx.reply(
-    `Ваши автобусы: ${autobus.join(', ')}`,
+  const status = await User.findOne({ userId: ctx.from.id });
+  const autobus = Object.keys(status.autobus);
+  return await ctx.reply(
+    `Ваши автобусы:\n${autobus
+      .map((item) => `${item}  -  ${status.autobus[item]}`)
+      .join(", \n")}`,
     Extra.markup(
       Markup.keyboard([
-        ['Добавить', 'Изменить/Удалить'],
+        ["Добавить", "Изменить", "Удалить"],
         ["↪️ Вернуться назад"],
       ]).resize()
     )
   );
 });
 
-yourAutobus.hears('Добавить', (ctx) => {
-  ctx.scene.enter('takeAutobus');
+yourAutobus.hears("Добавить", async (ctx) => {
+  const status = await User.findOne({ userId: ctx.from.id });
+  const autobus = Object.keys(status.autobus);
+  if (autobus.length === 4) {
+    return ctx.reply("Вы выбрали все автобусы.");
+  }
+  await ctx.scene.enter("takeAutobus");
 });
-yourAutobus.hears('Изменить/Удалить', (ctx) => {
-  ctx.scene.enter('deleteAutobus');
+yourAutobus.hears("Изменить", async (ctx) => {
+  await ctx.scene.enter("changeAutobus");
 });
-yourAutobus.hears("↪️ Вернуться назад", (ctx) => {
-  ctx.scene.enter("autobusMenu");
+yourAutobus.hears("Удалить", async (ctx) => {
+  await ctx.scene.enter("deleteAutobus");
+});
+yourAutobus.hears(/./, async (ctx) => {
+  if (ctx.update.message.text === "↪️ Вернуться назад") {
+    return await ctx.scene.enter("autobusMenu");
+  }
+  await ctx.reply("Пожалуйста, выберите действие.");
 });
 
 module.exports = { yourAutobus };

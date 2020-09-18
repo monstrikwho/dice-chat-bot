@@ -9,7 +9,7 @@ const autobusMenu = new Scene("autobusMenu");
 autobusMenu.enter(async (ctx) => {
   const [status] = await User.find({ userId: ctx.from.id });
   if (status.autobus) {
-    return ctx.reply(
+    return await ctx.reply(
       "Вы вошли в меню автобусов",
       Extra.markup(
         Markup.keyboard([
@@ -19,22 +19,23 @@ autobusMenu.enter(async (ctx) => {
       )
     );
   }
-
-  return ctx.scene.enter("takeAutobus");
+  return await ctx.scene.enter("takeAutobus");
 });
 
-autobusMenu.hears("Ближайшие", (ctx) => {
-  ctx.scene.enter("nearestAutobus");
+autobusMenu.hears("Ближайшие", async (ctx) => {
+  await ctx.scene.enter("nearestAutobus");
 });
-autobusMenu.hears("Др. автобусы", (ctx) => {
-  // ctx.reply('Данного раздела нету. Мне нужно ваш отклик: нужно ли вам расписание других автобусов?')
-  ctx.scene.enter("otherAutobus");
+autobusMenu.hears("Др. автобусы", async (ctx) => {
+  await ctx.scene.enter("otherAutobus");
 });
-autobusMenu.hears("Мои автобусы", (ctx) => {
-  ctx.scene.enter("yourAutobus");
+autobusMenu.hears("Мои автобусы", async (ctx) => {
+  await ctx.scene.enter("yourAutobus");
 });
-autobusMenu.hears("↪️ Вернуться назад", (ctx) => {
-  ctx.scene.enter("showMainMenu");
+autobusMenu.hears(/./, async (ctx) => {
+  if (ctx.update.message.text === "↪️ Вернуться назад") {
+    return await ctx.scene.enter("showMainMenu");
+  }
+  await ctx.reply("Пожалуйста, выберите действие.");
 });
 
 module.exports = { autobusMenu };
