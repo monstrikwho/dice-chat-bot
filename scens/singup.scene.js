@@ -2,13 +2,14 @@ const Scene = require("telegraf/scenes/base");
 const Extra = require("telegraf/extra");
 const Markup = require("telegraf/markup");
 
+const moment = require("moment");
+
 const buttonNames = require("../keyboards/buttonNames");
 const groupsHook = require("../keyboards/getGroupsHook");
 
-const { bot } = require("../init/startBot");
-
 const User = require("../models/user");
 const Teachers = require("../models/teachers");
+const UserSingUp = require("../models/userSingUp");
 
 // *************************** STEP 1 *******************************************
 const step1 = new Scene("step1");
@@ -191,10 +192,16 @@ step4.action(reGex4, async (ctx) => {
   await user.save();
 
   // Send me about new user
-  await bot.telegram.sendMessage(
-    -477031655,
-    `@${ctx.from.username} - new user`
-  );
+  const userSingUp = new UserSingUp({
+    userId: ctx.from.id,
+    userName: ctx.from.username,
+    date: `${moment().year()}:${
+      moment().month() + 1 < 10
+        ? `0${moment().month() + 1}`
+        : moment().month() + 1
+    }:${moment().date() < 10 ? "0" + moment().date() : moment().date()}`,
+  });
+  await userSingUp.save();
 
   await ctx.scene.enter("showMainMenu");
 });
