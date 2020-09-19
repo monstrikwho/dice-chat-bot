@@ -12,9 +12,9 @@ const Teachers = require("../models/teachers");
 
 // *************************** STEP 1 *******************************************
 const step1 = new Scene("step1");
-step1.enter((ctx) => {
+step1.enter(async (ctx) => {
   ctx.session.state = { personId: ctx.update.message.from.id };
-  ctx.reply(
+  await ctx.reply(
     "Здравствуй, этот бот уведомит тебя о рассписании. Давай определимся кто ты.",
     Extra.HTML().markup((m) =>
       m.inlineKeyboard(
@@ -25,18 +25,18 @@ step1.enter((ctx) => {
     )
   );
 });
-step1.hears(/./, (ctx) => ctx.reply("Такой команды не существует"));
-step1.leave((ctx) => ctx.deleteMessage());
-step1.action(/(?:Студент|Преподаватель)/, (ctx) => {
+step1.hears(/./, async (ctx) => await ctx.reply("Такой команды не существует"));
+step1.leave(async (ctx) => await ctx.deleteMessage());
+step1.action(/(?:Студент|Преподаватель)/, async (ctx) => {
   ctx.session.state = { person: ctx.match[0] };
-  ctx.scene.enter("step2");
+  await ctx.scene.enter("step2");
 });
 
 // *************************** STEP 2 ******************************************
 const step2 = new Scene("step2");
-step2.enter((ctx) => {
+step2.enter(async (ctx) => {
   if (ctx.session.state.person === "Студент") {
-    ctx.reply(
+    await ctx.reply(
       "Окей, давай теперь найдем твою группу. Выбери пожалуйста свой факультет: ",
       Extra.HTML().markup((m) =>
         m.inlineKeyboard(
@@ -48,12 +48,12 @@ step2.enter((ctx) => {
     );
   }
   if (ctx.session.state.person === "Преподаватель") {
-    ctx.reply("Пожалуйста, введите свою фамилию.");
+    await ctx.reply("Пожалуйста, введите свою фамилию.");
   }
 });
 step2.hears(/./, async (ctx) => {
   if (ctx.session.state.person === "Студент") {
-    return ctx.reply("Стой, нажми на кнопку выше");
+    return await ctx.reply("Стой, нажми на кнопку выше");
   }
 
   if (ctx.session.state.person === "Преподаватель") {
@@ -64,7 +64,7 @@ step2.hears(/./, async (ctx) => {
         { userId: ctx.from.id },
         { teacherName: ctx.update.message.text }
       );
-      return ctx.scene.enter("showMainMenu");
+      return await ctx.scene.enter("showMainMenu");
     }
     // Сохраняем преподавателя, как юзера
     const message = ctx.update.message.text.replace(/\s/g, "");
@@ -81,29 +81,29 @@ step2.hears(/./, async (ctx) => {
         autobus: false,
       });
       await user.save();
-      return ctx.reply(
+      return await ctx.reply(
         "Подтвердите, это вы?",
         Extra.markup(
           Markup.keyboard([statusId.map((item) => item.teacher)]).resize()
         )
       );
     } else {
-      ctx.reply("Такой фамилии нету. Попробуйте еще раз.");
+      await ctx.reply("Такой фамилии нету. Попробуйте еще раз.");
     }
   } else {
-    ctx.reply("Такой команды нету.");
+    await ctx.reply("Такой команды нету.");
   }
 });
-step2.leave((ctx) => ctx.deleteMessage());
-step2.action(/(?:ИФ|ФПиП|ИПКиП|ФЭП|ФСиГЯ)/, (ctx) => {
+step2.leave(async (ctx) => await ctx.deleteMessage());
+step2.action(/(?:ИФ|ФПиП|ИПКиП|ФЭП|ФСиГЯ)/, async (ctx) => {
   ctx.session.state = { ...ctx.session.state, faculty: ctx.match[0] };
-  ctx.scene.enter("step3");
+  await ctx.scene.enter("step3");
 });
 
 // ************************** STEP 3 ******************************************
 const step3 = new Scene("step3");
 let reGex3 = /./;
-step3.enter((ctx) => {
+step3.enter(async (ctx) => {
   const faculty = () => {
     if (ctx.session.state.faculty === "ИФ") {
       reGex3 = /(?:АТП|А|ИТвМ|ИСТ|МиМ|ПИТТ|ТОСП|ТО|ТМ)/;
@@ -126,7 +126,7 @@ step3.enter((ctx) => {
       return "fsigi";
     }
   };
-  ctx.reply(
+  await ctx.reply(
     "Выберите свою специальность: ",
     Extra.HTML().markup((m) =>
       m.inlineKeyboard(
@@ -137,24 +137,24 @@ step3.enter((ctx) => {
     )
   );
 });
-step3.hears(/./, (ctx) => ctx.reply("Стой, нажми на кнопку выше"));
-step3.leave((ctx) => ctx.deleteMessage());
-step3.action(reGex3, (ctx) => {
+step3.hears(/./, async (ctx) => await ctx.reply("Стой, нажми на кнопку выше"));
+step3.leave(async (ctx) => await ctx.deleteMessage());
+step3.action(reGex3, async (ctx) => {
   ctx.session.state = {
     ...ctx.session.state,
     specialty: ctx.update.callback_query.data,
   };
-  ctx.scene.enter("step4");
+  await ctx.scene.enter("step4");
 });
 
 // ************************** STEP 4 ******************************************
 const step4 = new Scene("step4");
 let reGex4 = /./;
-step4.enter((ctx) => {
+step4.enter(async (ctx) => {
   let resGroupHook = [...groupsHook(ctx.session.state)];
   reGex4 = resGroupHook[0];
 
-  ctx.reply(
+  await ctx.reply(
     "Последний шаг.",
     Extra.HTML().markup((m) =>
       m.inlineKeyboard(
@@ -165,10 +165,10 @@ step4.enter((ctx) => {
     )
   );
 });
-step4.hears(/./, (ctx) => ctx.reply("Стой, нажми на кнопку выше"));
+step4.hears(/./, async (ctx) => await ctx.reply("Стой, нажми на кнопку выше"));
 step4.leave(async (ctx) => {
-  ctx.deleteMessage();
-  ctx.replyWithHTML(
+  await ctx.deleteMessage();
+  await ctx.replyWithHTML(
     `Вы успешно выбрали группу: <pre language="c++">👉🏻 ${ctx.session.state.group}</pre>`
   );
 });
@@ -186,14 +186,17 @@ step4.action(reGex4, async (ctx) => {
     person: ctx.session.state.person,
     faculty: ctx.session.state.faculty,
     group: ctx.session.state.group,
-    autobus: false
+    autobus: false,
   });
   await user.save();
 
   // Send me about new user
-  await bot.telegram.sendMessage(-477031655, `@${ctx.from.username} - new user`);
+  await bot.telegram.sendMessage(
+    -477031655,
+    `@${ctx.from.username} - new user`
+  );
 
-  ctx.scene.enter("showMainMenu");
+  await ctx.scene.enter("showMainMenu");
 });
 
 //
