@@ -41,11 +41,17 @@ ${nearestTime
       "minutes"
     );
 
+    const declination = (item) => {
+      if(item.toString().match(/(?:5|6|7|8|9|10|11|12|13|14|15|16|17|18|19|20|25|26|27|28|29|30|35|36|37|38|39|40|45|46|47|48|49|50|55|56|57|58|59)/)) return 'минут'
+      if(item.toString().match(/(?:1|21|31|41|51)/)) return 'минуту'
+      if(item.toString().match(/(?:2|3|4|22|23|24|32|33|34|42|43|44|52|53|54)/)) return 'минуты'
+    }
+
     if (diffHours !== 0) {
       const restMinutes = diffMinutes - diffHours * 60;
-      return `через ${diffHours}:${restMinutes} часа  -  ${item}`;
+      return `через ${diffHours}:${(restMinutes < 10) ? '0'+restMinutes : restMinutes } часа  -  ${item}`;
     } else {
-      return `через ${diffMinutes} минут  -  ${item}`;
+      return `через ${diffMinutes} ${declination(diffMinutes)}  -  ${item}`;
     }
   })
   .join(", \n")}
