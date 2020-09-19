@@ -20,12 +20,12 @@ takeAutobus.enter(async (ctx) => {
 
   if (autobusArr.length === 4) {
     await ctx.reply("Вы выбрали все автобусы.");
-    await ctx.scene.enter('yourAutobus')
-    return
+    await ctx.scene.enter("yourAutobus");
+    return;
   }
 
   const autobus = () => {
-    let arr = ["6", "14", "29", "31"];
+    let arr = ["6", "14", "29", "31", "32"];
     for (let item of autobusArr) {
       if (arr.indexOf(item)) {
         arr.splice(arr.indexOf(item), 1);
@@ -45,7 +45,7 @@ takeAutobus.enter(async (ctx) => {
   );
 });
 let regex = /./;
-takeAutobus.action(/(?:6|14|29|31)/, async (ctx) => {
+takeAutobus.action(/(?:6|14|29|31|32)/, async (ctx) => {
   ctx.session.state = { autobus: ctx.match[0] };
   regex = autobusPlacesHook(ctx.match[0]);
   await ctx.scene.enter("takePlaces");
@@ -126,7 +126,7 @@ changeAutobus.enter(async (ctx) => {
   );
 });
 
-changeAutobus.action(/(?:6|14|29|31)/, async (ctx) => {
+changeAutobus.action(/(?:6|14|29|31|32)/, async (ctx) => {
   ctx.session.state = { autobus: ctx.match[0] };
   regex = autobusPlacesHook(ctx.match[0]);
   await ctx.scene.enter("takePlaces");
@@ -143,7 +143,7 @@ changeAutobus.leave(async (ctx) => await ctx.deleteMessage());
 
 //
 
-// 
+//
 
 //
 
@@ -175,7 +175,7 @@ deleteAutobus.enter(async (ctx) => {
   );
 });
 
-deleteAutobus.action(/(?:6|14|29|31)/, async (ctx) => {
+deleteAutobus.action(/(?:6|14|29|31|32)/, async (ctx) => {
   const user = await User.findOne({ userId: ctx.from.id });
   const userAutobus = Object.keys(user.autobus);
 
