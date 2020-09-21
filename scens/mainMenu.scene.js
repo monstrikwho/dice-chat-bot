@@ -3,7 +3,6 @@ const Extra = require("telegraf/extra");
 const Markup = require("telegraf/markup");
 
 const getRasp = require("../helpers/getRasp");
-const dateHelper = require("../helpers/getNowDay");
 
 // *************************** STEP 1 *******************************************
 const showMainMenu = new Scene("showMainMenu");
@@ -14,9 +13,7 @@ showMainMenu.enter(async (ctx) => {
       Markup.keyboard([
         // Поставить условие для четверга по времени после обеда
         // Проверять запросом
-        dateHelper.today.toString().match(/(?:4|5|6|0)/)
-          ? ["Сегодня", "Завтра", "🟢 Неделя"]
-          : ["Сегодня", "Завтра", "Неделя"],
+        ["Сегодня", "Завтра", "Неделя"],
         ["⚙️ Другое", "🚌 Автобусы"],
       ]).resize()
     )
@@ -29,7 +26,7 @@ showMainMenu.hears("Сегодня", async (ctx) => {
 showMainMenu.hears("Завтра", async (ctx) => {
   await getRasp(ctx, 9);
 });
-showMainMenu.hears(/(?:Неделя|🟢 Неделя)/, async (ctx) => {
+showMainMenu.hears('Неделя', async (ctx) => {
   await ctx.scene.enter("weekMenu");
 });
 showMainMenu.hears("⚙️ Другое", async (ctx) => {

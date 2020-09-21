@@ -8,7 +8,7 @@ async function setupMailing(bot) {
   
   bot.command('replyAllMsg', async ctx => {
     for(let {userId} of users) {
-      bot.telegram.sendMessage(364984576, 'Были обновлены кнопки "Сеогдня" и "Завтра".')
+      bot.telegram.sendMessage(userId, 'Были исправлены кнопки "Сеогдня" и "Завтра".')
       ctx.scene.enter('showMainMenu')
     }
   })

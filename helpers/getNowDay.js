@@ -82,7 +82,6 @@ async function countWeek() {
 // EXPORTS
 module.exports.nowDate = nowDate
 module.exports.nextMonth = nextMonth
-module.exports.today = new Date().getDay();
 module.exports.nextWeek = nextWeek
 module.exports.countWeek = countWeek
 
