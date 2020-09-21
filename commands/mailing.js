@@ -6,13 +6,19 @@ const User = require("../models/user");
 async function setupMailing(bot) {
   const users = await User.find();
 
-  bot.command("replyAllMsg", async (ctx) => {
-    for (let { userId } of users) {
-      bot.telegram.sendMessage(
-        userId,
-        'Для тех, кто не написал /start (сервер был перезапущен)',
-        Extra.markup(Markup.keyboard([["🔄 Update"]]).resize())
-      );
+  bot.command("replyUpdate", async (ctx) => {
+    if (ctx.chat.id === 364984576) {
+      for (let { userId } of users) {
+        bot.telegram.sendMessage(
+          userId,
+          "Для тех, кто не написал /start (сервер был перезапущен)",
+          Extra.markup(Markup.keyboard([["🔄 Update"]]).resize())
+        );
+      }
+
+      bot.hears("🔄 Update", (ctx) => {
+        ctx.scene.enter("showMainMenu");
+      });
     }
   });
   // 364984576

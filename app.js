@@ -12,9 +12,5 @@ setupMongoose()
 setupStart(bot);
 setupMailing(bot)
 
-bot.hears('🔄 Update', ctx => {
-  ctx.scene.enter('showMainMenu')
-})
-
 // Let's start!
 startBot();
