@@ -1,5 +1,6 @@
 const setupScenes = require("../scens/setupScenes");
-const Extra = require("telegraf/extra");
+const sendStatistics = require('../helpers/sendStatistics')
+
 const Markup = require("telegraf/markup");
 
 const User = require("../models/user");
@@ -7,6 +8,7 @@ const User = require("../models/user");
 function setupStart(bot) {
   // Setup scens
   setupScenes(bot);
+  sendStatistics(bot)
 
   // Start command
   bot.start(async (ctx) => {
