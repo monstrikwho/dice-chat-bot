@@ -89,5 +89,8 @@ module.exports = async (ctx, reqWeek, setDay) => {
           await ctx.replyWithHTML(answer);
         }
       }
-    });
+    })
+    .catch(err => {
+      ctx.reply('Мне жаль, но сайт с расписанием накрылся 😞')
+    })
 };
