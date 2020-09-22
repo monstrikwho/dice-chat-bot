@@ -10,6 +10,14 @@ module.exports = async (ctx, reqWeek, setDay) => {
   const selectUser = await User.findOne({ userId: ctx.from.id });
   const user = {
     data() {
+      if (selectUser.otherTeacher) {
+        return {
+          kf: 0,
+          tch: selectUser.otherTeacher,
+          nd: reqWeek,
+          go: "Показать",
+        };
+      }
       if (selectUser.person === "Студент") {
         return {
           ft: 0,
@@ -29,10 +37,15 @@ module.exports = async (ctx, reqWeek, setDay) => {
       }
     },
     url() {
-      if (selectUser.person === "Студент")
-        return `http://rasp.barsu.by/stud.php`;
-      if (selectUser.person === "Преподаватель")
+      if (selectUser.otherTeacher) {
         return `http://rasp.barsu.by/teach.php`;
+      }
+      if (selectUser.person === "Студент") {
+        return `http://rasp.barsu.by/stud.php`;
+      }
+      if (selectUser.person === "Преподаватель") {
+        return `http://rasp.barsu.by/teach.php`;
+      }
     },
   };
 

@@ -28,6 +28,9 @@ const schema = new Schema({
   },
   autobus: {
     type: Object
+  },
+  otherTeacher: {
+    type: String
   }
 });
 

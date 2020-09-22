@@ -2,11 +2,13 @@ const Scene = require("telegraf/scenes/base");
 const Extra = require("telegraf/extra");
 const Markup = require("telegraf/markup");
 
+const User = require("../models/user");
+
 const getRasp = require("../helpers/getRasp");
 
 // *************************** STEP 1 *******************************************
 const weekMenu = new Scene("weekMenu");
-weekMenu.enter(async(ctx) => {
+weekMenu.enter(async (ctx) => {
   return await ctx.reply(
     "Выберите день недели",
     Extra.markup(
@@ -19,22 +21,27 @@ weekMenu.enter(async(ctx) => {
 });
 
 weekMenu.hears("↪️ Вернуться назад", async (ctx) => {
+  const user = await User.findOne({ userId: ctx.from.id });
+  // Проверяем, искали ли мы преподавателя
+  if(user.otherTeacher) {
+    return await ctx.scene.enter('setupDay')
+  }
   await ctx.scene.enter("showMainMenu");
 });
 weekMenu.hears("Пн", async (ctx) => {
-  await getRasp(ctx, 0)
+  await getRasp(ctx, 0);
 });
 weekMenu.hears("Вт", async (ctx) => {
-  await getRasp(ctx, 1)
+  await getRasp(ctx, 1);
 });
 weekMenu.hears("Ср", async (ctx) => {
-  await getRasp(ctx, 2)
+  await getRasp(ctx, 2);
 });
 weekMenu.hears("Чт", async (ctx) => {
-  await getRasp(ctx, 3)
+  await getRasp(ctx, 3);
 });
 weekMenu.hears("Пт", async (ctx) => {
-  await getRasp(ctx, 4)
+  await getRasp(ctx, 4);
 });
 // weekMenu.hears("Всю", (ctx) => {
 //   getRasp(ctx, 5)
