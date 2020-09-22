@@ -59,9 +59,9 @@ step2.hears(/./, async (ctx) => {
 
   if (ctx.session.state.person === "Преподаватель") {
     // После того, как сохранили инфу ниже, сохраняем ФИО преподавателя
-    const statusUser = await User.findOne({ userId: ctx.from.id });
-    if (statusUser) {
-      await User.updateOne(
+    const statusUser = await Teachers.findOne({ teacher: ctx.update.message.text });
+    if (statusUser) { // ctx.update.message.text === результату найденных кнопок
+      await User.updateOne( 
         { userId: ctx.from.id },
         { teacherName: ctx.update.message.text }
       );
