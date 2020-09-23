@@ -22,8 +22,8 @@ weekMenu.enter(async (ctx) => {
 
 weekMenu.hears("↪️ Вернуться назад", async (ctx) => {
   const user = await User.findOne({ userId: ctx.from.id });
-  // Проверяем, искали ли мы преподавателя
-  if(user.otherTeacher) {
+  // Проверяем, искали ли мы преподавателя или другую группу
+  if(user.otherTeacher || user.otherStudents) {
     return await ctx.scene.enter('setupDay')
   }
   await ctx.scene.enter("showMainMenu");

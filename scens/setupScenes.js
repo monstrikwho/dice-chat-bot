@@ -15,7 +15,13 @@ const {
   changeAutobus,
   deleteAutobus,
 } = require("./autobus.scene");
-const { raspTeachers, setupDay } = require("./raspTeachers.scene");
+const {
+  raspTeachers,
+  raspStudents,
+  takeSpec,
+  takeGroup,
+  setupDay,
+} = require("./otherRasp.scene");
 
 function setupScenes(bot) {
   const stage = new Stage([
@@ -35,6 +41,9 @@ function setupScenes(bot) {
     changeAutobus,
     deleteAutobus,
     raspTeachers,
+    raspStudents,
+    takeSpec,
+    takeGroup,
     setupDay,
   ]);
   bot.use(session());

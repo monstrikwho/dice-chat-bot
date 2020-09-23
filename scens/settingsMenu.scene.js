@@ -21,6 +21,9 @@ showSettingsMenu.enter((ctx) => {
 showSettingsMenu.hears("Расписание преподавателя", (ctx) => {
   ctx.scene.enter("raspTeachers");
 });
+showSettingsMenu.hears("Расписание др. группы", (ctx) => {
+  ctx.scene.enter("raspStudents");
+});
 showSettingsMenu.hears("↪️ Вернуться назад", (ctx) => {
   ctx.scene.enter("showMainMenu");
 });

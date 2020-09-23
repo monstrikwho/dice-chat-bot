@@ -18,6 +18,15 @@ module.exports = async (ctx, reqWeek, setDay) => {
           go: "Показать",
         };
       }
+      if (selectUser.otherStudents) {
+        return {
+          ft: 0,
+          sp: 0,
+          gp: selectUser.otherStudents,
+          nd: reqWeek,
+          go: "Показать",
+        };
+      }
       if (selectUser.person === "Студент") {
         return {
           ft: 0,
@@ -39,6 +48,9 @@ module.exports = async (ctx, reqWeek, setDay) => {
     url() {
       if (selectUser.otherTeacher) {
         return `http://rasp.barsu.by/teach.php`;
+      }
+      if (selectUser.otherStudents) {
+        return `http://rasp.barsu.by/stud.php`;
       }
       if (selectUser.person === "Студент") {
         return `http://rasp.barsu.by/stud.php`;
@@ -90,7 +102,7 @@ module.exports = async (ctx, reqWeek, setDay) => {
         }
       }
     })
-    .catch(err => {
-      ctx.reply('Мне жаль, но сайт с расписанием накрылся 😞')
-    })
+    .catch((err) => {
+      ctx.reply("Мне жаль, но сайт с расписанием накрылся 😞");
+    });
 };

@@ -31,6 +31,9 @@ const schema = new Schema({
   },
   otherTeacher: {
     type: String
+  },
+  otherStudents: {
+    type: String
   }
 });
 
