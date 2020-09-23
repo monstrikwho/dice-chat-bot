@@ -11,9 +11,9 @@ const User = require("../models/user");
 const Teachers = require("../models/teachers");
 const UserSingUp = require("../models/userSingUp");
 
-// 
+//
 
-// 
+//
 
 // *************************** STEP 1 *******************************************
 const step1 = new Scene("step1");
@@ -37,16 +37,20 @@ step1.action(/(?:Студент|Преподаватель)/, async (ctx) => {
   await ctx.scene.enter("step2");
 });
 
-// 
+//
 
-// 
+//
 
 // *************************** STEP 2 ******************************************
 const step2 = new Scene("step2");
 step2.enter(async (ctx) => {
   if (ctx.session.state.person === "Студент") {
     await ctx.reply(
-      "Окей, давай теперь найдем твою группу. Выбери пожалуйста свой факультет: ",
+      "Cупер! Давай теперь найдем твою группу.",
+      Extra.markup(Markup.removeKeyboard())
+    );
+    await ctx.reply(
+      "Выбери пожалуйста свой факультет: ",
       Extra.HTML().markup((m) =>
         m.inlineKeyboard(
           buttonNames.faculty.map((items) =>
@@ -67,9 +71,12 @@ step2.hears(/./, async (ctx) => {
 
   if (ctx.session.state.person === "Преподаватель") {
     // После того, как сохранили инфу ниже, сохраняем ФИО преподавателя
-    const statusUser = await Teachers.findOne({ teacher: ctx.update.message.text });
-    if (statusUser) { // ctx.update.message.text === результату найденных кнопок
-      await User.updateOne( 
+    const statusUser = await Teachers.findOne({
+      teacher: ctx.update.message.text,
+    });
+    if (statusUser) {
+      // ctx.update.message.text === результату найденных кнопок
+      await User.updateOne(
         { userId: ctx.from.id },
         { teacherName: ctx.update.message.text }
       );
@@ -109,9 +116,9 @@ step2.action(/(?:ИФ|ФПиП|ИПКиП|ФЭП|ФСиГЯ)/, async (ctx) => {
   await ctx.scene.enter("step3");
 });
 
-// 
+//
 
-// 
+//
 
 // ************************** STEP 3 ******************************************
 const step3 = new Scene("step3");
@@ -160,9 +167,9 @@ step3.action(reGex3, async (ctx) => {
   await ctx.scene.enter("step4");
 });
 
-// 
+//
 
-// 
+//
 
 // ************************** STEP 4 ******************************************
 const step4 = new Scene("step4");
@@ -195,36 +202,47 @@ step4.action(reGex4, async (ctx) => {
     group: ctx.update.callback_query.data,
   };
 
-  const user = new User({
-    userId: ctx.from.id,
-    firstName: ctx.from.first_name,
-    lastName: ctx.from.last_name,
-    userName: ctx.from.username,
-    person: ctx.session.state.person,
-    faculty: ctx.session.state.faculty,
-    group: ctx.session.state.group,
-    autobus: false,
-  });
-  await user.save();
+  const status = await User.findOne({ userId: ctx.from.id });
+  if (status) {
+    await User.updateOne(
+      { userId: ctx.from.id },
+      {
+        faculty: ctx.session.state.faculty,
+        group: ctx.session.state.group,
+      }
+    );
+  } else {
+    const user = new User({
+      userId: ctx.from.id,
+      firstName: ctx.from.first_name,
+      lastName: ctx.from.last_name,
+      userName: ctx.from.username,
+      person: ctx.session.state.person,
+      faculty: ctx.session.state.faculty,
+      group: ctx.session.state.group,
+      autobus: false,
+    });
+    await user.save();
 
-  // Send me about new user
-  const userSingUp = new UserSingUp({
-    userId: ctx.from.id,
-    userName: ctx.from.username,
-    date: `${moment().year()}:${
-      moment().month() + 1 < 10
-        ? `0${moment().month() + 1}`
-        : moment().month() + 1
-    }:${moment().date() < 10 ? "0" + moment().date() : moment().date()}`,
-  });
-  await userSingUp.save();
+    // Send me about new user
+    const userSingUp = new UserSingUp({
+      userId: ctx.from.id,
+      userName: ctx.from.username,
+      date: `${moment().year()}:${
+        moment().month() + 1 < 10
+          ? `0${moment().month() + 1}`
+          : moment().month() + 1
+      }:${moment().date() < 10 ? "0" + moment().date() : moment().date()}`,
+    });
+    await userSingUp.save();
+  }
 
   await ctx.scene.enter("showMainMenu");
 });
 
-// 
+//
 
-// 
+//
 
 //
 module.exports = { step1, step2, step3, step4 };
