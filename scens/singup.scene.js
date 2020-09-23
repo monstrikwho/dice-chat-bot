@@ -11,6 +11,10 @@ const User = require("../models/user");
 const Teachers = require("../models/teachers");
 const UserSingUp = require("../models/userSingUp");
 
+// 
+
+// 
+
 // *************************** STEP 1 *******************************************
 const step1 = new Scene("step1");
 step1.enter(async (ctx) => {
@@ -32,6 +36,10 @@ step1.action(/(?:Студент|Преподаватель)/, async (ctx) => {
   ctx.session.state = { person: ctx.match[0] };
   await ctx.scene.enter("step2");
 });
+
+// 
+
+// 
 
 // *************************** STEP 2 ******************************************
 const step2 = new Scene("step2");
@@ -101,6 +109,10 @@ step2.action(/(?:ИФ|ФПиП|ИПКиП|ФЭП|ФСиГЯ)/, async (ctx) => {
   await ctx.scene.enter("step3");
 });
 
+// 
+
+// 
+
 // ************************** STEP 3 ******************************************
 const step3 = new Scene("step3");
 let reGex3 = /./;
@@ -147,6 +159,10 @@ step3.action(reGex3, async (ctx) => {
   };
   await ctx.scene.enter("step4");
 });
+
+// 
+
+// 
 
 // ************************** STEP 4 ******************************************
 const step4 = new Scene("step4");
@@ -205,6 +221,10 @@ step4.action(reGex4, async (ctx) => {
 
   await ctx.scene.enter("showMainMenu");
 });
+
+// 
+
+// 
 
 //
 module.exports = { step1, step2, step3, step4 };

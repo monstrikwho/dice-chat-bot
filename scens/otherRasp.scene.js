@@ -103,7 +103,7 @@ raspStudents.action(/(?:ИФ|ФПиП|ИПКиП|ФЭП|ФСиГЯ)/, async (ctx
   await ctx.scene.enter("takeSpec");
 });
 
-//
+// ************************* TAKE SPEC **************************************
 
 const takeSpec = new Scene("takeSpec");
 takeSpec.enter(async (ctx) => {
@@ -156,9 +156,7 @@ takeSpec.action(regex, async (ctx) => {
   await ctx.scene.enter("takeGroup");
 });
 
-//
-
-//
+// ************************** TAKE GROUP ****************************************
 
 const takeGroup = new Scene("takeGroup");
 takeGroup.enter(async (ctx) => {
