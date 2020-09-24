@@ -6,12 +6,13 @@ const User = require("../models/user");
 async function setupMailing(bot) {
   const users = await User.find();
 
-  bot.command("replyUpdate", async (ctx) => {
-    if (ctx.chat.id === 364984576) {
-      for (let { userId } of users) {
-        bot.telegram.sendMessage(
-          userId,
-          `Теперь можно:
+  try {
+    bot.command("replyUpdate", async (ctx) => {
+      if (ctx.chat.id === 364984576) {
+        for (let { userId } of users) {
+          bot.telegram.sendMessage(
+            userId,
+            `Теперь можно:
 - Посмотреть расписание преподавателя;
 - Посмотерть расписание другой группы;
 - Сменить группу, если ошибся в начале.
@@ -19,15 +20,19 @@ async function setupMailing(bot) {
 Всем хорошего дня 🌵
 
 P.S. Сервер больше не упадет, если сайт с расписанием будет недоступен`,
-          Extra.markup(Markup.keyboard([["🔄 Update"]]).resize())
-        );
-      }
+            Extra.markup(Markup.keyboard([["🔄 Update"]]).resize())
+          );
+        }
 
-      bot.hears("🔄 Update", (ctx) => {
-        ctx.scene.enter("showMainMenu");
-      });
-    }
-  });
+        bot.hears("🔄 Update", (ctx) => {
+          ctx.scene.enter("showMainMenu");
+        });
+      }
+    });
+  } catch (e) {
+    console.log('Сообщение не было доставлено. Пользователь заблокировал бота.')
+  }
+
   // 364984576
 }
 
