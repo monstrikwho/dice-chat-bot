@@ -76,38 +76,33 @@ step2.hears(/./, async (ctx) => {
     });
     if (statusUser) {
       // ctx.update.message.text === результату найденных кнопок
-      await User.updateOne(
-        { userId: ctx.from.id },
-        { teacherName: ctx.update.message.text }
-      );
-      return await ctx.scene.enter("showMainMenu");
-    }
-    // Сохраняем преподавателя, как юзера
-    const message = ctx.update.message.text.replace(/\s/g, "");
-    const statusId = await Teachers.find({
-      lastName: message[0].toUpperCase() + message.slice(1),
-    });
-    if (statusId.length !== 0) {
       const user = new User({
         userId: ctx.from.id,
         firstName: ctx.from.first_name,
         lastName: ctx.from.last_name,
         userName: ctx.from.username,
         person: ctx.session.state.person,
+        teacherName: ctx.update.message.text,
         autobus: false,
       });
       await user.save();
+      return await ctx.scene.enter("showMainMenu");
+    }
+    // Выводим результат первого поиска по фамилии
+    const message = ctx.update.message.text.replace(/\s/g, "");
+    const statusTeacher = await Teachers.find({
+      lastName: message[0].toUpperCase() + message.slice(1),
+    });
+    if (statusTeacher.length !== 0) {
       return await ctx.reply(
         "Подтвердите, это вы?",
         Extra.markup(
-          Markup.keyboard([statusId.map((item) => item.teacher)]).resize()
+          Markup.keyboard([statusTeacher.map((item) => item.teacher)]).resize()
         )
       );
     } else {
       await ctx.reply("Такой фамилии нету. Попробуйте еще раз.");
     }
-  } else {
-    await ctx.reply("Такой команды нету.");
   }
 });
 step2.leave(async (ctx) => await ctx.deleteMessage());
