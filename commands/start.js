@@ -1,14 +1,11 @@
-const setupScenes = require("../scens/setupScenes");
-const sendStatistics = require("../helpers/sendStatistics");
-
 const Markup = require("telegraf/markup");
+const setupScenes = require("../scens/setupScenes");
 
 const User = require("../models/user");
 
 function setupStart(bot) {
   // Setup scens
   setupScenes(bot);
-  sendStatistics(bot);
 
   // Start command
   bot.start(async (ctx) => {
@@ -18,13 +15,12 @@ function setupStart(bot) {
       const selectUser = await User.findOne({ userId: ctx.from.id });
       if (selectUser) {
         await ctx.reply("Вы уже зарегистрированы.");
-        await ctx.scene.enter("showMainMenu");
-        return;
+        return await ctx.scene.enter("showMainMenu");
       }
 
       await ctx.scene.enter("step1");
     } catch (err) {
-      console.log('Не удалось пройти регистрацию (start.js)');
+      console.log("Не удалось пройти регистрацию (start.js)", err.message);
     }
   });
 }

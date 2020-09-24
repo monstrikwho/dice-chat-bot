@@ -5,6 +5,7 @@ const getRasp = async (ctx, setDay) => {
   const today = new Date().getDay();
   // SETDAY === 0=Пн, 1=Вт, 2=Ср, 3=Чт, 4=Пт, 5=Вся неделя, 8=Сегодня, 9=Завтра
   // TODAY === 0-Вс, 1-Пн, 2-Вт, 3-Ср, 4-Чт, 5-Пт, 6-Сб.
+  await ctx.replyWithChatAction("typing");
   // Если выходные, рассисание не присылаем
   if (today === 0 && setDay === 9) {
     return await request(ctx, await dateHelper.nextWeek(), setDay);

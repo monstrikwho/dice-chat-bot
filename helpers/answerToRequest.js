@@ -1,4 +1,4 @@
-module.exports = async ($, td, selectUser) => {
+module.exports = ($, td, selectUser) => {
   const time = td[0];
   const discipline = td[1];
   const subgroup = td[2];
