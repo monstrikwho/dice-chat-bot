@@ -24,7 +24,7 @@ function setupStart(bot) {
 
       await ctx.scene.enter("step1");
     } catch (err) {
-      console.log(err);
+      console.log('Не удалось пройти регистрацию (start.js)');
     }
   });
 }
