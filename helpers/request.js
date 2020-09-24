@@ -87,6 +87,8 @@ module.exports = async (ctx, reqWeek, setDay) => {
         ? week[0] // Берем след Пн
         : week[today]; // Берем след день
 
+      let count = 0;
+
       for (let i = 0; i < tr.length; i++) {
         let td;
         if (i === 0) {
@@ -95,11 +97,16 @@ module.exports = async (ctx, reqWeek, setDay) => {
           td = $(tr[i]).find("td");
         }
 
-        const answer = await answerToRequest($, td, selectUser);
+        const answer = answerToRequest($, td, selectUser);
 
         if (answer) {
+          count++;
           await ctx.replyWithHTML(answer);
         }
+      }
+      
+      if (count === 0) {
+        await ctx.reply("На этот день пар нету.");
       }
     })
     .catch((err) => {
