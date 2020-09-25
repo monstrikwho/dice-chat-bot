@@ -15,8 +15,8 @@ let deleteMsg = null;
 
 // *************************** TEACHERS *******************************************
 const raspTeachers = new Scene("raspTeachers");
-raspTeachers.enter((ctx) => {
-  return ctx.reply(
+raspTeachers.enter(async (ctx) => {
+  return await ctx.reply(
     "Пожалуйста, введите фамилию преподавателя.",
     Extra.markup(
       Markup.keyboard([
@@ -42,7 +42,7 @@ raspTeachers.hears(/./, async (ctx) => {
       { userId: ctx.from.id },
       { otherTeacher: status.teacher }
     );
-    ctx.reply(`Вы выбрали: ${status.teacher}`);
+    await ctx.reply(`Вы выбрали: ${status.teacher}`);
     return await ctx.scene.enter("setupDay");
   }
 
@@ -211,8 +211,8 @@ takeGroup.action(regex, async (ctx) => {
 
 // *************************** SET UP DAY *******************************************
 const setupDay = new Scene("setupDay");
-setupDay.enter((ctx) => {
-  return ctx.reply(
+setupDay.enter(async (ctx) => {
+  return await ctx.reply(
     "Выберите день",
     Extra.markup(
       Markup.keyboard([

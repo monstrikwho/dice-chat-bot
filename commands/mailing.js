@@ -10,25 +10,27 @@ async function setupMailing(bot) {
     if (ctx.chat.id === 364984576) {
       for (let { userId } of users) {
         try {
-          bot.telegram.sendMessage(
+          await bot.telegram.sendMessage(
             userId,
             `Сервер был перезапущен`,
             Extra.markup(Markup.keyboard([["🔄 Update"]]).resize())
           );
         } catch (e) {
           console.log(
-            "Сообщение не было доставлено. Пользователь заблокировал бота.", userId
+            "Сообщение не было доставлено. Пользователь заблокировал бота.",
+            userId
           );
         }
       }
 
-      bot.hears("🔄 Update", (ctx) => {
-        ctx.scene.enter("showMainMenu");
+      bot.hears("🔄 Update", async (ctx) => {
+        await ctx.scene.enter("showMainMenu");
       });
     }
   });
 
   // 364984576
+  // 727186107
 }
 
 // Exports

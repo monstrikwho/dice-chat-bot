@@ -14,7 +14,7 @@ weekMenu.enter(async (ctx) => {
     Extra.markup(
       Markup.keyboard([
         ["Пн", "Вт", "Ср", "Чт", "Пт"],
-        ["↪️ Вернуться назад"],
+        ['Полное 📷',"↪️ Вернуться назад"],
       ]).resize()
     )
   );
@@ -43,7 +43,7 @@ weekMenu.hears("Чт", async (ctx) => {
 weekMenu.hears("Пт", async (ctx) => {
   await getRasp(ctx, 4);
 });
-// weekMenu.hears("Всю", (ctx) => {
+// weekMenu.hears("Полное 📷", (ctx) => {
 //   getRasp(ctx, 5)
 // });
 

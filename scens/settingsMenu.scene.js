@@ -4,8 +4,8 @@ const Markup = require("telegraf/markup");
 
 // *************************** STEP 1 *******************************************
 const showSettingsMenu = new Scene("showSettingsMenu");
-showSettingsMenu.enter((ctx) => {
-  return ctx.reply(
+showSettingsMenu.enter(async (ctx) => {
+  return await ctx.reply(
     "Вы вошли в настройки",
     Extra.markup(
       Markup.keyboard([
@@ -18,18 +18,18 @@ showSettingsMenu.enter((ctx) => {
   );
 });
 
-showSettingsMenu.hears("Расписание преподавателя", (ctx) => {
-  ctx.scene.enter("raspTeachers");
+showSettingsMenu.hears("Расписание преподавателя", async (ctx) => {
+  await ctx.scene.enter("raspTeachers");
 });
-showSettingsMenu.hears("Расписание др. группы", (ctx) => {
-  ctx.scene.enter("raspStudents");
+showSettingsMenu.hears("Расписание др. группы", async (ctx) => {
+  await ctx.scene.enter("raspStudents");
 });
-showSettingsMenu.hears("🔄 Сменить группу", (ctx) => {
-  ctx.session.state = { person: 'Студент' };
-  ctx.scene.enter("step2");
+showSettingsMenu.hears("🔄 Сменить группу", async (ctx) => {
+  ctx.session.state = { person: "Студент" };
+  await ctx.scene.enter("step2");
 });
-showSettingsMenu.hears("↪️ Вернуться назад", (ctx) => {
-  ctx.scene.enter("showMainMenu");
+showSettingsMenu.hears("↪️ Вернуться назад", async (ctx) => {
+  await ctx.scene.enter("showMainMenu");
 });
 
 module.exports = { showSettingsMenu };

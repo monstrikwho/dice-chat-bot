@@ -88,7 +88,7 @@ takePlaces.hears(/./, async (ctx) => {
   if (ctx.update.message.text === "↪️ Вернуться назад") {
     return await ctx.scene.enter("takeAutobus");
   }
-  ctx.reply("Вы не выбрали остановку. Попробуйте еще раз.");
+  await ctx.reply("Вы не выбрали остановку. Попробуйте еще раз.");
 });
 takePlaces.leave(async (ctx) => await ctx.deleteMessage());
 
