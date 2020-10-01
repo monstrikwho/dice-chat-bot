@@ -13,7 +13,7 @@ nearestAutobus.enter(async (ctx) => {
     "Выберите направление",
     Extra.markup(
       Markup.keyboard([
-        ["В университет", "С университета"],
+        ["В университет", "Из университета"],
         ["↪️ Вернуться назад"],
       ]).resize()
     )
@@ -22,15 +22,11 @@ nearestAutobus.enter(async (ctx) => {
 
 nearestAutobus.hears("В университет", async (ctx) => {
   const user = await User.findOne({ userId: ctx.from.id });
-  if (user.autobus === {})
-    return await ctx.reply("Вы не выбрали ни одного автобуса");
   await nearest(ctx, user.autobus, "in");
   await ctx.scene.enter("showMainMenu");
 });
-nearestAutobus.hears("С университета", async (ctx) => {
+nearestAutobus.hears("Из университета", async (ctx) => {
   const user = await User.findOne({ userId: ctx.from.id });
-  if (user.autobus === {})
-    return await ctx.reply("Вы не выбрали ни одного автобуса");
   await nearest(ctx, user.autobus, "out");
   await ctx.scene.enter("showMainMenu");
 });

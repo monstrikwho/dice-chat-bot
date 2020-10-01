@@ -7,10 +7,13 @@ const { autobusPlacesHook } = require("../keyboards/getGroupsHook");
 
 const User = require("../models/user");
 
+let deleteMsg = null;
+let deleteMsgRm = null;
+
 // *************************** STEP 1 *******************************************
 const takeAutobus = new Scene("takeAutobus");
 takeAutobus.enter(async (ctx) => {
-  await ctx.reply(
+  deleteMsgRm = await ctx.reply(
     "Вы перешли к выбору автобусов.",
     Extra.markup(Markup.removeKeyboard())
   );
@@ -18,23 +21,17 @@ takeAutobus.enter(async (ctx) => {
   const autobusObj = await User.findOne({ userId: ctx.from.id });
   const autobusArr = Object.keys(autobusObj.autobus);
 
-  if (autobusArr.length === 4) {
-    await ctx.reply("Вы выбрали все автобусы.");
-    await ctx.scene.enter("yourAutobus");
-    return;
-  }
-
   const autobus = () => {
     let arr = ["6", "14", "29", "31", "32"];
     for (let item of autobusArr) {
-      if (arr.indexOf(item)) {
+      if (arr.indexOf(item) || arr.indexOf(item) === 0) {
         arr.splice(arr.indexOf(item), 1);
       }
     }
     return arr;
   };
 
-  await ctx.reply(
+  deleteMsg = await ctx.reply(
     "Пожалуйста, выберите автобусы",
     Extra.markup((m) =>
       m.inlineKeyboard([
@@ -58,24 +55,31 @@ takeAutobus.hears(
   /./,
   async (ctx) => await ctx.reply("Вы не выбрали автобус. Попробуйте еще раз.")
 );
-takeAutobus.leave(async (ctx) => await ctx.deleteMessage());
+takeAutobus.leave(async (ctx) => {
+  await ctx.deleteMessage(deleteMsgRm.message_id);
+  await ctx.deleteMessage(deleteMsg.message_id);
+});
 
 // *************************** STEP 2 *******************************************
 const takePlaces = new Scene("takePlaces");
 takePlaces.enter(async (ctx) => {
-  await ctx.reply(
+  deleteMsg = await ctx.reply(
     "Выберите остановку",
     Extra.markup((m) =>
       m.inlineKeyboard([
         ...places[ctx.session.state.autobus].map((item) => [
           m.callbackButton(item, item),
         ]),
+        [m.callbackButton("↪️ Вернуться назад", "↪️ Вернуться назад")],
       ])
     )
   );
 });
 
 takePlaces.action(regex, async (ctx) => {
+  if (ctx.update.callback_query.data === "↪️ Вернуться назад") {
+    return await ctx.scene.enter("takeAutobus");
+  }
   const selectAutobus = ctx.session.state.autobus;
   const user = await User.findOne({ userId: ctx.from.id });
   const data = { ...user.autobus };
@@ -85,12 +89,10 @@ takePlaces.action(regex, async (ctx) => {
 });
 
 takePlaces.hears(/./, async (ctx) => {
-  if (ctx.update.message.text === "↪️ Вернуться назад") {
-    return await ctx.scene.enter("takeAutobus");
-  }
   await ctx.reply("Вы не выбрали остановку. Попробуйте еще раз.");
 });
-takePlaces.leave(async (ctx) => await ctx.deleteMessage());
+
+takePlaces.leave(async (ctx) => await ctx.deleteMessage(deleteMsg.message_id));
 
 //
 
@@ -104,18 +106,12 @@ changeAutobus.enter(async (ctx) => {
   const autobusObj = await User.findOne({ userId: ctx.from.id });
   const autobusArr = Object.keys(autobusObj.autobus);
 
-  if (autobusArr.length < 1) {
-    await ctx.reply("У вас нету выбранных автобусов.");
-    await ctx.scene.enter("autobusMenu");
-    return;
-  }
-
-  await ctx.reply(
-    `Вы зашли в сцену замены остановки автобусов`,
+  deleteMsgRm = await ctx.reply(
+    `Вы хотите изменить остановку автобуса.`,
     Extra.markup(Markup.removeKeyboard())
   );
 
-  await ctx.reply(
+  deleteMsg = await ctx.reply(
     "Выберите автобус, чью остановку вы хотите изменить",
     Extra.markup((m) =>
       m.inlineKeyboard([
@@ -139,7 +135,10 @@ changeAutobus.action("↪️ Вернуться назад", async (ctx) => {
 changeAutobus.hears(/./, async (ctx) => {
   await ctx.reply("Вы ввели что-то не то.. Попробуйте еще раз");
 });
-changeAutobus.leave(async (ctx) => await ctx.deleteMessage());
+changeAutobus.leave(async (ctx) => {
+  await ctx.deleteMessage(deleteMsgRm.message_id);
+  await ctx.deleteMessage(deleteMsg.message_id);
+});
 
 //
 
@@ -153,18 +152,12 @@ deleteAutobus.enter(async (ctx) => {
   const autobusObj = await User.findOne({ userId: ctx.from.id });
   const autobusArr = Object.keys(autobusObj.autobus);
 
-  if (autobusArr.length < 1) {
-    await ctx.reply("У вас нету выбранных автобусов.");
-    await ctx.scene.enter("autobusMenu");
-    return;
-  }
-
-  await ctx.reply(
-    `Вы зашли в сцену удаления автобусов`,
+  deleteMsgRm = await ctx.reply(
+    `Вы хотите удалить автобус.`,
     Extra.markup(Markup.removeKeyboard())
   );
 
-  await ctx.reply(
+  deleteMsg = await ctx.reply(
     "Выберите автобус, который хотите удалить",
     Extra.markup((m) =>
       m.inlineKeyboard([
@@ -177,14 +170,11 @@ deleteAutobus.enter(async (ctx) => {
 
 deleteAutobus.action(/(?:6|14|29|31|32)/, async (ctx) => {
   const user = await User.findOne({ userId: ctx.from.id });
-  const userAutobus = Object.keys(user.autobus);
 
-  if (userAutobus.indexOf(ctx.match[0]) >= 0) {
-    const autobus = user.autobus;
-    delete autobus[ctx.match[0]];
-    await User.updateOne({ userId: ctx.from.id }, { autobus });
-    await ctx.reply(`Вы успешно удалили автобус: ${ctx.match[0]}`);
-  }
+  const autobus = user.autobus;
+  delete autobus[ctx.match[0]];
+  await User.updateOne({ userId: ctx.from.id }, { autobus });
+  await ctx.reply(`Вы успешно удалили автобус: ${ctx.match[0]}`);
 
   await ctx.scene.enter("autobusMenu");
 });
@@ -196,7 +186,10 @@ deleteAutobus.action(
   "↪️ Вернуться назад",
   async (ctx) => await ctx.scene.enter("yourAutobus")
 );
-deleteAutobus.leave(async (ctx) => await ctx.deleteMessage());
+deleteAutobus.leave(async (ctx) => {
+  await ctx.deleteMessage(deleteMsgRm.message_id);
+  await ctx.deleteMessage(deleteMsg.message_id);
+});
 
 //
 

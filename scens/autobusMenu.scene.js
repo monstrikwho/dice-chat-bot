@@ -7,22 +7,23 @@ const User = require("../models/user");
 // *************************** STEP 1 *******************************************
 const autobusMenu = new Scene("autobusMenu");
 autobusMenu.enter(async (ctx) => {
-  const [status] = await User.find({ userId: ctx.from.id });
-  if (status.autobus) {
-    return await ctx.reply(
-      "Вы вошли в меню автобусов",
-      Extra.markup(
-        Markup.keyboard([
-          ["Ближайшие", "Мои автобусы"],
-          ["Др. автобусы", "↪️ Вернуться назад"],
-        ]).resize()
-      )
-    );
-  }
-  return await ctx.scene.enter("takeAutobus");
+  return await ctx.reply(
+    "Вы вошли в меню автобусов",
+    Extra.markup(
+      Markup.keyboard([
+        ["Ближайшие", "Мои автобусы"],
+        ["Др. автобусы", "↪️ Вернуться назад"],
+      ]).resize()
+    )
+  );
 });
 
 autobusMenu.hears("Ближайшие", async (ctx) => {
+  const status = await User.findOne({ userId: ctx.from.id });
+  const autobus = Object.keys(status.autobus);
+  if(!autobus.length) {
+    return await ctx.reply('Вы не выбрали автобусы. Пожалуйста, нажмите кнопку "Мои автобусы" - "Добавить", чтобы добавить автобус.')
+  }
   await ctx.scene.enter("nearestAutobus");
 });
 autobusMenu.hears("Др. автобусы", async (ctx) => {
