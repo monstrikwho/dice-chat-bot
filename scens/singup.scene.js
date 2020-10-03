@@ -121,11 +121,11 @@ let reGex3 = /./;
 step3.enter(async (ctx) => {
   const faculty = () => {
     if (ctx.session.state.faculty === "ИФ") {
-      reGex3 = /(?:АТП|А|ИТвМ|ИСТ|МиМ|ПИТТ|ТОСП|ТО|ТМ)/;
+      reGex3 = /(?:А|ИТвМ|ИСТ|ПИТТ|ТОСП|ТО|ТМ)/;
       return "if";
     }
     if (ctx.session.state.faculty === "ФПиП") {
-      reGex3 = /(?:ГЭ|ДО|НО|ОТИ|ОП|ПП|СП|СПД|ТиМОВ|ФК)/;
+      reGex3 = /(?:ГЭ|ДО|НО|ОТИ|ОП|ПП|СП|СПД|ТМОВ|ФК)/;
       return "fpip";
     }
     if (ctx.session.state.faculty === "ИПКиП") {
