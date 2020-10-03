@@ -84,9 +84,11 @@ module.exports = async (ctx, reqWeek, setDay) => {
       let tr = null;
       if (setDay === 0 || setDay === 1) {
         // Обрабатываем и отсылаем фотку
-        // Пишем новый компонент
-        await getRaspPhoto($, week, selectUser)
-        return await ctx.reply("lolo");
+        try {
+          return await getRaspPhoto($, week, selectUser)
+        } catch (err) {
+          console.log(err)
+        }
       }
       if (setDay === 8) {
         tr = week[today - 1];

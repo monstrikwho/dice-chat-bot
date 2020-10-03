@@ -12,7 +12,7 @@ weekMenu.enter(async (ctx) => {
   const today = new Date().getDay();
   if(today > 3 || today === 0) {
     return await ctx.reply(
-      "Выберите день недели",
+      "Выберите на какую неделю вы хотите получить расписание",
       Extra.markup(
         Markup.keyboard([
           ["На текущую", "На следующую"],
