@@ -10,10 +10,14 @@ function setupStart(bot) {
   // Start command
   bot.start(async (ctx) => {
     try {
-      await ctx.reply("Регистрация", Markup.removeKeyboard().extra());
+      let reg = await ctx.reply(
+        "Регистрация",
+        Markup.removeKeyboard().extra()
+      );
 
       const selectUser = await User.findOne({ userId: ctx.from.id });
       if (selectUser) {
+        await ctx.deleteMessage(reg.message_id)
         await ctx.reply("Вы уже зарегистрированы.");
         return await ctx.scene.enter("showMainMenu");
       }
