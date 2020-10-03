@@ -21,7 +21,6 @@ raspTeachers.enter(async (ctx) => {
     Extra.markup(
       Markup.keyboard([
         ["↪️ Вернуться назад"],
-        // Сделать закладки.. в бд сохраняем 5 последних поиска (препод, группа)
       ]).resize()
     )
   );
@@ -59,7 +58,7 @@ raspTeachers.hears(/./, async (ctx) => {
       )
     );
   } else {
-    await ctx.reply("Такой фамилии нету. Попробуйте еще раз.");
+    await ctx.reply("Такой фамилии нет. Попробуйте еще раз.");
   }
 });
 
@@ -70,6 +69,7 @@ raspTeachers.hears(/./, async (ctx) => {
 //
 
 //
+
 // *************************** STUDENTS *******************************************
 const raspStudents = new Scene("raspStudents");
 raspStudents.enter(async (ctx) => {
@@ -104,7 +104,6 @@ raspStudents.action(/(?:ИФ|ФПиП|ИПКиП|ФЭП|ФСиГЯ)/, async (ctx
 });
 
 // ************************* TAKE SPEC **************************************
-
 const takeSpec = new Scene("takeSpec");
 takeSpec.enter(async (ctx) => {
   const faculty = () => {
@@ -157,7 +156,6 @@ takeSpec.action(regex, async (ctx) => {
 });
 
 // ************************** TAKE GROUP ****************************************
-
 const takeGroup = new Scene("takeGroup");
 takeGroup.enter(async (ctx) => {
   let resGroupHook = [...groupsHook(ctx.session.state)];
@@ -216,7 +214,7 @@ setupDay.enter(async (ctx) => {
     "Выберите день",
     Extra.markup(
       Markup.keyboard([
-        ["Сегодня", "Завтра", "Неделя"],
+        ["Сегодня", "Завтра", "Полное 📷"],
         ["🏡 Вернуться на главную"],
       ]).resize()
     )
@@ -229,7 +227,7 @@ setupDay.hears("Сегодня", async (ctx) => {
 setupDay.hears("Завтра", async (ctx) => {
   await getRasp(ctx, 9);
 });
-setupDay.hears("Неделя", async (ctx) => {
+setupDay.hears("Полное 📷", async (ctx) => {
   await ctx.scene.enter("weekMenu");
 });
 

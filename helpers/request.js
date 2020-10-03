@@ -2,6 +2,8 @@ const axios = require("axios");
 const cheerio = require("cheerio");
 const querystring = require("querystring");
 
+const getRaspPhoto = require('./getRaspPhoto')
+
 const User = require("../models/user");
 
 const answerToRequest = require("./answerToRequest");
@@ -72,20 +74,26 @@ module.exports = async (ctx, reqWeek, setDay) => {
       const Wednesday = table.find("tr").slice(18, 26);
       const Thursday = table.find("tr").slice(27, 35);
       const Friday = table.find("tr").slice(36, 44);
-      const Saturday = table.find("tr").slice(45, 53);
 
-      const week = [Monday, Tuesday, Wednesday, Thursday, Friday, Saturday];
+      const week = [Monday, Tuesday, Wednesday, Thursday, Friday];
       const today = new Date().getDay();
 
-      // SETDAY === 0=Пн, 1=Вт, 2=Ср, 3=Чт, 4=Пт, 5=Вся неделя, 8=Сегодня, 9=Завтра
+      // SETDAY === 0=Текущая неделя, 1=Следующая неделя, 8=Сегодня, 9=Завтра
       // TODAY === 0-Вс, 1-Пн, 2-Вт, 3-Ср, 4-Чт, 5-Пт, 6-Сб.
-      const tr = setDay.toString().match(/(?:0|1|2|3|4)/)
-        ? week[setDay]
-        : setDay !== 9 // Если жмем на "сегодня"
-        ? week[today - 1] // Берем текущий день
-        : today === 0 // Если у нас Вс
-        ? week[0] // Берем след Пн
-        : week[today]; // Берем след день
+      
+      let tr = null;
+      if (setDay === 0 || setDay === 1) {
+        // Обрабатываем и отсылаем фотку
+        // Пишем новый компонент
+        await getRaspPhoto($, week, selectUser)
+        return await ctx.reply("lolo");
+      }
+      if (setDay === 8) {
+        tr = week[today - 1];
+      }
+      if (setDay === 9) {
+        today === 0 ? (tr = week[0]) : (tr = week[today]);
+      }
 
       let count = 0;
 
@@ -104,9 +112,9 @@ module.exports = async (ctx, reqWeek, setDay) => {
           await ctx.replyWithHTML(answer);
         }
       }
-      
+
       if (count === 0) {
-        await ctx.reply("На этот день пар нету.");
+        await ctx.reply("На этот день пар нет.");
       }
     })
     .catch(async (err) => {

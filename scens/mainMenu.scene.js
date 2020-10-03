@@ -11,7 +11,7 @@ showMainMenu.enter(async (ctx) => {
     "Вы вошли в главное меню",
     Extra.markup(
       Markup.keyboard([
-        ["Сегодня", "Завтра", "Неделя"],
+        ["Сегодня", "Завтра", "Полное 📷"],
         ["⚙️ Другое", "🚌 Автобусы"],
       ]).resize()
     )
@@ -24,7 +24,7 @@ showMainMenu.hears("Сегодня", async (ctx) => {
 showMainMenu.hears("Завтра", async (ctx) => {
   await getRasp(ctx, 9);
 });
-showMainMenu.hears("Неделя", async (ctx) => {
+showMainMenu.hears("Полное 📷", async (ctx) => {
   await ctx.scene.enter("weekMenu");
 });
 showMainMenu.hears("⚙️ Другое", async (ctx) => {
