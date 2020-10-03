@@ -9,15 +9,20 @@ const getRasp = require("../helpers/getRasp");
 // *************************** STEP 1 *******************************************
 const weekMenu = new Scene("weekMenu");
 weekMenu.enter(async (ctx) => {
-  return await ctx.reply(
-    "Выберите день недели",
-    Extra.markup(
-      Markup.keyboard([
-        ["Пн", "Вт", "Ср", "Чт", "Пт"],
-        ['Полное 📷',"↪️ Вернуться назад"],
-      ]).resize()
-    )
-  );
+  const today = new Date().getDay();
+  if(today > 3 || today === 0) {
+    return await ctx.reply(
+      "Выберите день недели",
+      Extra.markup(
+        Markup.keyboard([
+          ["На текущую", "На следующую"],
+          ["↪️ Вернуться назад"],
+        ]).resize()
+      )
+    );
+  } else {
+    return await getRasp(ctx, 0)
+  }
 });
 
 weekMenu.hears("↪️ Вернуться назад", async (ctx) => {
@@ -28,23 +33,11 @@ weekMenu.hears("↪️ Вернуться назад", async (ctx) => {
   }
   await ctx.scene.enter("showMainMenu");
 });
-weekMenu.hears("Пн", async (ctx) => {
+weekMenu.hears("На текущую", async (ctx) => {
   await getRasp(ctx, 0);
 });
-weekMenu.hears("Вт", async (ctx) => {
+weekMenu.hears("На следующую", async (ctx) => {
   await getRasp(ctx, 1);
 });
-weekMenu.hears("Ср", async (ctx) => {
-  await getRasp(ctx, 2);
-});
-weekMenu.hears("Чт", async (ctx) => {
-  await getRasp(ctx, 3);
-});
-weekMenu.hears("Пт", async (ctx) => {
-  await getRasp(ctx, 4);
-});
-// weekMenu.hears("Полное 📷", (ctx) => {
-//   getRasp(ctx, 5)
-// });
 
 module.exports = { weekMenu };
