@@ -20,6 +20,7 @@ async function setupMailing(bot) {
             "Сообщение не было доставлено. Пользователь заблокировал бота.",
             userId
           );
+          await User.findOneAndRemove({userId})
         }
       }
 
