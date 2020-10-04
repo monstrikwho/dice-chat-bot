@@ -54,4 +54,5 @@ ${disciplineText}${(subgroupText.replace(/\s/g, "").length > 0) ? `➖ ${subgrou
 ${teacherText}  ${(lectureHallText.replace(/\s/g, "").length > 0 && selectUser.person === 'Студент') ? `➖ ${lectureHallText}` : ''}`;
     }
   }
+  return false
 }

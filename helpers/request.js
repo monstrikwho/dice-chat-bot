@@ -3,10 +3,9 @@ const cheerio = require("cheerio");
 const querystring = require("querystring");
 
 const getRaspPhoto = require('./getRaspPhoto')
+const answerToRequest = require("./answerToRequest");
 
 const User = require("../models/user");
-
-const answerToRequest = require("./answerToRequest");
 
 module.exports = async (ctx, reqWeek, setDay) => {
   const selectUser = await User.findOne({ userId: ctx.from.id });
@@ -90,12 +89,13 @@ module.exports = async (ctx, reqWeek, setDay) => {
           console.log(err)
         }
       }
+
       if (setDay === 8) {
         tr = week[today - 1];
-      }
+      } // Если нажали кнопку "сегодня"
       if (setDay === 9) {
         today === 0 ? (tr = week[0]) : (tr = week[today]);
-      }
+      } // Если нажали кнопку "завтра"
 
       let count = 0;
 
