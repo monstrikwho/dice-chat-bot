@@ -23,8 +23,6 @@
     "node-html-to-image": "^3.0.1",
     "nodemon": "^2.0.4",
     "querystring": "^0.2.0",
-    "telegraf": "^3.38.0",
-    "telegraf-session-redis": "^5.1.0",
-    "uuid": "^8.3.0"
+    "telegraf": "^3.38.0"
   }
 }
