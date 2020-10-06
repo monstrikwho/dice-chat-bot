@@ -7,15 +7,27 @@ const getRasp = require("../helpers/getRasp");
 // *************************** STEP 1 *******************************************
 const showMainMenu = new Scene("showMainMenu");
 showMainMenu.enter(async (ctx) => {
-  return await ctx.reply(
-    "Вы вошли в главное меню",
-    Extra.markup(
-      Markup.keyboard([
-        ["Сегодня", "Завтра", "Полное 📷"],
-        ["⚙️ Другое", "🚌 Автобусы"],
-      ]).resize()
-    )
-  );
+  if (ctx.chat.id === 364984576) {
+    return await ctx.reply(
+      "Вы вошли в главное меню",
+      Extra.markup(
+        Markup.keyboard([
+          ["Сегодня", "Завтра", "Полное 📷"],
+          ["⚙️ Другое", "🚌 Автобусы"],
+        ]).resize()
+      )
+    );
+  } else {
+    return await ctx.reply(
+      "Вы вошли в главное меню",
+      Extra.markup(
+        Markup.keyboard([
+          ["Сегодня", "Завтра"],
+          ["⚙️ Другое", "🚌 Автобусы"],
+        ]).resize()
+      )
+    );
+  }
 });
 
 showMainMenu.hears("Сегодня", async (ctx) => {
