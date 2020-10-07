@@ -5,30 +5,19 @@ const Markup = require("telegraf/markup");
 const User = require("../models/user");
 
 const getRasp = require("../helpers/getRasp");
-const checkRasp = require("../helpers/checkRasp");
 
 // *************************** STEP 1 *******************************************
 const weekMenu = new Scene("weekMenu");
 weekMenu.enter(async (ctx) => {
-  const today = new Date().getDay();
-
-  let statusRasp = false;
-  if (today === 3) statusRasp = await checkRasp();
-
-  if (statusRasp || today > 4 || today === 5) {
-    return await ctx.reply(
-      "Выберите на какую неделю вы хотите получить расписание",
-      Extra.markup(
-        Markup.keyboard([
-          ["На текущую", "На следующую"],
-          ["↪️ Вернуться назад"],
-        ]).resize()
-      )
-    );
-  }
-
-  if (today === 6 || today === 0) return await getRasp(ctx, 1);
-  return await getRasp(ctx, 0);
+  return await ctx.reply(
+    "Выберите на какую неделю вы хотите получить расписание",
+    Extra.markup(
+      Markup.keyboard([
+        ["На текущую", "На следующую"],
+        ["↪️ Вернуться назад"],
+      ]).resize()
+    )
+  );
 });
 
 weekMenu.hears("↪️ Вернуться назад", async (ctx) => {
@@ -40,9 +29,11 @@ weekMenu.hears("↪️ Вернуться назад", async (ctx) => {
   await ctx.scene.enter("showMainMenu");
 });
 weekMenu.hears("На текущую", async (ctx) => {
+  await ctx.reply('Ответ займет некоторое время. Пожалуйста, подождите...')
   await getRasp(ctx, 0);
 });
 weekMenu.hears("На следующую", async (ctx) => {
+  await ctx.reply('Ответ займет некоторое время. Пожалуйста, подождите...')
   await getRasp(ctx, 1);
 });
 

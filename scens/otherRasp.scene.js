@@ -228,7 +228,19 @@ setupDay.hears("Завтра", async (ctx) => {
   await getRasp(ctx, 9);
 });
 setupDay.hears("Полное 📷", async (ctx) => {
-  await ctx.scene.enter("weekMenu");
+  const today = new Date().getDay();
+
+  let statusRasp = false;
+  if (today === 3) statusRasp = await checkRasp();
+
+  if (statusRasp || today > 4 || today === 5) {
+    await ctx.scene.enter("weekMenu");
+  } else {
+    await ctx.reply('Ответ займет некоторое время. Пожалуйста, подождите...')
+    await getRasp(ctx, 0);
+  }
+
+  if (today === 6 || today === 0) return await getRasp(ctx, 1);
 });
 
 setupDay.hears(/./, async (ctx) => {
