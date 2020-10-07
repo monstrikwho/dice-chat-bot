@@ -1,4 +1,4 @@
-const fs = require('fs')
+const fs = require("fs");
 const nodeHtmlToImage = require("node-html-to-image");
 const { bot } = require("../init/startBot");
 const { raspPhoto } = require("../helpers/styles");
@@ -208,6 +208,9 @@ module.exports = async ($, week, selectUser) => {
       ${body}
       <div class="footer">https://t.me/barsu_rasp_bot</div>
     </body></html>`,
+    puppeteerArgs: {
+      args: ["--no-sandbox", "--user-data-dir"],
+    },
   })
     .then(async () => {
       await bot.telegram.sendPhoto(selectUser.userId, {
