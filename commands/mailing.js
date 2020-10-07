@@ -12,7 +12,7 @@ async function setupMailing(bot) {
         try {
           await bot.telegram.sendMessage(
             userId,
-            `В двух словах - это Linux.`,
+            `Я побарол его (Linux) четырмя словами спустя нескольких дней 🌵`,
             Extra.markup(Markup.keyboard([["🔄 Update"]]).resize())
           );
         } catch (e) {
@@ -30,7 +30,7 @@ async function setupMailing(bot) {
     }
   });
 
-  // 364984576
+  // 364984576🌵
   // 727186107
 }
 
