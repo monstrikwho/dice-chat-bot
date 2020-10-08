@@ -28,17 +28,22 @@ showMainMenu.hears("Завтра", async (ctx) => {
 showMainMenu.hears("Полное 📷", async (ctx) => {
   const today = new Date().getDay();
 
-  let statusRasp = false;
-  if (today === 3) statusRasp = await checkRasp();
+  let statusRasp =
+    today === 3 ? await checkRasp() : today === 4 || today === 5 ? true : false;
 
-  if (statusRasp || today > 4 || today === 5) {
+  if (statusRasp || today === 4 || today === 5) {
     await ctx.scene.enter("weekMenu");
   } else {
-    await ctx.reply('Ответ займет некоторое время. Пожалуйста, подождите...')
-    await getRasp(ctx, 0);
+    await ctx.reply("Ответ займет некоторое время. Пожалуйста, подождите...");
+    await ctx.reply("Расписание на текущую неделю.");
+    return await getRasp(ctx, 0);
   }
 
-  if (today === 6 || today === 0) return await getRasp(ctx, 1);
+  if (today === 6 || today === 0) {
+    await ctx.reply("Ответ займет некоторое время. Пожалуйста, подождите...");
+    await ctx.reply("Расписание на следующую неделю.");
+    return await getRasp(ctx, 1);
+  }
 });
 showMainMenu.hears("⚙️ Другое", async (ctx) => {
   await ctx.scene.enter("showSettingsMenu");

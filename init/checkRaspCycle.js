@@ -18,7 +18,7 @@ module.exports = (bot) => {
     remove5m();
     const status = await checkRasp();
     if (status) {
-      const allUser = User.find();
+      const allUser = await User.find();
       for (let user of allUser) {
         bot.sendMessage(
           user.userId,
