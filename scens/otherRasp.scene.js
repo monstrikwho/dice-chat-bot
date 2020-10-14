@@ -10,6 +10,8 @@ const groupsHook = require("../keyboards/getGroupsHook");
 const User = require("../models/user");
 const Teachers = require("../models/teachers");
 
+const checkRasp = require('../helpers/checkRasp')
+
 let regex = /./;
 let deleteMsg = null;
 
@@ -18,11 +20,7 @@ const raspTeachers = new Scene("raspTeachers");
 raspTeachers.enter(async (ctx) => {
   return await ctx.reply(
     "Пожалуйста, введите фамилию преподавателя.",
-    Extra.markup(
-      Markup.keyboard([
-        ["↪️ Вернуться назад"],
-      ]).resize()
-    )
+    Extra.markup(Markup.keyboard([["↪️ Вернуться назад"]]).resize())
   );
 });
 
@@ -215,7 +213,7 @@ setupDay.enter(async (ctx) => {
     Extra.markup(
       Markup.keyboard([
         ["Сегодня", "Завтра", "Полное 📷"],
-        ["🏡 Вернуться на главную"],
+        ["📌 Добавить избранное", "🏡 Вернуться на главную"],
       ]).resize()
     )
   );
@@ -230,28 +228,56 @@ setupDay.hears("Завтра", async (ctx) => {
 setupDay.hears("Полное 📷", async (ctx) => {
   const today = new Date().getDay();
 
-  let statusRasp = false;
-  if (today === 3) statusRasp = await checkRasp();
+  let statusRasp =
+    today === 3 ? await checkRasp() : today === 4 || today === 5 ? true : false;
 
-  if (statusRasp || today > 4 || today === 5) {
-    await ctx.scene.enter("weekMenu");
-  } else {
-    await ctx.reply('Ответ займет некоторое время. Пожалуйста, подождите...')
-    await getRasp(ctx, 0);
+  if (statusRasp || today === 4 || today === 5) {
+    return await ctx.scene.enter("weekMenu");
   }
 
-  if (today === 6 || today === 0) return await getRasp(ctx, 1);
+  if (today === 1 || today === 2 || (today === 3 && !statusRasp)) {
+    await ctx.reply("Ответ займет некоторое время. Пожалуйста, подождите...");
+    await ctx.reply("Расписание на текущую неделю.");
+    return await getRasp(ctx, 0);
+  }
+
+  if (today === 6 || today === 0) {
+    await ctx.reply("Ответ займет некоторое время. Пожалуйста, подождите...");
+    await ctx.reply("Расписание на следующую неделю.");
+    return await getRasp(ctx, 1);
+  }
 });
 
-setupDay.hears(/./, async (ctx) => {
-  if (ctx.update.message.text === "🏡 Вернуться на главную") {
-    await User.updateOne(
-      { userId: ctx.from.id },
-      { $unset: { otherTeacher: 1, otherStudents: 1 } }
-    );
-    return await ctx.scene.enter("showMainMenu");
+setupDay.hears("🏡 Вернуться на главную", async (ctx) => {
+  await User.updateOne(
+    { userId: ctx.from.id },
+    { $unset: { otherTeacher: 1, otherStudents: 1 } }
+  );
+  return await ctx.scene.enter("showMainMenu");
+});
+
+setupDay.hears("📌 Добавить избранное", async (ctx) => {
+  const status = await User.findOne({ userId: ctx.from.id });
+
+  if (status.otherTeacher) {
+    let favTeachers = status.favTeachers ? status.favTeachers : [];
+    if(favTeachers.length === 6) {
+      return await ctx.reply('Вы можете добавить в избранное только 6 позиций.')
+    } else {
+      favTeachers.push(status.otherTeacher);
+      return await User.updateOne({ userId: ctx.from.id }, { favTeachers });
+    }
   }
-  await ctx.reply("Пожалуйста, выберите действие.");
+
+  if (status.otherStudents) {
+    let favStudents = status.favStudents ? status.favStudents : [];
+    if(favStudents.length === 6) {
+      return await ctx.reply('Вы можете добавить в избранное только 6 позиций.')
+    } else {
+      favStudents.push(status.otherStudents);
+      return await User.updateOne({ userId: ctx.from.id }, { favStudents });
+    }
+  }
 });
 
 //
