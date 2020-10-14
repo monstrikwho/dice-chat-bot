@@ -13,7 +13,7 @@ showMainMenu.enter(async (ctx) => {
     Extra.markup(
       Markup.keyboard([
         ["Сегодня", "Завтра", "Полное 📷"],
-        ["⚙️ Другое", "🚌 Автобусы"],
+        ["⚙️ Другое", "📌 Избранное", "🚌 Автобусы"],
       ]).resize()
     )
   );
@@ -32,8 +32,10 @@ showMainMenu.hears("Полное 📷", async (ctx) => {
     today === 3 ? await checkRasp() : today === 4 || today === 5 ? true : false;
 
   if (statusRasp || today === 4 || today === 5) {
-    await ctx.scene.enter("weekMenu");
-  } else {
+    return await ctx.scene.enter("weekMenu");
+  }
+
+  if (today === 1 || today === 2 || (today === 3 && !statusRasp)) {
     await ctx.reply("Ответ займет некоторое время. Пожалуйста, подождите...");
     await ctx.reply("Расписание на текущую неделю.");
     return await getRasp(ctx, 0);
@@ -47,6 +49,9 @@ showMainMenu.hears("Полное 📷", async (ctx) => {
 });
 showMainMenu.hears("⚙️ Другое", async (ctx) => {
   await ctx.scene.enter("showSettingsMenu");
+});
+showMainMenu.hears("📌 Избранное", async (ctx) => {
+  await ctx.scene.enter("favoritesMenu");
 });
 showMainMenu.hears("🚌 Автобусы", async (ctx) => {
   await ctx.scene.enter("autobusMenu");

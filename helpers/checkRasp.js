@@ -7,14 +7,14 @@ const answerToRequest = require("./answerToRequest");
 const User = require("../models/user");
 
 module.exports = async () => {
-  await axios
+  return await axios
     .post(
       `http://rasp.barsu.by/stud.php`,
       querystring.stringify({
         ft: 0,
         sp: 0,
         gp: "ТМ41",
-        nd: dateHelper.nextWeek(),
+        nd: await dateHelper.nextWeek(),
         go: "Показать",
       })
     )
