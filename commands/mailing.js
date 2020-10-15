@@ -10,23 +10,22 @@ async function setupMailing(bot) {
     if (ctx.chat.id === 364984576) {
       for (let { userId } of users) {
         try {
-          await bot.telegram.sendMessage(
-            userId,
-            `Теперь расписание на следующую неделю приходит корректно`,
-            Extra.markup(Markup.keyboard([["🔄 Update"]]).resize())
-          );
+          const selectUser = await User.findOne({ userId: ctx.from.id });
+
+          if (selectUser) {
+            return await bot.telegram.sendMessage(
+              userId,
+              `Обработана еще одна ошибка вылета.`,
+              Extra.markup(Markup.keyboard([["/start"]]).resize())
+            );
+          } 
         } catch (e) {
           console.log(
             "Сообщение не было доставлено. Пользователь заблокировал бота.",
             userId
           );
-          await User.findOneAndRemove({userId})
         }
       }
-
-      bot.hears("🔄 Update", async (ctx) => {
-        await ctx.scene.enter("showMainMenu");
-      });
     }
   });
 

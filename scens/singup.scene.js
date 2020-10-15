@@ -31,7 +31,13 @@ step1.enter(async (ctx) => {
   );
 });
 step1.hears(/./, async (ctx) => await ctx.reply("Такой команды не существует"));
-step1.leave(async (ctx) => await ctx.deleteMessage());
+step1.leave(async (ctx) => {
+  try {
+    await ctx.deleteMessage();
+  } catch (error) {
+    console.log(error);
+  }
+});
 step1.action(/(?:Студент|Преподаватель)/, async (ctx) => {
   ctx.session.state = { person: ctx.match[0] };
   await ctx.scene.enter("step2");
@@ -105,7 +111,13 @@ step2.hears(/./, async (ctx) => {
     }
   }
 });
-step2.leave(async (ctx) => await ctx.deleteMessage());
+step2.leave(async (ctx) => {
+  try {
+    await ctx.deleteMessage();
+  } catch (error) {
+    error;
+  }
+});
 step2.action(/(?:ИФ|ФПиП|ИПКиП|ФЭП|ФСиГЯ)/, async (ctx) => {
   ctx.session.state = { ...ctx.session.state, faculty: ctx.match[0] };
   await ctx.scene.enter("step3");
@@ -153,7 +165,13 @@ step3.enter(async (ctx) => {
   );
 });
 step3.hears(/./, async (ctx) => await ctx.reply("Стой, нажми на кнопку выше"));
-step3.leave(async (ctx) => await ctx.deleteMessage());
+step3.leave(async (ctx) => {
+  try {
+    await ctx.deleteMessage();
+  } catch (error) {
+    console.log(error)
+  }
+});
 step3.action(reGex3, async (ctx) => {
   ctx.session.state = {
     ...ctx.session.state,
@@ -186,10 +204,14 @@ step4.enter(async (ctx) => {
 });
 step4.hears(/./, async (ctx) => await ctx.reply("Стой, нажми на кнопку выше"));
 step4.leave(async (ctx) => {
-  await ctx.deleteMessage();
-  await ctx.replyWithHTML(
-    `Вы успешно выбрали группу: <pre language="c++">👉🏻 ${ctx.session.state.group}</pre>`
-  );
+  try {
+    await ctx.deleteMessage();
+    await ctx.replyWithHTML(
+      `Вы успешно выбрали группу: <pre language="c++">👉🏻 ${ctx.session.state.group}</pre>`
+    );
+  } catch (error) {
+    console.log(error)
+  }
 });
 step4.action(reGex4, async (ctx) => {
   ctx.session.state = {

@@ -10,7 +10,7 @@ const groupsHook = require("../keyboards/getGroupsHook");
 const User = require("../models/user");
 const Teachers = require("../models/teachers");
 
-const checkRasp = require('../helpers/checkRasp')
+const checkRasp = require("../helpers/checkRasp");
 
 let regex = /./;
 let deleteMsg = null;
@@ -93,9 +93,13 @@ raspStudents.hears(/./, async (ctx) => {
   }
   await ctx.reply("Вы не выбрали факультет");
 });
-raspStudents.leave(
-  async (ctx) => await ctx.deleteMessage(deleteMsg.message_id)
-);
+raspStudents.leave(async (ctx) => {
+  try {
+    await ctx.deleteMessage(deleteMsg.message_id);
+  } catch (error) {
+    console.log(error);
+  }
+});
 raspStudents.action(/(?:ИФ|ФПиП|ИПКиП|ФЭП|ФСиГЯ)/, async (ctx) => {
   ctx.session.state = { ...ctx.session.state, faculty: ctx.match[0] };
   await ctx.scene.enter("takeSpec");
@@ -144,7 +148,13 @@ takeSpec.hears(/./, async (ctx) => {
   }
   await ctx.reply("Вы не выбрали специальность");
 });
-takeSpec.leave(async (ctx) => await ctx.deleteMessage(deleteMsg.message_id));
+takeSpec.leave(async (ctx) => {
+  try {
+    await ctx.deleteMessage(deleteMsg.message_id);
+  } catch (error) {
+    console.log(error)
+  }
+});
 takeSpec.action(regex, async (ctx) => {
   ctx.session.state = {
     ...ctx.session.state,
@@ -177,7 +187,11 @@ takeGroup.hears(/./, async (ctx) => {
   await ctx.reply("Вы не выбрали группу");
 });
 takeGroup.leave(async (ctx) => {
-  await ctx.deleteMessage(deleteMsg.message_id);
+  try {
+    await ctx.deleteMessage(deleteMsg.message_id);
+  } catch (error) {
+    console.log(error)
+  }
 });
 takeGroup.action(regex, async (ctx) => {
   ctx.session.state = {
@@ -261,8 +275,10 @@ setupDay.hears("📌 Добавить избранное", async (ctx) => {
 
   if (status.otherTeacher) {
     let favTeachers = status.favTeachers ? status.favTeachers : [];
-    if(favTeachers.length === 6) {
-      return await ctx.reply('Вы можете добавить в избранное только 6 позиций.')
+    if (favTeachers.length === 6) {
+      return await ctx.reply(
+        "Вы можете добавить в избранное только 6 позиций."
+      );
     } else {
       favTeachers.push(status.otherTeacher);
       return await User.updateOne({ userId: ctx.from.id }, { favTeachers });
@@ -271,8 +287,10 @@ setupDay.hears("📌 Добавить избранное", async (ctx) => {
 
   if (status.otherStudents) {
     let favStudents = status.favStudents ? status.favStudents : [];
-    if(favStudents.length === 6) {
-      return await ctx.reply('Вы можете добавить в избранное только 6 позиций.')
+    if (favStudents.length === 6) {
+      return await ctx.reply(
+        "Вы можете добавить в избранное только 6 позиций."
+      );
     } else {
       favStudents.push(status.otherStudents);
       return await User.updateOne({ userId: ctx.from.id }, { favStudents });

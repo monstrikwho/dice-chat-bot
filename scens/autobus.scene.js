@@ -56,8 +56,12 @@ takeAutobus.hears(
   async (ctx) => await ctx.reply("Вы не выбрали автобус. Попробуйте еще раз.")
 );
 takeAutobus.leave(async (ctx) => {
-  await ctx.deleteMessage(deleteMsgRm.message_id);
-  await ctx.deleteMessage(deleteMsg.message_id);
+  try {
+    await ctx.deleteMessage(deleteMsgRm.message_id);
+    await ctx.deleteMessage(deleteMsg.message_id);
+  } catch (error) {
+    console.log(error);
+  }
 });
 
 // *************************** STEP 2 *******************************************
@@ -92,7 +96,13 @@ takePlaces.hears(/./, async (ctx) => {
   await ctx.reply("Вы не выбрали остановку. Попробуйте еще раз.");
 });
 
-takePlaces.leave(async (ctx) => await ctx.deleteMessage(deleteMsg.message_id));
+takePlaces.leave(async (ctx) => {
+  try {
+    await ctx.deleteMessage(deleteMsg.message_id);
+  } catch (error) {
+    console.log(error)
+  }
+});
 
 //
 
@@ -136,8 +146,12 @@ changeAutobus.hears(/./, async (ctx) => {
   await ctx.reply("Вы ввели что-то не то.. Попробуйте еще раз");
 });
 changeAutobus.leave(async (ctx) => {
-  await ctx.deleteMessage(deleteMsgRm.message_id);
-  await ctx.deleteMessage(deleteMsg.message_id);
+  try {
+    await ctx.deleteMessage(deleteMsgRm.message_id);
+    await ctx.deleteMessage(deleteMsg.message_id);
+  } catch (error) {
+    console.log(error)
+  }
 });
 
 //
@@ -187,8 +201,12 @@ deleteAutobus.action(
   async (ctx) => await ctx.scene.enter("yourAutobus")
 );
 deleteAutobus.leave(async (ctx) => {
-  await ctx.deleteMessage(deleteMsgRm.message_id);
-  await ctx.deleteMessage(deleteMsg.message_id);
+  try {
+    await ctx.deleteMessage(deleteMsgRm.message_id);
+    await ctx.deleteMessage(deleteMsg.message_id);
+  } catch (error) {
+    console.log(error)
+  }
 });
 
 //
