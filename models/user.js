@@ -27,14 +27,23 @@ const schema = new Schema({
     type: String,
   },
   autobus: {
-    type: Object
+    type: Object,
   },
   otherTeacher: {
-    type: String
+    type: String,
   },
   otherStudents: {
-    type: String
-  }
+    type: String,
+  },
+  favStudents: {
+    type: Array,
+  },
+  favTeachers: {
+    type: Array,
+  },
+  favAutobuses: {
+    type: Array,
+  },
 });
 
 module.exports = model("Users", schema);

@@ -152,7 +152,7 @@ takeSpec.leave(async (ctx) => {
   try {
     await ctx.deleteMessage(deleteMsg.message_id);
   } catch (error) {
-    console.log(error)
+    console.log(error);
   }
 });
 takeSpec.action(regex, async (ctx) => {
@@ -190,7 +190,7 @@ takeGroup.leave(async (ctx) => {
   try {
     await ctx.deleteMessage(deleteMsg.message_id);
   } catch (error) {
-    console.log(error)
+    console.log(error);
   }
 });
 takeGroup.action(regex, async (ctx) => {
@@ -277,10 +277,16 @@ setupDay.hears("📌 Добавить избранное", async (ctx) => {
     let favTeachers = status.favTeachers ? status.favTeachers : [];
     if (favTeachers.length === 6) {
       return await ctx.reply(
-        "Вы можете добавить в избранное только 6 позиций."
+        "Вы можете добавить только 6 преподавателей в заклдки. Чтобы удалить менее важного, перейдите во вкладку '📌 Избранное' и нажмите на кнопку '✏️ Изменить'."
       );
     } else {
+      if (favTeachers.indexOf(status.otherTeacher) !== -1) {
+        return await ctx.reply(
+          "Вы уже добавили этого преподавателя в закладки"
+        );
+      }
       favTeachers.push(status.otherTeacher);
+      ctx.reply("Вы успешно добавили преподавателя в закладки.");
       return await User.updateOne({ userId: ctx.from.id }, { favTeachers });
     }
   }
@@ -289,10 +295,16 @@ setupDay.hears("📌 Добавить избранное", async (ctx) => {
     let favStudents = status.favStudents ? status.favStudents : [];
     if (favStudents.length === 6) {
       return await ctx.reply(
-        "Вы можете добавить в избранное только 6 позиций."
+        "Вы можете добавить только 6 групп в закладки. Чтобы удалить менее важную, перейдите во вкладку '📌 Избранное' и нажмите на кнопку '✏️ Изменить'."
       );
     } else {
+      if (favStudents.indexOf(status.otherStudents) !== -1) {
+        return await ctx.reply(
+          "Вы уже добавили этого преподавателя в закладки"
+        );
+      }
       favStudents.push(status.otherStudents);
+      ctx.reply("Вы успешно добавили группу в закладки.");
       return await User.updateOne({ userId: ctx.from.id }, { favStudents });
     }
   }

@@ -22,6 +22,13 @@ const {
   takeGroup,
   setupDay,
 } = require("./otherRasp.scene");
+const {
+  favoritesMenu,
+  favoritesStudents,
+  favoritesTeachers,
+  favoritesAutobus,
+  editFavorites
+} = require("./favorites");
 
 function setupScenes(bot) {
   const stage = new Stage([
@@ -45,6 +52,11 @@ function setupScenes(bot) {
     takeSpec,
     takeGroup,
     setupDay,
+    favoritesMenu,
+    favoritesStudents,
+    favoritesTeachers,
+    favoritesAutobus,
+    editFavorites
   ]);
   bot.use(session());
   bot.use(stage.middleware());
