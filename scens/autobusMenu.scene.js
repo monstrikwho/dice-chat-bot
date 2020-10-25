@@ -12,7 +12,7 @@ autobusMenu.enter(async (ctx) => {
     Extra.markup(
       Markup.keyboard([
         ["Ближайшие", "Мои автобусы"],
-        ["Др. автобусы", "↪️ Вернуться назад"],
+        ["↪️ Вернуться назад"],
       ]).resize()
     )
   );
@@ -21,14 +21,16 @@ autobusMenu.enter(async (ctx) => {
 autobusMenu.hears("Ближайшие", async (ctx) => {
   const status = await User.findOne({ userId: ctx.from.id });
   const autobus = Object.keys(status.autobus);
-  if(!autobus.length) {
-    return await ctx.reply('Вы не выбрали автобусы. Пожалуйста, нажмите кнопку "Мои автобусы" - "Добавить", чтобы добавить автобус.')
+  if (!autobus.length) {
+    return await ctx.reply(
+      'Вы не выбрали автобусы. Пожалуйста, нажмите кнопку "Мои автобусы" - "Добавить", чтобы добавить автобус.'
+    );
   }
   await ctx.scene.enter("nearestAutobus");
 });
-autobusMenu.hears("Др. автобусы", async (ctx) => {
-  await ctx.scene.enter("otherAutobus");
-});
+// autobusMenu.hears("Др. автобусы", async (ctx) => {
+//   await ctx.scene.enter("otherAutobus");
+// });
 autobusMenu.hears("Мои автобусы", async (ctx) => {
   await ctx.scene.enter("yourAutobus");
 });
