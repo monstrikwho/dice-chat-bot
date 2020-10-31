@@ -37,27 +37,23 @@ module.exports = async ($, week, selectUser) => {
         .html()
         .replace("<td>", "")
         .replace("</td>", "")
-        .split("<br>", 2);
+        .split("<br>");
       const subgroupArr = $(tdArr[2 + flag])
         .html()
         .replace("<td>", "")
         .replace("</td>", "")
-        .split("<br>", 2);
+        .split("<br>");
       const teacherArr = $(tdArr[3 + flag])
         .html()
         .replace("<td>", "")
         .replace("</td>", "")
-        .split("<br>", 2);
+        .split("<br>");
       const lectureHallArr = $(tdArr[4 + flag])
         .html()
         .replace("<br><br>", "")
         .replace("<td>", "")
         .replace("</td>", "")
-        .split("<br>", 2);
-
-      if (lectureHallArr.length === 1) {
-        lectureHallArr.push("");
-      }
+        .split("<br>");
 
       time.push(
         $(tdArr[0 + flag])
@@ -96,7 +92,7 @@ module.exports = async ($, week, selectUser) => {
           </div>
         </div>
         <div class="right-content">
-          ${discipline
+          ${time
             .map((item, i) => {
               const takeTime = time[i];
               const takeDiscipline = discipline[i];
@@ -122,7 +118,7 @@ module.exports = async ($, week, selectUser) => {
         </div>
       </div>
       <div class="right-content">
-        ${discipline
+        ${time
           .map((item, i) => {
             const takeTime = time[i];
             const takeDiscipline = discipline[i];
@@ -145,48 +141,40 @@ module.exports = async ($, week, selectUser) => {
               return [newArr, typeDiscipline(type)];
             };
 
-            return takeDiscipline[1].length > 2
-              ? `<div class="row">
-                  <div class="time">${takeTime}</div>
-                  <div class="type">
-                    ${splitDiscipline(takeDiscipline[0])[1]}
-                    ${splitDiscipline(takeDiscipline[1])[1]}
-                  </div>
-                  <div class="descipline">
-                    ${
-                      splitDiscipline(takeDiscipline[0])[0]
-                    } - ${takeSubgroup[0].trim()}
-                    <br />
-                    ${
-                      splitDiscipline(takeDiscipline[1])[0]
-                    } - ${takeSubgroup[1].trim()}
-                  </div>
-                  <div class="teacher">${takeTeacher[0].trim()}<br>${takeTeacher[1].trim()}</div>
-                  <div class="audience">${takeLectureHall[0].trim()}<br>${takeLectureHall[1].trim()}</div>
-                </div>`
-              : `<div class="row">
+            return `<div class="row">
                 <div class="time">${takeTime}</div>
                 <div class="type">
-                  ${splitDiscipline(takeDiscipline[0])[1]}
+                  ${takeDiscipline
+                    .map((item) => splitDiscipline(item)[1])
+                    .join("")}
                 </div>
-                <div class="descipline">${
-                  splitDiscipline(takeDiscipline[0])[0]
-                } 
-                ${
-                  takeSubgroup[0].trim().length !== 0
-                    ? ` - ${takeSubgroup[0].trim()}`
-                    : ``
-                }</div>
-                <div class="teacher">${takeTeacher[0].trim()}</div>
-                <div class="audience">${takeLectureHall[0].trim()}</div>
+                <div class="descipline">${takeDiscipline
+                  .map(
+                    (item, i) =>
+                      `${splitDiscipline(item)[0]}${
+                        takeSubgroup[i].trim().length !== 0
+                          ? ` - ${takeSubgroup[i].trim()}`
+                          : ``
+                      }`
+                  )
+                  .join("</br>")} 
+                </div>
+                <div class="teacher">${takeTeacher
+                  .map((item) => item.trim())
+                  .join("</br>")}</div>
+                <div class="audience">${takeLectureHall
+                  .map((item) => {
+                    if (item.trim() === "СпортЗал Парк") return "СпортЗал";
+                    if (item.trim() === "ЗалГимн Парк") return "ЗалГимн";
+                    return item.trim();
+                  })
+                  .join("</br>")}</div>
               </div>`;
           })
           .join("")}
       </div>
     </div>`;
     }
-
-    // console.log(discipline);
   }
 
   await nodeHtmlToImage({

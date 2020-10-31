@@ -2,7 +2,7 @@ const axios = require("axios");
 const cheerio = require("cheerio");
 const querystring = require("querystring");
 
-const getRaspPhoto = require('./getRaspPhoto')
+const getRaspPhoto = require("./getRaspPhoto");
 const answerToRequest = require("./answerToRequest");
 
 const User = require("../models/user");
@@ -79,15 +79,11 @@ module.exports = async (ctx, reqWeek, setDay) => {
 
       // SETDAY === 0=Текущая неделя, 1=Следующая неделя, 8=Сегодня, 9=Завтра
       // TODAY === 0-Вс, 1-Пн, 2-Вт, 3-Ср, 4-Чт, 5-Пт, 6-Сб.
-      
+
       let tr = null;
       if (setDay === 0 || setDay === 1) {
         // Обрабатываем и отсылаем фотку
-        try {
-          return await getRaspPhoto($, week, selectUser)
-        } catch (err) {
-          console.log(err)
-        }
+        return await getRaspPhoto($, week, selectUser);
       }
 
       if (setDay === 8) {
