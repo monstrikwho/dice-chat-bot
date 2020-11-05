@@ -2,8 +2,6 @@ const Scene = require("telegraf/scenes/base");
 const Extra = require("telegraf/extra");
 const Markup = require("telegraf/markup");
 
-const getRasp = require("../helpers/getRasp");
-
 // *************************** STEP 1 *******************************************
 const showMainMenu = new Scene("showMainMenu");
 showMainMenu.enter(async (ctx) => {
@@ -11,30 +9,24 @@ showMainMenu.enter(async (ctx) => {
     "Вы вошли в главное меню",
     Extra.markup(
       Markup.keyboard([
-        ["Сегодня", "Завтра", "Полное 📷"],
-        ["⚙️ Другое", "📌 Избранное", "🚌 Автобусы"],
+        ["Играть", "Личный кабинет"],
+        ["Демо", "Инфо"],
       ]).resize()
     )
   );
 });
 
-showMainMenu.hears("Сегодня", async (ctx) => {
-  await getRasp(ctx, 8);
+showMainMenu.hears("Играть", async (ctx) => {
+  ctx.reply("Раздел еще в разработке");
 });
-showMainMenu.hears("Завтра", async (ctx) => {
-  await getRasp(ctx, 9);
+showMainMenu.hears("Демо", async (ctx) => {
+  ctx.scene.enter("demoGame");
 });
-showMainMenu.hears("Полное 📷", async (ctx) => {
-  return await ctx.scene.enter("weekMenu");
+showMainMenu.hears("Личный кабинет", async (ctx) => {
+  ctx.reply("Раздел еще в разработке");
 });
-showMainMenu.hears("⚙️ Другое", async (ctx) => {
-  await ctx.scene.enter("showSettingsMenu");
-});
-showMainMenu.hears("📌 Избранное", async (ctx) => {
-  await ctx.scene.enter("favoritesMenu");
-});
-showMainMenu.hears("🚌 Автобусы", async (ctx) => {
-  await ctx.scene.enter("autobusMenu");
+showMainMenu.hears("Инфо", async (ctx) => {
+  ctx.reply("Раздел еще в разработке");
 });
 
 module.exports = { showMainMenu };

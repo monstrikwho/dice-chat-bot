@@ -1,4 +1,3 @@
-const Markup = require("telegraf/markup");
 const setupScenes = require("../scens/setupScenes");
 
 const User = require("../models/user");
@@ -10,21 +9,18 @@ function setupStart(bot) {
   // Start command
   bot.start(async (ctx) => {
     try {
-      let reg = await ctx.reply(
-        "Регистрация",
-        Markup.removeKeyboard().extra()
-      );
-
       const selectUser = await User.findOne({ userId: ctx.from.id });
-      if (selectUser) {
-        await ctx.deleteMessage(reg.message_id)
-        await ctx.reply("Вы уже зарегистрированы.");
-        return await ctx.scene.enter("showMainMenu");
+      if (!selectUser) {
+        const user = new User({
+          userId: ctx.from.id,
+          demoMoney: 10000
+        });
+        await user.save();
       }
-
-      await ctx.scene.enter("step1");
+      ctx.reply('приветственное письмо')
+      return await ctx.scene.enter("showMainMenu");
     } catch (err) {
-      console.log("Не удалось пройти регистрацию (start.js)", err.message);
+      console.log("Не удалось пройти регистрацию", err.message);
     }
   });
 }
