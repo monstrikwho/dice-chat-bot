@@ -5,7 +5,7 @@ const Markup = require("telegraf/markup");
 const axios = require("axios");
 const querystring = require("querystring");
 
-axios.defaults.headers.common["User-Agent"] = "****";
+axios.defaults.headers.common["Accept"] = "application/json";
 axios.defaults.headers.common[
   "Authorization"
 ] = `Bearer ${process.env.QIWI_TOKEN}`;
@@ -27,10 +27,10 @@ lkMenu.enter(async (ctx) => {
 
 lkMenu.hears("Пополнить", async (ctx) => {
   await axios
-    .put(
-      `https://edge.qiwi.com/payment-notifier/v1/hooks?hookType=1&param=http%3A%2F%2F188.165.91.109:5000/verify_pay%2F&txnType=0`
+    .get(
+      `https://edge.qiwi.com/payment-notifier/v1/hooks/test`
     )
-    .then((res) => console.log(res.data.hookId));
+    .then((res) => console.log(res));
   // await axios.post(
   //   `http://188.165.91.109:5000/verify_pay`,
   //   querystring.stringify({ parseLink: "fsdfsdf" })
