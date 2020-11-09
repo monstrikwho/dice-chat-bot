@@ -30,7 +30,7 @@ lkMenu.hears("Пополнить", async (ctx) => {
     .put(
       `https://edge.qiwi.com/payment-notifier/v1/hooks?hookType=1&param=http%3A%2F%2F188.165.91.109:5000/verify_pay%2F&txnType=0`
     )
-    .then((res) => console.log(res));
+    .then((res) => console.log(res.data.hookId));
   // await axios.post(
   //   `http://188.165.91.109:5000/verify_pay`,
   //   querystring.stringify({ parseLink: "fsdfsdf" })
