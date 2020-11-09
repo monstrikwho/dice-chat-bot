@@ -28,9 +28,9 @@ lkMenu.enter(async (ctx) => {
 lkMenu.hears("Пополнить", async (ctx) => {
   await axios
     .get(
-      `https://edge.qiwi.com/payment-notifier/v1/hooks/test`
+      `https://edge.qiwi.com/payment-notifier/v1/hooks/active`
     )
-    .then((res) => console.log(res.data.response));
+    .then((res) => console.log(res));
   // await axios.post(
   //   `http://188.165.91.109:5000/verify_pay`,
   //   querystring.stringify({ parseLink: "fsdfsdf" })
