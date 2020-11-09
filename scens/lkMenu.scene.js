@@ -26,16 +26,16 @@ lkMenu.enter(async (ctx) => {
 });
 
 lkMenu.hears("Пополнить", async (ctx) => {
-  await axios
-    .get(
-      `https://edge.qiwi.com/payment-notifier/v1/hooks/test`
-    )
-    .then((res) => console.log(res.data.response));
-  await axios
-    .get(
-      `https://edge.qiwi.com/payment-notifier/v1/hooks/${process.env.HOOK_ID}/key`
-    )
-    .then((res) => console.log(res.data.key));
+  // await axios
+  //   .get(
+  //     `https://edge.qiwi.com/payment-notifier/v1/hooks/test`
+  //   )
+  //   .then((res) => console.log(res.data.response));
+  // await axios
+  //   .get(
+  //     `https://edge.qiwi.com/payment-notifier/v1/hooks/${process.env.HOOK_ID}/key`
+  //   )
+  //   .then((res) => console.log(res.data.key));
 
   // await axios.post(
   //   `http://188.165.91.109:5000/verify_pay`,
@@ -43,9 +43,9 @@ lkMenu.hears("Пополнить", async (ctx) => {
   // );
   // .then((res) => console.log(res.data.message));
 
-  // const amount = 1;
-  // const comment = ctx.from.id;
-  // const url = `https://qiwi.com/payment/form/99?extra%5B%27account%27%5D=${process.env.QIWI_WALLET}&amountInteger=${amount}&amountFraction=0&extra%5B%27comment%27%5D=${comment}&currency=643&blocked[0]=sum&blocked[1]=account&blocked[2]=comment`;
+  const amount = 1;
+  const comment = ctx.from.id;
+  const url = `https://qiwi.com/payment/form/99?extra%5B%27account%27%5D=${process.env.QIWI_WALLET}&amountInteger=${amount}&amountFraction=0&extra%5B%27comment%27%5D=${comment}&currency=643&blocked[0]=sum&blocked[1]=account&blocked[2]=comment`;
 });
 lkMenu.hears("Вывести", ({ scene }) => {
   scene.enter("outMoney");

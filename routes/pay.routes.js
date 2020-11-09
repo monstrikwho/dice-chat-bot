@@ -3,7 +3,7 @@ const router = Router();
 
 router.post("/", async (req, res) => {
   try {
-    console.log(req)
+    console.log(req.body)
   } catch (error) {
     req.status(500).json({ message: "Что-то пошло не так" });
   }
