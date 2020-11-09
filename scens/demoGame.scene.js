@@ -53,12 +53,6 @@ demoGame.enter(async (ctx) => {
   await actionsBord(demoGame);
 });
 
-// bot.on("callback_query", ({ update, answerCbQuery, scene }) => {
-//   const cb_q = update.callback_query;
-
-//   answerCbQuery("sdfsdf");
-// });
-
 
 demoGame.hears("↪️ Вернуться назад", ({ scene }) => {
   scene.enter("showMainMenu");

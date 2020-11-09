@@ -447,7 +447,6 @@ module.exports = async (demoGame) => {
       even: 0,
       odd: 0,
     };
-    ctx.session.state.valueRate = 1;
     ctx.session.state.countRate = 0;
     ctx.session.state.balance = demoMoney;
     const state = ctx.session.state;
