@@ -46,6 +46,7 @@ lkMenu.hears("Пополнить", async (ctx) => {
   const amount = 1;
   const comment = ctx.from.id;
   const url = `https://qiwi.com/payment/form/99?extra%5B%27account%27%5D=${process.env.QIWI_WALLET}&amountInteger=${amount}&amountFraction=0&extra%5B%27comment%27%5D=${comment}&currency=643&blocked[0]=sum&blocked[1]=account&blocked[2]=comment`;
+  ctx.reply(url)
 });
 lkMenu.hears("Вывести", ({ scene }) => {
   scene.enter("outMoney");
