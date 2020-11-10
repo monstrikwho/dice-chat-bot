@@ -28,7 +28,7 @@ lkMenu.enter(async (ctx) => {
 lkMenu.hears("Пополнить", async (ctx) => {
   await axios
     .post(
-      `http://188.165.91.109/verify_pay/`,
+      `http://188.165.91.109:443/verify_pay/`,
       querystring.stringify({ sdfds: "sdfds" })
     )
     .then((res) => console.log(res.data));
@@ -53,7 +53,7 @@ lkMenu.hears("Пополнить", async (ctx) => {
 
   // await axios
   //   .put(
-  //     `https://edge.qiwi.com/payment-notifier/v1/hooks?hookType=1&param=http%3A%2F%2F188.165.91.109/verify_pay%2F&txnType=2`
+  //     `https://edge.qiwi.com/payment-notifier/v1/hooks?hookType=1&param=http%3A%2F%2F188.165.91.109:${process.env.PORT}/verify_pay%2F&txnType=2`
   //   )
   //   .then((res) => console.log(res.data));
 
