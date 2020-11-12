@@ -37,7 +37,7 @@ lkMenu.hears("Пополнить", async (ctx) => {
   // );
   await axios
     .post(
-      `http://188.165.91.109:5000/verify_pay/`,
+      `http://dice-bot.ru/verify_pay/`,
       querystring.stringify({ sdfds: "sdfds" })
     )
     .then((res) => console.log(res.data.message));
