@@ -9,7 +9,7 @@ const extraBoard = require("../helpers/extraBoard");
 const actionsBord = require("../helpers/actionsBoard");
 
 let message = (state) => `Делайте ваши ставки.
-Ваш баланс: ${state.balance}`;
+Ваш баланс: ${state.balance} ₽`;
 
 const demoGame = new Scene("demoGame");
 demoGame.enter(async (ctx) => {

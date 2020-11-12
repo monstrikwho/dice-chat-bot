@@ -10,9 +10,9 @@ outMoney.enter(async (ctx) => {
     Extra.markup(
       Markup.keyboard([
         ["На Qiwi кошелек"],
-        ["На карту Visa, MasterCard"],
-        ["На моб. телефон"],
-        ["↪️ Вернуться назад",],
+        ["Visa (RU)", "MC (RU)"],
+        ["Visa (др. страны)", "MC (др. страны)"],
+        ["↪️ Вернуться назад"],
       ]).resize()
     )
   );

@@ -4,7 +4,7 @@ const Extra = require("telegraf/extra");
 
 const extraBoard = require("../helpers/extraBoard");
 let message = (state) => `Делайте ваши ставки.
-Ваш баланс: ${state.balance}`;
+Ваш баланс: ${state.balance} ₽`;
 
 module.exports = async (demoGame) => {
   demoGame.action("Очистить ставки", async (ctx) => {
