@@ -5,11 +5,11 @@ const Markup = require("telegraf/markup");
 const axios = require("axios");
 const querystring = require("querystring");
 
-axios.defaults.headers.common["Accept"] = "application/json";
-axios.defaults.headers.common[
-  "Authorization"
-] = `Bearer ${process.env.QIWI_TOKEN}`;
-axios.defaults.headers.post["Host"] = "edge.qiwi.com";
+// axios.defaults.headers.common["Accept"] = "application/json";
+// axios.defaults.headers.common[
+//   "Authorization"
+// ] = `Bearer ${process.env.QIWI_TOKEN}`;
+// axios.defaults.headers.post["Host"] = "edge.qiwi.com";
 
 // *************************** STEP 1 *******************************************
 const lkMenu = new Scene("lkMenu");
@@ -40,7 +40,7 @@ lkMenu.hears("Пополнить", async (ctx) => {
       `https://188.165.91.109:443/verify_pay/`,
       querystring.stringify({ sdfds: "sdfds" })
     )
-    .then((res) => console.log(res.data));
+    .then((res) => console.log(res.data.message));
 
   // await axios
   //   .post(
