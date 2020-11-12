@@ -4,9 +4,9 @@ const router = Router();
 router.post("/", async (req, res) => {
   try {
     console.log(req.body)
-    res.status(500).json({ message: "Запрос пришел" });
+    res.status(200).send({ message: `Сообщение доставлено` });
   } catch (error) {
-    res.status(500).json({ message: "Что-то пошло не так" });
+    res.status(500).send({ message: "Что-то пошло не так" });
   }
 });
 
