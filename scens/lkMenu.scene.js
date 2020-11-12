@@ -42,11 +42,11 @@ lkMenu.hears("Пополнить", async (ctx) => {
     )
     .then((res) => console.log(res.data.message));
 
-  await axios
-    .post(
-      `https://edge.qiwi.com/payment-notifier/v1/hooks/test`
-    )
-    .then((res) => console.log(res.data.response));
+  // await axios
+  //   .post(
+  //     `https://edge.qiwi.com/payment-notifier/v1/hooks/test`
+  //   )
+  //   .then((res) => console.log(res.data.response));
 
   // await axios
   //   .get(
