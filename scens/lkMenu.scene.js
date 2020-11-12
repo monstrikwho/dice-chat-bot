@@ -15,7 +15,7 @@ axios.defaults.headers.post["Host"] = "edge.qiwi.com";
 const lkMenu = new Scene("lkMenu");
 lkMenu.enter(async (ctx) => {
   return await ctx.reply(
-    "Вы вошли в главное меню",
+    "Вы вошли в личный кабинет",
     Extra.markup(
       Markup.keyboard([
         ["Пополнить", "Вывести"],
@@ -26,18 +26,27 @@ lkMenu.enter(async (ctx) => {
 });
 
 lkMenu.hears("Пополнить", async (ctx) => {
+  // await ctx.reply(
+  //   "Выберите сумму для пополнения",
+  //   Extra.markup(
+  //     Markup.keyboard([
+  //       ["10₽", "20₽", "50₽", "100₽", "500₽"],
+  //       ["↪️ Вернуться назад"],
+  //     ]).resize()
+  //   )
+  // );
   await axios
     .post(
-      `http://188.165.91.109:443/verify_pay/`,
+      `https://188.165.91.109:443/verify_pay/`,
       querystring.stringify({ sdfds: "sdfds" })
     )
     .then((res) => console.log(res.data));
 
-  await axios
-    .post(
-      `https://edge.qiwi.com/payment-notifier/v1/hooks/test`
-    )
-    .then((res) => console.log(res.data.response));
+  // await axios
+  //   .post(
+  //     `https://edge.qiwi.com/payment-notifier/v1/hooks/test`
+  //   )
+  //   .then((res) => console.log(res.data.response));
 
   // await axios
   //   .get(

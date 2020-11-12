@@ -53,9 +53,13 @@ demoGame.enter(async (ctx) => {
   await actionsBord(demoGame);
 });
 
+demoGame.hears(
+  "↪️ Вернуться назад",
+  async ({ scene, deleteMessage, session }) => {
+    await deleteMessage(session.state.activeBoard.message_id);
 
-demoGame.hears("↪️ Вернуться назад", ({ scene }) => {
-  scene.enter("showMainMenu");
-});
+    scene.enter("showMainMenu");
+  }
+);
 
 module.exports = { demoGame };
