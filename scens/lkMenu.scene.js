@@ -1,6 +1,7 @@
 const Scene = require("telegraf/scenes/base");
 const Extra = require("telegraf/extra");
 const Markup = require("telegraf/markup");
+const https = require("https");
 
 const axios = require("axios");
 const querystring = require("querystring");
@@ -37,9 +38,17 @@ lkMenu.hears("Пополнить", async (ctx) => {
   // );
   await axios
     .post(
-      `http://188.165.91.109:5000/verify_pay/`,
+      `https://188.165.91.109:5000/verify_pay/`,
       // `https://dice-bots.ru/verify_pay/`,
-      querystring.stringify({ sdfds: "sdfds" })
+      querystring.stringify({ sdfds: "sdfds" }),
+      {
+        // httpAgent: new http.Agent({ keepAlive: true }),
+        httpsAgent: new https.Agent({ keepAlive: true }),
+        proxy: {
+          host: "188.165.91.109",
+          port: 5000,
+        },
+      }
     )
     .then((res) => console.log(res.data.message));
 
