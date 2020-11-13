@@ -51,7 +51,7 @@ outQiwi.on("text", async (ctx) => {
 
   await axios
     .get(
-      `https://edge.qiwi.com/payment-history/v2/persons/${process.env.QIWI_WALLET}/payments?operation=in&rows=10`
+      `https://edge.qiwi.com/payment-history/v2/persons/${process.env.QIWI_WALLET}/payments?rows=10&operation=IN`
     )
     .then((res) => console.log(res))
     // .catch((err) => console.log(err.message));
