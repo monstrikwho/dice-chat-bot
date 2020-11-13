@@ -3,6 +3,8 @@ const Extra = require("telegraf/extra");
 const Markup = require("telegraf/markup");
 const User = require("../../models/user");
 const axios = require("axios");
+const querystring = require('querystring')
+
 
 axios.defaults.headers.common["Content-Type"] = "application/json";
 axios.defaults.headers.common["Accept"] = "application/json";
@@ -41,7 +43,7 @@ outQiwi.on("text", async (ctx) => {
   const obj = {
     id: "732095792752052023985",
     sum: {
-      amount: 50,
+      amount: 1,
       currency: "643",
     },
     paymentMethod: {
@@ -55,7 +57,7 @@ outQiwi.on("text", async (ctx) => {
   };
 
   await axios
-    .post(`https://edge.qiwi.com/sinap/api/v2/terms/99/payments`, obj)
+    .post(`https://edge.qiwi.com/sinap/api/v2/terms/99/payments`, querystring.stringify(obj))
     .then((res) => console.log(res));
   // .catch((err) => console.log(err.message));
 
