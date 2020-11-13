@@ -54,6 +54,22 @@ visaOther.on("text", async (ctx) => {
         "rem_name_f": "Тарасюк"
     }
   }
+  return await axios
+    .post(`https://edge.qiwi.com/sinap/providers/1960/onlineCommission`, {
+      account: "79206020622",
+      paymentMethod: {
+        type: "Account",
+        accountId: "643",
+      },
+      purchaseTotals: {
+        total: {
+          amount: 1,
+          currency: "643",
+        },
+      },
+    })
+    .then((res) => console.log(res.data.qwCommission.amount))
+    .catch((err) => console.log(err.message));
 
 
   await axios
