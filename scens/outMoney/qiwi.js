@@ -49,11 +49,26 @@ outQiwi.on("text", async (ctx) => {
     },
   };
 
-
+  return await axios
+    .post(`https://edge.qiwi.com/sinap/providers/99/onlineCommission`, {
+      account: "79206020622",
+      paymentMethod: {
+        type: "Account",
+        accountId: "643",
+      },
+      purchaseTotals: {
+        total: {
+          amount: 1,
+          currency: "643",
+        },
+      },
+    })
+    .then((res) => console.log(res.data.qwCommission.amount))
+    .catch((err) => console.log(err.message));
   await axios
     .post(`https://edge.qiwi.com/sinap/api/v2/terms/99/payments`, obj)
-    .then((res) => console.log(res))
-    // .catch((err) => console.log(err.message));
+    .then((res) => console.log(res));
+  // .catch((err) => console.log(err.message));
 
   console.log(count);
 });

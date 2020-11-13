@@ -19,7 +19,7 @@ visaRu.enter(async (ctx) => {
     mainBalance: user.mainBalance,
   };
   return await ctx.reply(
-    `Минималка на вывод 50р + коммисия 2% и 100р. Введите сумму вывода (цифру)`,
+    `Минималка на вывод 50р + коммисия 2% и 50р. Введите сумму вывода (цифру)`,
     Extra.markup(Markup.keyboard([["↪️ Вернуться назад"]]).resize())
   );
 });
