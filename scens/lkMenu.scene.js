@@ -1,16 +1,11 @@
 const Scene = require("telegraf/scenes/base");
 const Extra = require("telegraf/extra");
 const Markup = require("telegraf/markup");
-const https = require("https");
 
+const querystring = require('querystring')
 const axios = require("axios");
-const querystring = require("querystring");
+// const https = require('https')
 
-// axios.defaults.headers.common["Accept"] = "application/json";
-// axios.defaults.headers.common[
-//   "Authorization"
-// ] = `Bearer ${process.env.QIWI_TOKEN}`;
-// axios.defaults.headers.post["Host"] = "edge.qiwi.com";
 
 // *************************** STEP 1 *******************************************
 const lkMenu = new Scene("lkMenu");
@@ -36,27 +31,27 @@ lkMenu.hears("Пополнить", async (ctx) => {
   //     ]).resize()
   //   )
   // );
-  // await axios
-  //   .post(
-  //     // `https://188.165.91.109:5000/verify_pay/`,
-  //     `https://dice-bots.ru/verify_pay/`,
-  //     querystring.stringify({ sdfds: "sdfds" }),
-  //     {
-  //       // httpAgent: new http.Agent({ keepAlive: true }),
-  //       httpsAgent: new https.Agent({ keepAlive: true }),
-  //       proxy: {
-  //         host: "188.165.91.109",
-  //         port: 5000,
-  //       },
-  //     }
-  //   )
-  //   .then((res) => console.log(res.data.message));
-
   await axios
-    .get(
-      `https://edge.qiwi.com/payment-notifier/v1/hooks/test`
+    .post(
+      // `https://188.165.91.109:5000/verify_pay/`,
+      `https://dice-bots.ru/verify_pay/`,
+      querystring.stringify({ sdfds: "sdfds" }),
+      // {
+      //   // httpAgent: new http.Agent({ keepAlive: true }),
+      //   httpsAgent: new https.Agent({ keepAlive: true }),
+      //   proxy: {
+      //     host: "188.165.91.109",
+      //     port: 5000,
+      //   },
+      // }
     )
-    .then((res) => console.log(res.data.response));
+    .then((res) => console.log(res.data.message));
+
+  // await axios
+  //   .get(
+  //     `https://edge.qiwi.com/payment-notifier/v1/hooks/test`
+  //   )
+  //   .then((res) => console.log(res.data.response));
 
   // await axios
   //   .get(
@@ -72,7 +67,7 @@ lkMenu.hears("Пополнить", async (ctx) => {
 
   // await axios
   //   .put(
-  //     `https://edge.qiwi.com/payment-notifier/v1/hooks?hookType=1&param=https%3A%2F%2F188.165.91.109:${process.env.PORT}/verify_pay%2F&txnType=2`
+  //     `https://edge.qiwi.com/payment-notifier/v1/hooks?hookType=1&param=http%3A%2F%2F188.165.91.109:${process.env.PORT}/verify_pay%2F&txnType=2`
   //   )
   //   .then((res) => console.log(res.data));
 
