@@ -2,6 +2,7 @@ const Scene = require("telegraf/scenes/base");
 const Extra = require("telegraf/extra");
 const Markup = require("telegraf/markup");
 const User = require("../models/user");
+const axios = require("axios");
 
 // *************************** STEP 1 *******************************************
 const outMoney = new Scene("outMoney");
