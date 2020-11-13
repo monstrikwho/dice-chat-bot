@@ -11,7 +11,7 @@ app.use(express.urlencoded({ extended: true }));
 
 app.use(
   "/",
-  proxy("https://188.165.91.109:5000/verify_pay/", {
+  proxy("https://188.165.91.109:5000/", {
     https: true,
   })
 );
