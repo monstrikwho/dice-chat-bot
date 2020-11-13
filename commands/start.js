@@ -13,11 +13,12 @@ function setupStart(bot) {
       if (!selectUser) {
         const user = new User({
           userId: ctx.from.id,
-          demoMoney: 10000
+          demoMoney: 15000,
+          mainBalance: 10,
         });
         await user.save();
       }
-      ctx.reply('приветственное письмо')
+      ctx.reply("приветственное письмо");
       return await ctx.scene.enter("showMainMenu");
     } catch (err) {
       console.log("Не удалось пройти регистрацию", err.message);

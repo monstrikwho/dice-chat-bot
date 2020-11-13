@@ -6,8 +6,11 @@ const schema = new Schema({
     unique: true,
   },
   demoMoney: {
-    type: Number
-  }
+    type: Number,
+  },
+  mainBalance: {
+    type: Number,
+  },
 });
 
 module.exports = model("Users", schema);

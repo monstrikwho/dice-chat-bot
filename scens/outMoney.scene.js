@@ -18,6 +18,9 @@ outMoney.enter(async (ctx) => {
   );
 });
 
+outMoney.hears("На Qiwi кошелек", ({ scene }) => {
+  scene.enter("outQiwi");
+});
 outMoney.hears("↪️ Вернуться назад", ({ scene }) => {
   scene.enter("lkMenu");
 });
