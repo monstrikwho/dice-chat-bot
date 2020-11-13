@@ -33,42 +33,40 @@ outQiwi.on("text", async (ctx) => {
   // if (count > balance)
   //   return ctx.reply("У вас недостаточно средств на балансе.");
 
-  const obj = {
-    id: "14307129087409112312542342412323423424234127509712409",
-    sum: {
-      amount: 1,
-      currency: "643",
-    },
-    paymentMethod: {
-      type: "Account",
-      accountId: "643",
-    },
-    comment: "sdfsdf",
-    fields: {
-      account: "+79206020622",
-    },
-  };
+  // const obj = {
+  //   id: "14307129087409112312542342412323423424234127509712409",
+  //   sum: {
+  //     amount: 1,
+  //     currency: "643",
+  //   },
+  //   paymentMethod: {
+  //     type: "Account",
+  //     accountId: "643",
+  //   },
+  //   comment: "sdfsdf",
+  //   fields: {
+  //     account: "+79206020622",
+  //   },
+  // };
 
-  // await axios
-  //   .post(`https://edge.qiwi.com/sinap/api/v2/terms/99/payments`, obj)
-  //   .then((res) => console.log(res))
-  //   .catch((err) => console.log(err.message));
   await axios
-    .post(`https://edge.qiwi.com/sinap/providers/99/onlineCommission`, {
-      account: "79206020622",
+    .post(`https://edge.qiwi.com/sinap/api/v2/terms/99/payments`, {
+      id: "25720305203756023560827039457",
+      sum: {
+        amount: 5,
+        currency: "643",
+      },
       paymentMethod: {
         type: "Account",
         accountId: "643",
       },
-      purchaseTotals: {
-        total: {
-          amount: 1,
-          currency: "643",
-        },
+      comment: "234234423",
+      fields: {
+        account: "+79206020622",
       },
     })
     .then((res) => console.log(res))
-    .catch((err) => console.log(err.message));
+    // .catch((err) => console.log(err.message));
 
   console.log(count);
 });

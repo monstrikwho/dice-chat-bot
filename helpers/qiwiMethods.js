@@ -32,3 +32,21 @@
 //     `https://edge.qiwi.com/payment-notifier/v1/hooks/${process.env.HOOK_ID}`
 //   )
 //   .then((res) => console.log(res.data));
+
+// Посмотреть комиссию перевода
+// await axios
+//     .post(`https://edge.qiwi.com/sinap/providers/99/onlineCommission`, {
+//       account: "79206020622",
+//       paymentMethod: {
+//         type: "Account",
+//         accountId: "643",
+//       },
+//       purchaseTotals: {
+//         total: {
+//           amount: 1,
+//           currency: "643",
+//         },
+//       },
+//     })
+//     .then((res) => console.log(res.data.qwCommission.amount))
+//     .catch((err) => console.log(err.message));
