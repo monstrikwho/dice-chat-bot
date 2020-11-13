@@ -2,19 +2,19 @@ const express = require("express");
 // const https = require("https");
 const cors = require("cors");
 // const fs = require("fs");
-// var proxy = require("express-http-proxy");
+var proxy = require("express-http-proxy");
 
 const app = express();
 
 app.use(cors());
 app.use(express.urlencoded({ extended: true }));
 
-// app.use(
-//   "/",
-//   proxy("188.165.91.109:5000", {
-//     https: true,
-//   })
-// );
+app.use(
+  "/",
+  proxy("https://188.165.91.109:5000/verify_pay", {
+    https: true,
+  })
+);
 app.use("/verify_pay", require("../routes/pay.routes"));
 
 // async function startRoutes() {
