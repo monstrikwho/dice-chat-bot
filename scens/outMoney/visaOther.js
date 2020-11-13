@@ -12,8 +12,8 @@ axios.defaults.headers.common[
 axios.defaults.headers.post["Host"] = "edge.qiwi.com";
 
 // *************************** STEP 1 *******************************************
-const outQiwi = new Scene("outQiwi");
-outQiwi.enter(async (ctx) => {
+const visaOther = new Scene("visaOther");
+visaOther.enter(async (ctx) => {
   const user = await User.findOne({ userId: ctx.from.id });
   ctx.session.state = {
     mainBalance: user.mainBalance,
@@ -24,7 +24,7 @@ outQiwi.enter(async (ctx) => {
   );
 });
 
-outQiwi.on("text", async (ctx) => {
+visaOther.on("text", async (ctx) => {
   const count = +ctx.update.message.text.replace(/\D+/, "");
   const balance = ctx.session.state.mainBalance;
 
@@ -34,32 +34,38 @@ outQiwi.on("text", async (ctx) => {
   //   return ctx.reply("У вас недостаточно средств на балансе.");
 
   const obj = {
-    id: "7502927350927395023",
-    sum: {
-      amount: 2,
-      currency: "643",
+    "id":"2113132480274343",
+    "sum": {
+          "amount":1,
+          "currency":"643"
     },
-    paymentMethod: {
-      type: "Account",
-      accountId: "643",
+    "paymentMethod": {
+        "type":"Account",
+        "accountId":"643"
     },
-    comment: "sdfsdf",
-    fields: {
-      account: "+375297835128",
-    },
-  };
+    "fields": {
+        "account": "4255190103543289",
+        "rec_address": "Ленинский проспект 131, 56",
+        "rec_city": "Москва",
+        "rec_country": "Россия",
+        "reg_name": "Никита",
+        "reg_name_f": "Концевич",
+        "rem_name": "Александр",
+        "rem_name_f": "Тарасюк"
+    }
+  }
 
 
   await axios
-    .post(`https://edge.qiwi.com/sinap/api/v2/terms/99/payments`, obj)
+    .post(`https://edge.qiwi.com/sinap/api/v2/terms/1960/payments`, obj)
     .then((res) => console.log(res))
     // .catch((err) => console.log(err.message));
 
   console.log(count);
 });
 
-outQiwi.hears("↪️ Вернуться назад", ({ scene }) => {
+visaOther.hears("↪️ Вернуться назад", ({ scene }) => {
   scene.enter("lkMenu");
 });
 
-module.exports = { outQiwi };
+module.exports = { visaOther };
