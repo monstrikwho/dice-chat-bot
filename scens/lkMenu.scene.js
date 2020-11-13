@@ -4,7 +4,7 @@ const Markup = require("telegraf/markup");
 
 const querystring = require('querystring')
 const axios = require("axios");
-// const https = require('https')
+const http = require('http')
 
 
 axios.defaults.headers.common["Content-Type"] = "application/json";
@@ -40,17 +40,17 @@ lkMenu.hears("Пополнить", async (ctx) => {
   // );
   await axios
     .post(
-      // `https://188.165.91.109:5000/verify_pay/`,
-      `http://dice-bots.ru/verify_pay/`,
+      `http://188.165.91.109:5000/verify_pay/`,
+      // `http://dice-bots.ru/verify_pay/`,
       querystring.stringify({ sdfds: "sdfds" }),
-      // {
-      //   // httpAgent: new http.Agent({ keepAlive: true }),
-      //   httpsAgent: new https.Agent({ keepAlive: true }),
-      //   proxy: {
-      //     host: "188.165.91.109",
-      //     port: 5000,
-      //   },
-      // }
+      {
+        httpAgent: new http.Agent({ keepAlive: true }),
+        // httpsAgent: new https.Agent({ keepAlive: true }),
+        proxy: {
+          host: "188.165.91.109",
+          port: 5000,
+        },
+      }
     )
     .then((res) => console.log(res.data.message));
 
