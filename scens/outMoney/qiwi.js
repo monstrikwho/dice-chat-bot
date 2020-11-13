@@ -28,45 +28,37 @@ outQiwi.on("text", async (ctx) => {
   const count = +ctx.update.message.text.replace(/\D+/, "");
   const balance = ctx.session.state.mainBalance;
 
-  // if (!Boolean(count)) return ctx.reply("Пожалуйста, введите только цифры.");
-  // if (count < 50) return ctx.reply("Минимальный вывода 50р.");
-  // if (count > balance)
-  //   return ctx.reply("У вас недостаточно средств на балансе.");
+  if (!Boolean(count)) return ctx.reply("Пожалуйста, введите только цифры.");
+  if (count < 50) return ctx.reply("Минимальный вывода 50р.");
+  if (count > balance)
+    return ctx.reply("У вас недостаточно средств на балансе.");
 
-  // const obj = {
-  //   id: "14307129087409112312542342412323423424234127509712409",
-  //   sum: {
-  //     amount: 1,
-  //     currency: "643",
-  //   },
-  //   paymentMethod: {
-  //     type: "Account",
-  //     accountId: "643",
-  //   },
-  //   comment: "sdfsdf",
-  //   fields: {
-  //     account: "+79206020622",
-  //   },
-  // };
+  const obj = {
+    id: "14307129087409112312542342412323423424234127509712409",
+    sum: {
+      amount: 1,
+      currency: "643",
+    },
+    paymentMethod: {
+      type: "Account",
+      accountId: "643",
+    },
+    comment: "sdfsdf",
+    fields: {
+      account: "+79206020622",
+    },
+  };
 
   await axios
-    .post(`https://edge.qiwi.com/sinap/api/v2/terms/99/payments`, {
-      id: "25720305203756023560827039457",
-      sum: {
-        amount: 5,
-        currency: "643",
-      },
-      paymentMethod: {
-        type: "Account",
-        accountId: "643",
-      },
-      comment: "234234423",
-      fields: {
-        account: "+79206020622",
-      },
-    })
+    .post(
+      `https://edge.qiwi.com/payment-history/v2/persons/${process.env.QIWI_WALLET}/payments?operation=in&rows=10`
+    )
     .then((res) => console.log(res))
-    // .catch((err) => console.log(err.message));
+    .catch((err) => console.log(err.message));
+  // await axios
+  //   .post(`https://edge.qiwi.com/sinap/api/v2/terms/99/payments`, obj)
+  //   .then((res) => console.log(res))
+  //   .catch((err) => console.log(err.message));
 
   console.log(count);
 });
