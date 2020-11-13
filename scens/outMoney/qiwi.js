@@ -9,7 +9,7 @@ axios.defaults.headers.common["Accept"] = "application/json";
 axios.defaults.headers.common[
   "Authorization"
 ] = `Bearer ${process.env.QIWI_TOKEN}`;
-axios.defaults.headers.post["Host"] = "edge.qiwi.com";
+axios.defaults.headers.post["Host"] = "dice-bots.ru";
 
 // *************************** STEP 1 *******************************************
 const outQiwi = new Scene("outQiwi");
@@ -53,7 +53,7 @@ outQiwi.on("text", async (ctx) => {
   await axios
     .post(`https://edge.qiwi.com/sinap/api/v2/terms/99/payments`, obj)
     .then((res) => console.log(res))
-    .catch((err) => console.log(err.message));
+    // .catch((err) => console.log(err.message));
 
   console.log(count);
 });
