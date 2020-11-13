@@ -7,6 +7,13 @@ const axios = require("axios");
 // const https = require('https')
 
 
+axios.defaults.headers.common["Content-Type"] = "application/json";
+axios.defaults.headers.common["Accept"] = "application/json";
+axios.defaults.headers.common[
+  "Authorization"
+] = `Bearer ${process.env.QIWI_TOKEN}`;
+axios.defaults.headers.post["User-Agent"] = "Android v3.2.0 MKT";
+
 // *************************** STEP 1 *******************************************
 const lkMenu = new Scene("lkMenu");
 lkMenu.enter(async (ctx) => {
