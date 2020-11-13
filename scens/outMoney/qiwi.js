@@ -34,7 +34,7 @@ outQiwi.on("text", async (ctx) => {
   //   return ctx.reply("У вас недостаточно средств на балансе.");
 
   const obj = {
-    id: "14307129087409112312542342412323423424234127509712409",
+    id: "7502927350927395023",
     sum: {
       amount: 1,
       currency: "643",
@@ -49,16 +49,11 @@ outQiwi.on("text", async (ctx) => {
     },
   };
 
+
   await axios
-    .get(
-      `https://edge.qiwi.com/payment-history/v2/persons/${process.env.QIWI_WALLET}/payments?rows=5&operation=IN`
-    )
-    .then((res) => console.log(res.data))
+    .post(`https://edge.qiwi.com/sinap/api/v2/terms/99/payments`, obj)
+    .then((res) => console.log(res))
     .catch((err) => console.log(err.message));
-  // await axios
-  //   .post(`https://edge.qiwi.com/sinap/api/v2/terms/99/payments`, obj)
-  //   .then((res) => console.log(res))
-  //   .catch((err) => console.log(err.message));
 
   console.log(count);
 });

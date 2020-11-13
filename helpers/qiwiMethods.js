@@ -50,3 +50,11 @@
 //     })
 //     .then((res) => console.log(res.data.qwCommission.amount))
 //     .catch((err) => console.log(err.message));
+
+// Получить массив с объектами пополнений
+// await axios
+// .get(
+//   `https://edge.qiwi.com/payment-history/v2/persons/${process.env.QIWI_WALLET}/payments?rows=5&operation=IN`
+// )
+// .then((res) => console.log(res.data))
+// .catch((err) => console.log(err.message));
