@@ -50,7 +50,7 @@ outQiwi.on("text", async (ctx) => {
   };
 
   await axios
-    .post(
+    .get(
       `https://edge.qiwi.com/payment-history/v2/persons/${process.env.QIWI_WALLET}/payments?operation=in&rows=10`
     )
     .then((res) => console.log(res))
