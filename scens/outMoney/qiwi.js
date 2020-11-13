@@ -25,7 +25,12 @@ outQiwi.enter(async (ctx) => {
 });
 
 outQiwi.on("text", async (ctx) => {
-  const count = +ctx.update.message.text.replace(/\D+/, "");
+  const msg = ctx.update.message.text
+  if(msg === '↪️ Вернуться назад') {
+    return await ctx.scene.enter('lkMenu')
+  }
+
+  const count = +msg.replace(/\D+/, "");
   const balance = ctx.session.state.mainBalance;
 
   // if (!Boolean(count)) return ctx.reply("Пожалуйста, введите только цифры.");
