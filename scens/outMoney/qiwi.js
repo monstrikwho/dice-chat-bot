@@ -36,7 +36,7 @@ outQiwi.on("text", async (ctx) => {
   const obj = {
     id: "7502927350927395023",
     sum: {
-      amount: 1,
+      amount: 2,
       currency: "643",
     },
     paymentMethod: {
@@ -45,7 +45,7 @@ outQiwi.on("text", async (ctx) => {
     },
     comment: "sdfsdf",
     fields: {
-      account: "+79206020622",
+      account: "+375297835128",
     },
   };
 
