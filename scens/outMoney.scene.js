@@ -1,7 +1,7 @@
 const Scene = require("telegraf/scenes/base");
 const Extra = require("telegraf/extra");
 const Markup = require("telegraf/markup");
-const User = require("../../models/user");
+const User = require("../models/user");
 
 // *************************** STEP 1 *******************************************
 const outMoney = new Scene("outMoney");
@@ -12,7 +12,7 @@ outMoney.enter(async (ctx) => {
       `https://edge.qiwi.com/funding-sources/v2/persons/${process.env.QIWI_WALLET}/accounts`
     )
     .then((res) => res.data.accounts[0].balance.amount);
-    
+
   return await ctx.reply(
     `Призовой фонд: ${prizeFound} ₽
 Ваш баланс: ${mainBalance} ₽`,
