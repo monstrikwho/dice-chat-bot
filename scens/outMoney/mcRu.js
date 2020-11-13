@@ -12,8 +12,8 @@ axios.defaults.headers.common[
 axios.defaults.headers.post["Host"] = "edge.qiwi.com";
 
 // *************************** STEP 1 *******************************************
-const visaOther = new Scene("visaOther");
-visaOther.enter(async (ctx) => {
+const mcRu = new Scene("mcRu");
+mcRu.enter(async (ctx) => {
   const user = await User.findOne({ userId: ctx.from.id });
   ctx.session.state = {
     mainBalance: user.mainBalance,
@@ -24,7 +24,7 @@ visaOther.enter(async (ctx) => {
   );
 });
 
-visaOther.on("text", async (ctx) => {
+mcRu.on("text", async (ctx) => {
   const msg = ctx.update.message.text
   if(msg === '↪️ Вернуться назад') {
     return await ctx.scene.enter('lkMenu')
@@ -60,7 +60,7 @@ visaOther.on("text", async (ctx) => {
     }
   }
   return await axios
-    .post(`https://edge.qiwi.com/sinap/providers/1960/onlineCommission`, {
+    .post(`https://edge.qiwi.com/sinap/providers/21013/onlineCommission`, {
       account: "79206020622",
       paymentMethod: {
         type: "Account",
@@ -78,11 +78,11 @@ visaOther.on("text", async (ctx) => {
 
 
   await axios
-    .post(`https://edge.qiwi.com/sinap/api/v2/terms/1960/payments`, obj)
+    .post(`https://edge.qiwi.com/sinap/api/v2/terms/21013/payments`, obj)
     .then((res) => console.log(res))
     // .catch((err) => console.log(err.message));
 
   console.log(count);
 });
 
-module.exports = { visaOther };
+module.exports = { mcRu };

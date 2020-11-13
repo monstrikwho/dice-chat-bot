@@ -7,6 +7,9 @@ const { lkMenu } = require("./lkMenu.scene");
 const { outMoney } = require("./outMoney.scene");
 const { outQiwi } = require("./outMoney/qiwi");
 const { visaOther } = require("./outMoney/visaOther");
+const { mcOther } = require("./outMoney/mcOther");
+const { visaRu } = require("./outMoney/visaRu");
+const { mcRu } = require("./outMoney/mcRu");
 
 function setupScenes(bot) {
   const stage = new Stage([
@@ -16,6 +19,9 @@ function setupScenes(bot) {
     outMoney,
     outQiwi,
     visaOther,
+    mcOther,
+    visaRu,
+    mcRu,
   ]);
   bot.use(session());
   bot.use(stage.middleware());

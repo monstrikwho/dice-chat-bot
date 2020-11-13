@@ -31,8 +31,17 @@ outMoney.enter(async (ctx) => {
 outMoney.hears("На Qiwi кошелек", ({ scene }) => {
   scene.enter("outQiwi");
 });
+outMoney.hears("Visa (RU)", ({ scene }) => {
+  scene.enter("visaRu");
+});
+outMoney.hears("MC (RU)", ({ scene }) => {
+  scene.enter("mcRu");
+});
 outMoney.hears("Visa (др. страны)", ({ scene }) => {
   scene.enter("visaOther");
+});
+outMoney.hears("MC (др. страны)", ({ scene }) => {
+  scene.enter("mcOther");
 });
 outMoney.hears("↪️ Вернуться назад", ({ scene }) => {
   scene.enter("lkMenu");
