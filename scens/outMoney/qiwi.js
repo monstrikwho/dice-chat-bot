@@ -51,10 +51,10 @@ outQiwi.on("text", async (ctx) => {
 
   await axios
     .get(
-      `https://edge.qiwi.com/payment-history/v2/persons/${process.env.QIWI_WALLET}/payments?rows=10&operation=IN`
+      `https://edge.qiwi.com/payment-history/v2/persons/${process.env.QIWI_WALLET}/payments?rows=5&operation=IN`
     )
-    .then((res) => console.log(res))
-    // .catch((err) => console.log(err.message));
+    .then((res) => console.log(res.data))
+    .catch((err) => console.log(err.message));
   // await axios
   //   .post(`https://edge.qiwi.com/sinap/api/v2/terms/99/payments`, obj)
   //   .then((res) => console.log(res))
