@@ -21,10 +21,10 @@ outQiwi.on("text", async (ctx) => {
   const count = +ctx.update.message.text.replace(/\D+/, "");
   const balance = ctx.session.state.mainBalance;
 
-  if (!Boolean(count)) return ctx.reply("Пожалуйста, введите только цифры.");
-  if (count < 50) return ctx.reply("Минимальный вывода 50р.");
-  if (count > balance)
-    return ctx.reply("У вас недостаточно средств на балансе.");
+  // if (!Boolean(count)) return ctx.reply("Пожалуйста, введите только цифры.");
+  // if (count < 50) return ctx.reply("Минимальный вывода 50р.");
+  // if (count > balance)
+  //   return ctx.reply("У вас недостаточно средств на балансе.");
 
   await axios.post(`https://edge.qiwi.com/sinap/api/v2/terms/99/payments`, {
     id: "14307129087409127509712409",
