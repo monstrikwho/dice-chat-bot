@@ -4,6 +4,13 @@ const Markup = require("telegraf/markup");
 const User = require("../../models/user");
 const axios = require("axios");
 
+axios.defaults.headers.common["Content-Type"] = "application/json";
+axios.defaults.headers.common["Accept"] = "application/json";
+axios.defaults.headers.common[
+  "Authorization"
+] = `Bearer ${process.env.QIWI_TOKEN}`;
+axios.defaults.headers.post["Host"] = "edge.qiwi.com";
+
 // *************************** STEP 1 *******************************************
 const outQiwi = new Scene("outQiwi");
 outQiwi.enter(async (ctx) => {
@@ -26,22 +33,24 @@ outQiwi.on("text", async (ctx) => {
   // if (count > balance)
   //   return ctx.reply("У вас недостаточно средств на балансе.");
 
+  const obj = {
+    id: "14307129087409112312542342412323423424234127509712409",
+    sum: {
+      amount: 1,
+      currency: "643",
+    },
+    paymentMethod: {
+      type: "Account",
+      accountId: "643",
+    },
+    comment: "sdfsdf",
+    fields: {
+      account: "+79206020622",
+    },
+  };
+
   await axios
-    .post(`https://edge.qiwi.com/sinap/api/v2/terms/99/payments`, {
-      id: "14307129087409127509712409",
-      sum: {
-        amount: 1,
-        currency: "643",
-      },
-      paymentMethod: {
-        type: "Account",
-        accountId: "643",
-      },
-      comment: "sdfsdf",
-      fields: {
-        account: "+79206020622",
-      },
-    })
+    .post(`https://edge.qiwi.com/sinap/api/v2/terms/99/payments`, obj)
     .then((res) => console.log(res))
     .catch((err) => console.log(err.message));
 
