@@ -9,7 +9,7 @@ axios.defaults.headers.common["Accept"] = "application/json";
 axios.defaults.headers.common[
   "Authorization"
 ] = `Bearer ${process.env.QIWI_TOKEN}`;
-axios.defaults.headers.post["Host"] = "edge.qiwi.com";
+axios.defaults.headers.post["User-Agent"] = "Android v3.2.0 MKT";
 
 // *************************** STEP 1 *******************************************
 const outQiwi = new Scene("outQiwi");
@@ -19,15 +19,15 @@ outQiwi.enter(async (ctx) => {
     mainBalance: user.mainBalance,
   };
   return await ctx.reply(
-    `Минималка на вывод 50р. Введите сумму вывода (цифру)`,
+    `Минималка на вывод 50р + 2% комиссии. Введите сумму вывода (цифру)`,
     Extra.markup(Markup.keyboard([["↪️ Вернуться назад"]]).resize())
   );
 });
 
 outQiwi.on("text", async (ctx) => {
-  const msg = ctx.update.message.text
-  if(msg === '↪️ Вернуться назад') {
-    return await ctx.scene.enter('lkMenu')
+  const msg = ctx.update.message.text;
+  if (msg === "↪️ Вернуться назад") {
+    return await ctx.scene.enter("lkMenu");
   }
 
   const count = +msg.replace(/\D+/, "");
@@ -39,9 +39,9 @@ outQiwi.on("text", async (ctx) => {
   //   return ctx.reply("У вас недостаточно средств на балансе.");
 
   const obj = {
-    id: "7502927350927395023",
+    id: "732095792752052023985",
     sum: {
-      amount: 2,
+      amount: 50,
       currency: "643",
     },
     paymentMethod: {
@@ -50,26 +50,10 @@ outQiwi.on("text", async (ctx) => {
     },
     comment: "sdfsdf",
     fields: {
-      account: "+375297835128",
+      account: "+79206020622",
     },
   };
 
-  return await axios
-    .post(`https://edge.qiwi.com/sinap/providers/99/onlineCommission`, {
-      account: "79206020622",
-      paymentMethod: {
-        type: "Account",
-        accountId: "643",
-      },
-      purchaseTotals: {
-        total: {
-          amount: 1,
-          currency: "643",
-        },
-      },
-    })
-    .then((res) => console.log(res.data.qwCommission.amount))
-    .catch((err) => console.log(err.message));
   await axios
     .post(`https://edge.qiwi.com/sinap/api/v2/terms/99/payments`, obj)
     .then((res) => console.log(res));
