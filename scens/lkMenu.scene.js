@@ -37,26 +37,26 @@ lkMenu.hears("Пополнить", async (ctx) => {
   //   )
   // );
   await axios
-    .post(
-      `https://188.165.91.109:5000/verify_pay/`,
-      // `https://dice-bots.ru/verify_pay/`,
-      querystring.stringify({ sdfds: "sdfds" }),
-      {
-        // httpAgent: new http.Agent({ keepAlive: true }),
-        httpsAgent: new https.Agent({ keepAlive: true }),
-        proxy: {
-          host: "188.165.91.109",
-          port: 5000,
-        },
-      }
-    )
-    .then((res) => console.log(res.data.message));
+    // .post(
+    //   `https://188.165.91.109:5000/verify_pay/`,
+    //   // `https://dice-bots.ru/verify_pay/`,
+    //   querystring.stringify({ sdfds: "sdfds" }),
+    //   {
+    //     // httpAgent: new http.Agent({ keepAlive: true }),
+    //     httpsAgent: new https.Agent({ keepAlive: true }),
+    //     proxy: {
+    //       host: "188.165.91.109",
+    //       port: 5000,
+    //     },
+    //   }
+    // )
+    // .then((res) => console.log(res.data.message));
 
-  // await axios
-  //   .post(
-  //     `https://edge.qiwi.com/payment-notifier/v1/hooks/test`
-  //   )
-  //   .then((res) => console.log(res.data.response));
+  await axios
+    .post(
+      `https://edge.qiwi.com/payment-notifier/v1/hooks/test`
+    )
+    .then((res) => console.log(res.data.response));
 
   // await axios
   //   .get(
