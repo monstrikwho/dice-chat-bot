@@ -1,12 +1,21 @@
 const Scene = require("telegraf/scenes/base");
 const Extra = require("telegraf/extra");
 const Markup = require("telegraf/markup");
+const User = require("../../models/user");
 
 // *************************** STEP 1 *******************************************
 const outMoney = new Scene("outMoney");
 outMoney.enter(async (ctx) => {
+  const { mainBalance } = await User.findOne({ userId: ctx.from.id });
+  const prizeFound = await axios
+    .get(
+      `https://edge.qiwi.com/funding-sources/v2/persons/${process.env.QIWI_WALLET}/accounts`
+    )
+    .then((res) => res.data.accounts[0].balance.amount);
+    
   return await ctx.reply(
-    "Вы вошли в главное меню",
+    `Призовой фонд: ${prizeFound} ₽
+Ваш баланс: ${mainBalance} ₽`,
     Extra.markup(
       Markup.keyboard([
         ["На Qiwi кошелек"],
