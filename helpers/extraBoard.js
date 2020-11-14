@@ -37,6 +37,7 @@ module.exports = (state) => {
       [inlineBtnHook(m, `3️⃣ - 4️⃣   -   💰 ${state.rate["3-4"]}  [x5]`)],
       [inlineBtnHook(m, `5️⃣ - 6️⃣   -   💰 ${state.rate["5-6"]}  [x5]`)],
       [inlineBtnHook(m, `Очистить ставки`)],
+      [inlineBtnHook(m, `Бросить кости 🎲`)],
     ])
   );
 };

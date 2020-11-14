@@ -357,28 +357,18 @@ module.exports = async (demoGame) => {
     );
   });
 
-  demoGame.on(["dice"], async (ctx) => {
+  demoGame.action("Бросить кости 🎲", async (ctx) => {
     const state = ctx.session.state;
-    await ctx.deleteMessage(ctx.session.state.activeBoard.message_id);
 
     if (state.countRate === 0) {
-      ctx.session.state.activeBoard = await ctx.reply(
-        "Вы не поставили ставку. Пожалуйста, сделайте ставку, чтобы испытать свою удачу.",
-        Extra.markup((m) =>
-          m.inlineKeyboard([
-            [
-              m.callbackButton(
-                "Сделать еще одну ставку",
-                "Сделать еще одну ставку"
-              ),
-            ],
-          ])
-        )
-      );
-      return
+      return ctx.answerCbQuery("Вы не сделали ставку. Пожалуйста сделайте ставку, чтобы бросить кости.", true);
     }
 
-    const value = ctx.message.dice.value;
+    await ctx.deleteMessage(ctx.session.state.activeBoard.message_id);
+
+    const diceMsg = await bot.telegram.sendDice(ctx.from.id, "🎲");
+    const value = diceMsg.dice.value;
+    console.log(value);
 
     let winSum = 0;
 

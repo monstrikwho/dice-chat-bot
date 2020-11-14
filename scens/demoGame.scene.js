@@ -36,7 +36,7 @@ demoGame.enter(async (ctx) => {
   ctx.session.state.balance = demoMoney;
   const state = ctx.session.state;
 
-  // Отправляем первое сообщение с клавиатурой
+  // Отправляем первое сообщение с пустой клавиатурой
   await bot.telegram.sendMessage(
     ctx.from.id,
     "Вы вошли в демо игру",
