@@ -2,19 +2,6 @@ const Scene = require("telegraf/scenes/base");
 const Extra = require("telegraf/extra");
 const Markup = require("telegraf/markup");
 
-const querystring = require('querystring')
-const axios = require("axios");
-const http = require('http')
-
-
-axios.defaults.headers.common["Content-Type"] = "application/json";
-axios.defaults.headers.common["Accept"] = "application/json";
-axios.defaults.headers.common[
-  "Authorization"
-] = `Bearer ${process.env.QIWI_TOKEN}`;
-axios.defaults.headers.post["User-Agent"] = "Android v3.2.0 MKT";
-
-// *************************** STEP 1 *******************************************
 const lkMenu = new Scene("lkMenu");
 lkMenu.enter(async (ctx) => {
   return await ctx.reply(
@@ -28,72 +15,15 @@ lkMenu.enter(async (ctx) => {
   );
 });
 
-lkMenu.hears("Пополнить", async (ctx) => {
-  // await ctx.reply(
-  //   "Выберите сумму для пополнения",
-  //   Extra.markup(
-  //     Markup.keyboard([
-  //       ["10₽", "20₽", "50₽", "100₽", "500₽"],
-  //       ["↪️ Вернуться назад"],
-  //     ]).resize()
-  //   )
-  // );
-  await axios
-    .post(
-      `http://188.165.91.109:5000/verify_pay/`,
-      // `http://dice-bots.ru/verify_pay/`,
-      querystring.stringify({ sdfds: "sdfds" }),
-      {
-        httpAgent: new http.Agent({ keepAlive: true }),
-        // httpsAgent: new https.Agent({ keepAlive: true }),
-        proxy: {
-          host: "188.165.91.109",
-          port: 5000,
-        },
-      }
-    )
-    .then((res) => console.log(res.data.message));
-
-  // await axios
-  //   .get(
-  //     `https://edge.qiwi.com/payment-notifier/v1/hooks/test`
-  //   )
-  //   .then((res) => console.log(res.data.response));
-
-  // await axios
-  //   .get(
-  //     `https://edge.qiwi.com/payment-notifier/v1/hooks/${process.env.HOOK_ID}/key`
-  //   )
-  //   .then((res) => console.log(res.data.key));
-
-  // await axios
-  //   .get(
-  //     `https://edge.qiwi.com/payment-notifier/v1/hooks/active`
-  //   )
-  //   .then((res) => console.log(res.data));
-
-  // await axios
-  //   .put(
-  //     `https://edge.qiwi.com/payment-notifier/v1/hooks?hookType=1&param=http%3A%2F%2F188.165.91.109:${process.env.PORT}/verify_pay%2F&txnType=2`
-  //   )
-  //   .then((res) => console.log(res.data));
-
-  // await axios
-  //   .delete(
-  //     `https://edge.qiwi.com/payment-notifier/v1/hooks/${process.env.HOOK_ID}`
-  //   )
-  //   .then((res) => console.log(res.data));
-
-  const amount = 1;
-  const comment = ctx.from.id;
-  const url = `https://qiwi.com/payment/form/99?extra%5B%27account%27%5D=${process.env.QIWI_WALLET}&amountInteger=${amount}&amountFraction=0&extra%5B%27comment%27%5D=${comment}&currency=643&blocked[0]=sum&blocked[1]=account&blocked[2]=comment`;
-  // ctx.reply(url);
+lkMenu.hears("Пополнить", async ({ scene }) => {
+  return await scene.enter("inMoney");
 });
-lkMenu.hears("Вывести", ({ scene }) => {
-  scene.enter("outMoney");
+
+lkMenu.hears("Вывести", async ({ scene }) => {
+  return await scene.enter("outMoney");
 });
-lkMenu.hears("↪️ Вернуться назад", ({ scene }) => {
-  scene.enter("showMainMenu");
+lkMenu.hears("↪️ Вернуться назад", async ({ scene }) => {
+  return await scene.enter("showMainMenu");
 });
 
 module.exports = { lkMenu };
