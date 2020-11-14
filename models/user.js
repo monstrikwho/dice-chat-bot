@@ -5,7 +5,7 @@ const schema = new Schema({
     type: Number,
     unique: true,
   },
-  demoMoney: {
+  demoBalance: {
     type: Number,
   },
   mainBalance: {

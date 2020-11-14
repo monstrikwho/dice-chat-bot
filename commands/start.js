@@ -13,7 +13,7 @@ function setupStart(bot) {
       if (!selectUser) {
         const user = new User({
           userId: ctx.from.id,
-          demoMoney: 15000,
+          demoBalance: 15000,
           mainBalance: 10,
         });
         await user.save();

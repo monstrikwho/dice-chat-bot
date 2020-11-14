@@ -8,15 +8,16 @@ const Markup = require("telegraf/markup");
 const extraBoard = require("../helpers/extraBoard");
 const actionsBord = require("../helpers/actionsBoard");
 
-let message = (state) => `Делайте ваши ставки.
-Ваш баланс: ${state.balance} ₽`;
+const diceGame = new Scene("diceGame");
+diceGame.enter(async (ctx) => {
+  const { demoBalance, mainBalance } = await User.findOne({
+    userId: ctx.from.id,
+  });
 
-const demoGame = new Scene("demoGame");
-demoGame.enter(async (ctx) => {
-  const { demoMoney } = await User.findOne({ userId: ctx.from.id });
+  const activeGame = ctx.session.state.activeGame;
 
   // Записываем в стейт начальный стейт и баланс игрока
-  ctx.session.state = {
+  const initState = {
     rate: {
       1: 0,
       2: 0,
@@ -32,34 +33,38 @@ demoGame.enter(async (ctx) => {
     },
     valueRate: 1,
     countRate: 0,
+    activeGame,
+    balance: activeGame === "mainGame" ? mainBalance : demoBalance,
   };
-  ctx.session.state.balance = demoMoney;
-  const state = ctx.session.state;
+  ctx.session.state = initState;
 
   // Отправляем первое сообщение с пустой клавиатурой
   await bot.telegram.sendMessage(
     ctx.from.id,
-    "Вы вошли в демо игру",
-    Extra.markup(Markup.keyboard([["↪️ Вернуться назад"]]).resize())
+    "Вы вошли в сцену с игрой",
+    Extra.markup(Markup.keyboard([["🏡 Вернуться на главную"]]).resize())
   );
 
-  // Отправляем board
+  let message = ({ balance }) => `Делайте ваши ставки.
+Ваш баланс: ${balance} ₽`;
+
+  // Отправляем init board
   ctx.session.state.activeBoard = await ctx.reply(
-    message(state),
-    extraBoard(state)
+    message(initState),
+    extraBoard(initState)
   );
 
   // Подключаем actions
-  await actionsBord(demoGame);
+  actionsBord(diceGame);
 });
 
-demoGame.hears(
-  "↪️ Вернуться назад",
+diceGame.hears(
+  "🏡 Вернуться на главную",
   async ({ scene, deleteMessage, session }) => {
     await deleteMessage(session.state.activeBoard.message_id);
 
-    scene.enter("showMainMenu");
+    await scene.enter("showMainMenu");
   }
 );
 
-module.exports = { demoGame };
+module.exports = { diceGame };

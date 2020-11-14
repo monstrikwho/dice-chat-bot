@@ -3,16 +3,20 @@ const User = require("../models/user");
 const Extra = require("telegraf/extra");
 
 const extraBoard = require("../helpers/extraBoard");
-let message = (state) => `Делайте ваши ставки.
-Ваш баланс: ${state.balance} ₽`;
+let message = ({ balance }) => `Делайте ваши ставки.
+Ваш баланс: ${balance} ₽`;
 
-module.exports = async (demoGame) => {
-  demoGame.action("Очистить ставки", async (ctx) => {
-    const { demoMoney } = await User.findOne({ userId: ctx.from.id });
+module.exports = (diceGame) => {
+  diceGame.action("Очистить ставки", async (ctx) => {
     let state = ctx.session.state;
 
+    // Если ставок не было сделано, выбрасываем уведомление
     if (state.countRate === 0)
       return await ctx.answerCbQuery("Ставко не было", true);
+
+    const { mainBalance, demoBalance } = await User.findOne({
+      userId: ctx.from.id,
+    });
 
     // Записываем в стейт начальный стейт и баланс игрока
     state.rate = {
@@ -30,7 +34,7 @@ module.exports = async (demoGame) => {
     };
     state.valueRate = 1;
     state.countRate = 0;
-    state.balance = demoMoney;
+    state.balance = state.activeGame === "mainGame" ? mainBalance : demoBalance;
     ctx.session.state = state; // Save in session
 
     // Чистим активный board
@@ -44,7 +48,7 @@ module.exports = async (demoGame) => {
   });
 
   // 1-2
-  demoGame.action(/1️⃣.*2️⃣|2️⃣.*1️⃣/, async (ctx) => {
+  diceGame.action(/1️⃣.*2️⃣|2️⃣.*1️⃣/, async (ctx) => {
     let state = ctx.session.state;
 
     // Изеняем стейт
@@ -71,7 +75,7 @@ module.exports = async (demoGame) => {
   });
 
   // 3-4
-  demoGame.action(/3️⃣.*4️⃣|4️⃣.*3️⃣/, async (ctx) => {
+  diceGame.action(/3️⃣.*4️⃣|4️⃣.*3️⃣/, async (ctx) => {
     let state = ctx.session.state;
 
     // Изеняем стейт
@@ -98,7 +102,7 @@ module.exports = async (demoGame) => {
   });
 
   // 5-6
-  demoGame.action(/5️⃣.*6️⃣|6️⃣.*5️⃣/, async (ctx) => {
+  diceGame.action(/5️⃣.*6️⃣|6️⃣.*5️⃣/, async (ctx) => {
     let state = ctx.session.state;
 
     // Изеняем стейт
@@ -124,7 +128,7 @@ module.exports = async (demoGame) => {
     );
   });
 
-  demoGame.action(/1️⃣/, async (ctx) => {
+  diceGame.action(/1️⃣/, async (ctx) => {
     let state = ctx.session.state;
 
     // Изеняем стейт
@@ -150,7 +154,7 @@ module.exports = async (demoGame) => {
     );
   });
 
-  demoGame.action(/2️⃣/, async (ctx) => {
+  diceGame.action(/2️⃣/, async (ctx) => {
     let state = ctx.session.state;
 
     // Изеняем стейт
@@ -176,7 +180,7 @@ module.exports = async (demoGame) => {
     );
   });
 
-  demoGame.action(/3️⃣/, async (ctx) => {
+  diceGame.action(/3️⃣/, async (ctx) => {
     let state = ctx.session.state;
 
     // Изеняем стейт
@@ -202,7 +206,7 @@ module.exports = async (demoGame) => {
     );
   });
 
-  demoGame.action(/4️⃣/, async (ctx) => {
+  diceGame.action(/4️⃣/, async (ctx) => {
     let state = ctx.session.state;
 
     // Изеняем стейт
@@ -228,7 +232,7 @@ module.exports = async (demoGame) => {
     );
   });
 
-  demoGame.action(/5️⃣/, async (ctx) => {
+  diceGame.action(/5️⃣/, async (ctx) => {
     let state = ctx.session.state;
 
     // Изеняем стейт
@@ -254,7 +258,7 @@ module.exports = async (demoGame) => {
     );
   });
 
-  demoGame.action(/6️⃣/, async (ctx) => {
+  diceGame.action(/6️⃣/, async (ctx) => {
     let state = ctx.session.state;
 
     // Изеняем стейт
@@ -280,7 +284,7 @@ module.exports = async (demoGame) => {
     );
   });
 
-  demoGame.action(/Нечетное/, async (ctx) => {
+  diceGame.action(/Нечетное/, async (ctx) => {
     let state = ctx.session.state;
 
     // Изеняем стейт
@@ -306,7 +310,7 @@ module.exports = async (demoGame) => {
     );
   });
 
-  demoGame.action(/Четное/, async (ctx) => {
+  diceGame.action(/Четное/, async (ctx) => {
     let state = ctx.session.state;
 
     // Изеняем стейт
@@ -332,13 +336,11 @@ module.exports = async (demoGame) => {
     );
   });
 
-  demoGame.action(/(?:1₽|5₽|10₽|50₽|100₽|500₽)/, async (ctx) => {
+  diceGame.action(/(?:1₽|5₽|10₽|50₽|100₽|500₽)/, async (ctx) => {
     const value = ctx.update.callback_query.data
       .replace(/\D+/, "")
       .replace("₽", "");
     let state = ctx.session.state;
-
-    // console.log(state.valueRate, +value);
 
     if (state.valueRate === +value)
       return await ctx.answerCbQuery("Размер ставки уже выбран", true);
@@ -357,18 +359,20 @@ module.exports = async (demoGame) => {
     );
   });
 
-  demoGame.action("Бросить кости 🎲", async (ctx) => {
+  diceGame.action("Бросить кости 🎲", async (ctx) => {
     const state = ctx.session.state;
 
     if (state.countRate === 0) {
-      return ctx.answerCbQuery("Вы не сделали ставку. Пожалуйста сделайте ставку, чтобы бросить кости.", true);
+      return ctx.answerCbQuery(
+        "Вы не сделали ставку. Пожалуйста сделайте ставку, чтобы бросить кости.",
+        true
+      );
     }
 
     await ctx.deleteMessage(ctx.session.state.activeBoard.message_id);
 
     const diceMsg = await bot.telegram.sendDice(ctx.from.id, "🎲");
     const value = diceMsg.dice.value;
-    console.log(value);
 
     let winSum = 0;
 
@@ -398,15 +402,22 @@ module.exports = async (demoGame) => {
     }
 
     ctx.session.state.balance += winSum;
-    await User.updateOne(
-      { userId: ctx.from.id },
-      { demoMoney: ctx.session.state.balance }
-    );
+
+    if (state.activeGame === "mainGame") {
+      await User.updateOne(
+        { userId: ctx.from.id },
+        { mainBalance: ctx.session.state.balance }
+      );
+    } else {
+      await User.updateOne(
+        { userId: ctx.from.id },
+        { demoBalance: ctx.session.state.balance }
+      );
+    }
 
     ctx.session.state.activeBoard = await ctx.reply(
       `Вам выпало число: ${value}
-Ваш выигрыш: ${winSum}
-`,
+Ваш выигрыш: ${winSum}`,
       Extra.markup((m) =>
         m.inlineKeyboard([
           [
@@ -421,10 +432,16 @@ module.exports = async (demoGame) => {
   });
 
   bot.action(/Сделать еще одну ставку/, async (ctx) => {
-    await ctx.deleteMessage(ctx.session.state.activeBoard.message_id);
+    let state = ctx.session.state;
 
-    const { demoMoney } = await User.findOne({ userId: ctx.from.id });
-    ctx.session.state.rate = {
+    // Удаляем сообщение "Сделать еще одну ставку"
+    await ctx.deleteMessage(state.activeBoard.message_id);
+
+    const { mainBalance, demoBalance } = await User.findOne({
+      userId: ctx.from.id,
+    });
+
+    state.rate = {
       1: 0,
       2: 0,
       3: 0,
@@ -437,9 +454,9 @@ module.exports = async (demoGame) => {
       even: 0,
       odd: 0,
     };
-    ctx.session.state.countRate = 0;
-    ctx.session.state.balance = demoMoney;
-    const state = ctx.session.state;
+    state.countRate = 0;
+    state.balance = state.activeGame === "mainGame" ? mainBalance : demoBalance;
+    ctx.session.state = state;
 
     ctx.session.state.activeBoard = await ctx.reply(
       message(state),
