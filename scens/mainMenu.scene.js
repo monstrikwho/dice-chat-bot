@@ -58,18 +58,28 @@ showMainMenu.hears("Демо счет", async (ctx) => {
 const axios = require("axios");
 
 showMainMenu.hears("Личный кабинет", async (ctx) => {
-  await axios
-    .post(
-      `https://www.fkwallet.ru/api_v1.php`,
-      querystring.stringify({
-        wallet_id: "F100908075",
-        sign: md5(
-          `${process.env.FREEKASSA_WALLET}${process.env.FREEKASSA_API}`
-        ),
-        action: "get_balance",
-      })
-    )
-    .then((res) => console.log(res.data));
+  // await axios
+  //   .post(
+  //     `https://www.fkwallet.ru/api_v1.php`,
+  //     querystring.stringify({
+  //       wallet_id: "F100908075",
+  //       sign: md5(`${process.env.MERCHANT_ID}${process.env.SECRET_WORD}`),
+  //       action: "get_balance",
+  //     })
+  //   )
+  //   .then((res) => console.log(res.data));
+  
+  // await axios
+  //   .post(
+  //     `https://www.fkwallet.ru/api_v1.php`,
+  //     querystring.stringify({
+  //       currency: "fkw",
+  //       amount: '50',
+  //       s: md5(`${process.env.MERCHANT_ID}${process.env.SECRET_WORD}`),
+  //       action: "payment",
+  //     })
+  //   )
+  //   .then((res) => console.log(res.data));
   // console.log(md5('F1009080753A8686C9EFB255F3AC923637BBA06C0F'))
   // ctx.scene.enter("lkMenu");
 });

@@ -63,5 +63,3 @@ function bit_rol(d, _) {
  
 module.exports = MD5
  
-var result = MD5('Прародителем текста-рыбы является известный "Lorem Ipsum"');
-console.log(result);
