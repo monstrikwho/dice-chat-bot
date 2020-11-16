@@ -4,7 +4,6 @@ const Markup = require("telegraf/markup");
 const User = require("../models/user");
 const axios = require("axios");
 
-// *************************** STEP 1 *******************************************
 const outMoney = new Scene("outMoney");
 outMoney.enter(async (ctx) => {
   const { mainBalance } = await User.findOne({ userId: ctx.from.id });

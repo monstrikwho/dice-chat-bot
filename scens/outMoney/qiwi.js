@@ -38,27 +38,6 @@ outQiwi.on("text", async (ctx) => {
   // if (count > balance)
   //   return ctx.reply("У вас недостаточно средств на балансе.");
 
-  const obj = {
-    id: "732095792752052",
-    sum: {
-      amount: 1,
-      currency: "643",
-    },
-    paymentMethod: {
-      type: "Account",
-      accountId: "643",
-    },
-    comment: "sdfsdf",
-    fields: {
-      account: "+79206020622",
-    },
-  };
-
-  await axios
-    .post(`https://edge.qiwi.com/sinap/api/v2/terms/99/payments`, obj)
-    .then((res) => console.log(res));
-  // .catch((err) => console.log(err.message));
-
   console.log(count);
 });
 

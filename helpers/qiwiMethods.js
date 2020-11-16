@@ -1,3 +1,10 @@
+// axios.defaults.headers.common["Content-Type"] = "application/json";
+// axios.defaults.headers.common["Accept"] = "application/json";
+// axios.defaults.headers.common[
+//   "Authorization"
+// ] = `Bearer ${process.env.QIWI_TOKEN}`;
+// axios.defaults.headers.post["User-Agent"] = "Android v3.2.0 MKT";
+
 // Тестовое уведомление
 // await axios
 //   .get(
@@ -58,3 +65,42 @@
 // )
 // .then((res) => console.log(res.data))
 // .catch((err) => console.log(err.message));
+
+// Перевод на кошелек киви
+// const obj = {
+//   id: "732095792752052", // макс длина 19 символов. идшник должен быть разным
+//   sum: {
+//     amount: 1,
+//     currency: "643",
+//   },
+//   paymentMethod: {
+//     type: "Account",
+//     accountId: "643",
+//   },
+//   comment: "sdfsdf",
+//   fields: {
+//     account: "+79206020622",
+//   },
+// };
+
+// await axios
+//   .post(`https://edge.qiwi.com/sinap/api/v2/terms/99/payments`, obj)
+//   .then((res) => console.log(res));
+// .catch((err) => console.log(err.message));
+
+// Мой запрос сервер-сервер
+// await axios
+//     .post(
+//       `http://188.165.91.109:5000/verify_pay/`,
+//       // `http://dice-bots.ru/verify_pay/`,
+//       querystring.stringify({ sdfds: "sdfds" }),
+//       {
+//         httpAgent: new http.Agent({ keepAlive: true }),
+//         // httpsAgent: new https.Agent({ keepAlive: true }),
+//         proxy: {
+//           host: "188.165.91.109",
+//           port: 5000,
+//         },
+//       }
+//     )
+//     .then((res) => console.log(res.data.message));
