@@ -3,7 +3,7 @@ const Extra = require("telegraf/extra");
 const Markup = require("telegraf/markup");
 
 const querystring = require("querystring");
-const MD5 = require("../helpers/md5");
+const { getBalance } = require("../helpers/freeKassaMethods");
 const md5 = require("js-md5");
 
 const showMainMenu = new Scene("showMainMenu");
@@ -58,6 +58,7 @@ showMainMenu.hears("Демо счет", async (ctx) => {
 const axios = require("axios");
 
 showMainMenu.hears("Личный кабинет", async (ctx) => {
+  await getBalance();
   // await axios
   //   .post(
   //     `https://www.fkwallet.ru/api_v1.php`,
@@ -68,7 +69,7 @@ showMainMenu.hears("Личный кабинет", async (ctx) => {
   //     })
   //   )
   //   .then((res) => console.log(res.data));
-  
+
   // await axios
   //   .post(
   //     `https://www.fkwallet.ru/api_v1.php`,
@@ -80,7 +81,9 @@ showMainMenu.hears("Личный кабинет", async (ctx) => {
   //     })
   //   )
   //   .then((res) => console.log(res.data));
-  // console.log(md5('F1009080753A8686C9EFB255F3AC923637BBA06C0F'))
+  // console.log(md5(`${process.env.MERCHANT_ID}${process.env.SECRET_WORD}`))
+  // console.log(md5(`${process.env.MERCHANT_ID}:10:${process.env.SECRET_WORD}:123`))
+  // https://www.free-kassa.ru/merchant/cash.php?m=234900&oa=100&o=123&s=995623eb27183ad0e1e1c4aede1a45b8
   // ctx.scene.enter("lkMenu");
 });
 

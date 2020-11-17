@@ -10,4 +10,44 @@
 // 115 PAYEER USD (комиссия 4.00%)
 // 70	PayPal (комиссия 3.50%)
 
+const axios = require("axios");
+const querystring = require("querystring");
+const md5 = require("js-md5");
 
+
+// Пополнить баланс
+module.exports.donate = async (orderId, amount) => {
+  const heshKey = md5(`${process.env.MERCHANT_ID}:${amount}:${process.env.SECRET_WORD}:${orderId}`)
+  const url = `https://www.free-kassa.ru/merchant/cash.php?m=${MERCHANT_ID}&oa=${amount}&o=${orderId}&s=${heshKey}`
+  return `<a href="${url}">Подтвердить</a>`
+}
+
+// Получить баланс кошелька
+module.exports.getBalance = async () => {
+  const data = {
+    wallet_id: process.env.FREEKASSA_WALLET,
+    sign: md5(`${process.env.FREEKASSA_WALLET}${process.env.FREEKASSA_APIKEY}`),
+    action: "get_balance",
+  };
+  return await axios
+    .post(`https://www.fkwallet.ru/api_v1.php`, querystring.stringify(data))
+    .then((res) => res.data.data.RUR);
+};
+
+// Вывод средств из кошелька
+module.exports.outMoney = async (purse, amount, desc, currency) => {
+  const data = {
+    wallet_id: process.env.FREEKASSA_WALLET,
+    purse: purse,
+    amount: amount,
+    desc: desc,
+    currency: currency,
+    sign: md5(
+      `${process.env.FREEKASSA_WALLET}${currency}${amount}${purse}${process.env.FREEKASSA_APIKEY}`
+    ),
+    action: "cashout",
+  };
+  return await axios
+    .post(`https://www.fkwallet.ru/api_v1.php`, querystring.stringify(data))
+    .then((res) => console.log(res.data));
+};
