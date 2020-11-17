@@ -36,9 +36,21 @@ inMoney.hears(/(?:↪️ Вернуться назад|↪️ Вернуться
   // scene.enter("lkMenu");
   const axios = require("axios");
   const querystring = require("querystring");
+  const https = require('https')
 
   return await axios
-    .post(`http://dice-bots.ru/verify_pay`, querystring.stringify({ sdfds: "sdfds" }))
+    .post(
+      `https://dice-bots.ru/verify_pay`,
+      querystring.stringify({ sdfds: "sdfds" }),
+      {
+        // httpAgent: new http.Agent({ keepAlive: true }),
+        httpsAgent: new https.Agent({ keepAlive: true }),
+        proxy: {
+          host: "188.165.91.109",
+          port: 5000,
+        },
+      }
+    )
     .then((res) => res.data);
 });
 
