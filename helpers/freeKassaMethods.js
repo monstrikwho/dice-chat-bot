@@ -19,7 +19,7 @@ module.exports.donateUrl = (orderId, amount) => {
   const heshKey = md5(
     `${process.env.MERCHANT_ID}:${amount}:${process.env.SECRET_WORD}:${orderId}`
   );
-  return `https://www.free-kassa.ru/merchant/cash.php?m=${MERCHANT_ID}&oa=${amount}&o=${orderId}&s=${heshKey}`;
+  return `https://www.free-kassa.ru/merchant/cash.php?m=${process.env.MERCHANT_ID}&oa=${amount}&o=${orderId}&s=${heshKey}`;
 };
 
 // Получить баланс кошелька
