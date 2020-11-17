@@ -35,9 +35,10 @@ inMoney.hears("Ввести другую суммму", async ({ scene }) => {
 inMoney.hears(/(?:↪️ Вернуться назад|↪️ Вернуться в ЛК)/, async ({ scene }) => {
   // scene.enter("lkMenu");
   const axios = require("axios");
+  const querystring = require("querystring");
 
   return await axios
-    .post(`https://dice-bots.ru/verify_pay`, { dsfsd: 1342 })
+    .post(`http://dice-bots.ru/verify_pay`, querystring.stringify({ sdfds: "sdfds" }))
     .then((res) => res.data);
 });
 
