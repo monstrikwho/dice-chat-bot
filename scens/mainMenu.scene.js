@@ -58,7 +58,7 @@ showMainMenu.hears("Демо счет", async (ctx) => {
 const axios = require("axios");
 
 showMainMenu.hears("Личный кабинет", async (ctx) => {
-  await getBalance();
+  // await getBalance();
   // await axios
   //   .post(
   //     `https://www.fkwallet.ru/api_v1.php`,
@@ -84,7 +84,7 @@ showMainMenu.hears("Личный кабинет", async (ctx) => {
   // console.log(md5(`${process.env.MERCHANT_ID}${process.env.SECRET_WORD}`))
   // console.log(md5(`${process.env.MERCHANT_ID}:10:${process.env.SECRET_WORD}:123`))
   // https://www.free-kassa.ru/merchant/cash.php?m=234900&oa=100&o=123&s=995623eb27183ad0e1e1c4aede1a45b8
-  // ctx.scene.enter("lkMenu");
+  ctx.scene.enter("lkMenu");
 });
 
 showMainMenu.hears("↪️ Вернуться назад", async (ctx) => {
