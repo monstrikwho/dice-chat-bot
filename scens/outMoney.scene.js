@@ -18,30 +18,30 @@ outMoney.enter(async (ctx) => {
 Ваш баланс: ${mainBalance} ₽`,
     Extra.markup(
       Markup.keyboard([
-        ["На Qiwi кошелек"],
-        ["Visa (RU)", "MC (RU)"],
-        ["Visa (др. страны)", "MC (др. страны)"],
+        ["Qiwi кошелек"],
+        ["Яндекс.Деньги"],
+        ["Visa & MC (RUB)"],
         ["↪️ Вернуться назад"],
       ]).resize()
     )
   );
 });
 
-outMoney.hears("На Qiwi кошелек", ({ scene }) => {
+outMoney.hears("Qiwi кошелек", ({ scene }) => {
   scene.enter("outQiwi");
 });
-outMoney.hears("Visa (RU)", ({ scene }) => {
+outMoney.hears("Яндекс.Деньги", ({ scene }) => {
   scene.enter("visaRu");
 });
-outMoney.hears("MC (RU)", ({ scene }) => {
+outMoney.hears("Visa & MC (RUB)", ({ scene }) => {
   scene.enter("mcRu");
 });
-outMoney.hears("Visa (др. страны)", ({ scene }) => {
-  scene.enter("visaOther");
-});
-outMoney.hears("MC (др. страны)", ({ scene }) => {
-  scene.enter("mcOther");
-});
+// outMoney.hears("Visa (др. страны)", ({ scene }) => {
+//   scene.enter("visaOther");
+// });
+// outMoney.hears("MC (др. страны)", ({ scene }) => {
+//   scene.enter("mcOther");
+// });
 outMoney.hears("↪️ Вернуться назад", ({ scene }) => {
   scene.enter("lkMenu");
 });
