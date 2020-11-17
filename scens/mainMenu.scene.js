@@ -61,7 +61,7 @@ showMainMenu.hears("Личный кабинет", async (ctx) => {
   const data = {
     merchant_id: process.env.MERCHANT_ID,
     s: md5(`${process.env.MERCHANT_ID}${process.env.SECRET_WORD}`),
-    intid,
+    intid:'fsf',
     action: "check_order_status",
   };
   return await axios
