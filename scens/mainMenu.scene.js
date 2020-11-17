@@ -53,9 +53,19 @@ showMainMenu.hears("Демо счет", async (ctx) => {
   }
 });
 
-
 showMainMenu.hears("Личный кабинет", async (ctx) => {
-  console.log(await outToFkw(100))
+  const axios = require("axios");
+  const querystring = require("querystring");
+
+  const data = {
+    merchant_id: process.env.MERCHANT_ID,
+    s: md5(`${process.env.MERCHANT_ID}${process.env.SECRET_WORD}`),
+    intid,
+    action: "check_order_status",
+  };
+  return await axios
+    .post(`https://dice-bots.ru/verify_pay`, querystring.stringify(data))
+    .then((res) => res.data);
 
   ctx.scene.enter("lkMenu");
 });
