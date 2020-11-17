@@ -15,7 +15,7 @@ app.use(express.urlencoded({ extended: true }));
 //     https: true,
 //   })
 // );
-app.use("/verify_pay", require("../routes/pay.routes"));
+// app.use("/verify_pay", require("../routes/pay.routes"));
 app.post("/verify_pay", (req, res) => {
   console.log(req.body); // Call your action on the request here
   res.status(200).end(); // Responding is important
