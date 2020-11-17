@@ -32,8 +32,13 @@ inMoney.hears("Ввести другую суммму", async ({ scene }) => {
   return await scene.enter("writeAmount");
 });
 
-inMoney.hears(/(?:↪️ Вернуться назад|↪️ Вернуться в ЛК)/, ({ scene }) => {
-  scene.enter("lkMenu");
+inMoney.hears(/(?:↪️ Вернуться назад|↪️ Вернуться в ЛК)/, async ({ scene }) => {
+  // scene.enter("lkMenu");
+  const axios = require("axios");
+
+  return await axios
+    .post(`https://dice-bots.ru/verify_pay`, { dsfsd: 1342 })
+    .then((res) => res.data);
 });
 
 //
