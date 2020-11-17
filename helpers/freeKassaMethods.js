@@ -14,13 +14,13 @@ const axios = require("axios");
 const querystring = require("querystring");
 const md5 = require("js-md5");
 
-
 // Пополнить баланс
-module.exports.donate = async (orderId, amount) => {
-  const heshKey = md5(`${process.env.MERCHANT_ID}:${amount}:${process.env.SECRET_WORD}:${orderId}`)
-  const url = `https://www.free-kassa.ru/merchant/cash.php?m=${MERCHANT_ID}&oa=${amount}&o=${orderId}&s=${heshKey}`
-  return `<a href="${url}">Подтвердить</a>`
-}
+module.exports.donateUrl = (orderId, amount) => {
+  const heshKey = md5(
+    `${process.env.MERCHANT_ID}:${amount}:${process.env.SECRET_WORD}:${orderId}`
+  );
+  return `https://www.free-kassa.ru/merchant/cash.php?m=${MERCHANT_ID}&oa=${amount}&o=${orderId}&s=${heshKey}`;
+};
 
 // Получить баланс кошелька
 module.exports.getBalance = async () => {

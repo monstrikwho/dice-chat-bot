@@ -2,6 +2,8 @@ const Scene = require("telegraf/scenes/base");
 const Extra = require("telegraf/extra");
 const Markup = require("telegraf/markup");
 
+const { donateUrl } = require("../helpers/freeKassaMethods");
+
 const inMoney = new Scene("inMoney");
 inMoney.enter(async (ctx) => {
   return await ctx.reply(
@@ -18,9 +20,7 @@ inMoney.enter(async (ctx) => {
 
 inMoney.hears(/(?:10₽|20₽|50₽|100₽|500₽)/, async (ctx) => {
   const amount = +ctx.update.message.text.replace(/\D+/, "").replace("₽", "");
-  const comment = ctx.from.id;
-  const url = `https://qiwi.com/payment/form/99?extra%5B%27account%27%5D=${process.env.QIWI_WALLET}&amountInteger=${amount}&amountFraction=0&extra%5B%27comment%27%5D=${comment}&currency=643&blocked[0]=sum&blocked[1]=account&blocked[2]=comment`;
-
+  const url = donateUrl(ctx.from.id, amount);
   await ctx.replyWithHTML(
     `Вы собираетесь пополнить игровой баланс на сумму ${amount}₽. Пожалуйста, нажмите "Подтвердить", чтобы перейти на страницу пополнения.
 <a href="${url}">Подтвердить</a>`,
@@ -36,7 +36,7 @@ inMoney.hears(/(?:↪️ Вернуться назад|↪️ Вернуться
   scene.enter("lkMenu");
 });
 
-// 
+//
 
 // ****************************** WRITE OTHER AMOUNT *******************************
 const writeAmount = new Scene("writeAmount");
