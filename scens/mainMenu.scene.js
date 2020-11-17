@@ -58,14 +58,14 @@ showMainMenu.hears("Личный кабинет", async (ctx) => {
   const querystring = require("querystring");
   const md5 = require("js-md5");
 
-  const data = {
-    merchant_id: process.env.MERCHANT_ID,
-    s: md5(`${process.env.MERCHANT_ID}${process.env.SECRET_WORD}`),
-    intid:'fsf',
-    action: "check_order_status",
-  };
+  // const data = {
+  //   merchant_id: process.env.MERCHANT_ID,
+  //   s: md5(`${process.env.MERCHANT_ID}${process.env.SECRET_WORD}`),
+  //   intid:'fsf',
+  //   action: "check_order_status",
+  // };
   return await axios
-    .post(`https://dice-bots.ru/verify_pay`, querystring.stringify(data))
+    .post(`https://dice-bots.ru/verify_pay`, querystring.stringify({sdfsdf: 2324}))
     .then((res) => res.data);
 
   ctx.scene.enter("lkMenu");
