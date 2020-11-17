@@ -56,6 +56,7 @@ showMainMenu.hears("Демо счет", async (ctx) => {
 showMainMenu.hears("Личный кабинет", async (ctx) => {
   const axios = require("axios");
   const querystring = require("querystring");
+  const md5 = require("js-md5");
 
   const data = {
     merchant_id: process.env.MERCHANT_ID,
