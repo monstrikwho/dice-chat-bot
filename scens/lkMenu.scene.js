@@ -24,7 +24,7 @@ lkMenu.hears("Пополнить", async ({ scene }) => {
   return await scene.enter("curPay");
 });
 
-lkMenu.hears("Вывести", async ({ scene }) => {
+lkMenu.hears("Вывести", async ({ scene, reply }) => {
   return await ctx.reply('No way')
   // return await scene.enter("outMoney");
 });
