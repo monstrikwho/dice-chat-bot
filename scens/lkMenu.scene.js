@@ -25,7 +25,8 @@ lkMenu.hears("Пополнить", async ({ scene }) => {
 });
 
 lkMenu.hears("Вывести", async ({ scene }) => {
-  return await scene.enter("outMoney");
+  return await ctx.reply('No way')
+  // return await scene.enter("outMoney");
 });
 lkMenu.hears("↪️ Вернуться назад", async ({ scene }) => {
   return await scene.enter("showMainMenu");
