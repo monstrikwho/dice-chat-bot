@@ -5,7 +5,7 @@ const { showMainMenu } = require("./mainMenu.scene");
 const { diceGame } = require("./diceGame.scene");
 const { lkMenu } = require("./lkMenu.scene");
 // const { outMoney } = require("./outMoney.scene");
-const { inMoney, writeAmount } = require("./inMoney.scene");
+const { curPay, inMoney, writeAmount } = require("./inMoney.scene");
 // const { outQiwi } = require("./outMoney/qiwi");
 // const { visaOther } = require("./outMoney/visaOther");
 // const { mcOther } = require("./outMoney/mcOther");
@@ -18,6 +18,7 @@ function setupScenes(bot) {
     diceGame,
     lkMenu,
     // outMoney,
+    curPay,
     inMoney,
     writeAmount,
     // outQiwi,

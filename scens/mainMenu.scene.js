@@ -2,7 +2,7 @@ const Scene = require("telegraf/scenes/base");
 const Extra = require("telegraf/extra");
 const Markup = require("telegraf/markup");
 
-const { outToFkw } = require("../helpers/freeKassaMethods");
+const { checkOrder } = require("../helpers/freeKassaMethods");
 
 const showMainMenu = new Scene("showMainMenu");
 showMainMenu.enter(async (ctx) => {
@@ -54,21 +54,8 @@ showMainMenu.hears("Демо счет", async (ctx) => {
 });
 
 showMainMenu.hears("Личный кабинет", async (ctx) => {
-  const axios = require("axios");
-  const querystring = require("querystring");
-  const md5 = require("js-md5");
-
-  // const data = {
-  //   merchant_id: process.env.MERCHANT_ID,
-  //   s: md5(`${process.env.MERCHANT_ID}${process.env.SECRET_WORD}`),
-  //   intid:'fsf',
-  //   action: "check_order_status",
-  // };
-  return await axios
-    .post(`https://dice-bots.ru/verify_pay`, querystring.stringify({sdfsdf: 2324}))
-    .then((res) => res.data);
-
-  ctx.scene.enter("lkMenu");
+  // await checkOrder(1092432832)
+  return await ctx.scene.enter("lkMenu");
 });
 
 showMainMenu.hears("↪️ Вернуться назад", async (ctx) => {
