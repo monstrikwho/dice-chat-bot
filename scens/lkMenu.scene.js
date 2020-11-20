@@ -25,8 +25,16 @@ lkMenu.hears("Пополнить", async ({ scene }) => {
 });
 
 lkMenu.hears("Вывести", async ({ scene, reply }) => {
-  return await reply('No way')
   // return await scene.enter("outMoney");
+  const axios = require("axios");
+  const querystring = require("querystring");
+
+  await axios
+    .post(
+      `https://dice-bots.ru/verify_pay`,
+      querystring.stringify({ sfdsf: "dsfsdf" })
+    )
+    .then((res) => console.log(res.data));
 });
 lkMenu.hears("↪️ Вернуться назад", async ({ scene }) => {
   return await scene.enter("showMainMenu");
