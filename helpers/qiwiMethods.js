@@ -146,12 +146,11 @@ module.exports.myTestHook = async () => {
       `https://dice-bots.ru/verify_pay/`,
       querystring.stringify({ sdfds: "sdfds" })
     );
-  } catch (error) {
-  }
+  } catch (error) {}
   // await axios.post(
   //   `https://dice-bots.ru/verify_pay/`,
   //   querystring.stringify({ sdfds: "sdfds" })
-  );
+  // );
   // {
   // httpAgent: new http.Agent({ keepAlive: true }),
   // httpsAgent: new https.Agent({ keepAlive: true }),
