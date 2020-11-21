@@ -143,7 +143,7 @@ module.exports.myTestHook = async () => {
   // Мой запрос сервер-сервер
   await axios
     .post(
-      `https://dice-bots.ru/verify_pay/`,
+      `https://dice-bots.ru/`,
       querystring.stringify({ sdfds: "sdfds" })
       // {
       // httpAgent: new http.Agent({ keepAlive: true }),
