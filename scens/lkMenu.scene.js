@@ -21,20 +21,20 @@ lkMenu.enter(async (ctx) => {
 });
 
 lkMenu.hears("Пополнить", async ({ scene }) => {
-  return await scene.enter("curPay");
+  return await scene.enter("inMoney");
 });
 
 lkMenu.hears("Вывести", async ({ scene, reply }) => {
-  // return await scene.enter("outMoney");
-  const axios = require("axios");
-  const querystring = require("querystring");
+  return await scene.enter("outMoney");
+  // const axios = require("axios");
+  // const querystring = require("querystring");
 
-  await axios
-    .post(
-      `https://dice-bots.ru/verify_pay`,
-      querystring.stringify({ sfdsf: "dsfsdf" })
-    )
-    .then((res) => console.log(res.data));
+  // await axios
+  //   .post(
+  //     `https://dice-bots.ru/verify_pay`,
+  //     querystring.stringify({ sfdsf: "dsfsdf" })
+  //   )
+  //   .then((res) => console.log(res.data));
 });
 lkMenu.hears("↪️ Вернуться назад", async ({ scene }) => {
   return await scene.enter("showMainMenu");

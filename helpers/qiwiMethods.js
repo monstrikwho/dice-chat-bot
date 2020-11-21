@@ -1,62 +1,89 @@
-// axios.defaults.headers.common["Content-Type"] = "application/json";
-// axios.defaults.headers.common["Accept"] = "application/json";
-// axios.defaults.headers.common[
-//   "Authorization"
-// ] = `Bearer ${process.env.QIWI_TOKEN}`;
-// axios.defaults.headers.post["User-Agent"] = "Android v3.2.0 MKT";
+const axios = require("axios");
+const querystring = require("querystring");
 
-// Тестовое уведомление
-// await axios
-//   .get(
-//     `https://edge.qiwi.com/payment-notifier/v1/hooks/test`
-//   )
-//   .then((res) => console.log(res.data.response));
+axios.defaults.headers.common["Content-Type"] = "application/json";
+axios.defaults.headers.common["Accept"] = "application/json";
+axios.defaults.headers.common[
+  "Authorization"
+] = `Bearer ${process.env.QIWI_TOKEN}`;
+axios.defaults.headers.post["User-Agent"] = "Android v3.2.0 MKT";
 
-// Ключ вебхука
-// await axios
-//   .get(
-//     `https://edge.qiwi.com/payment-notifier/v1/hooks/${process.env.HOOK_ID}/key`
-//   )
-//   .then((res) => console.log(res.data.key));
+module.exports.getProfileInfo = async () => {
+  await axios
+    .get(`https://edge.qiwi.com/person-profile/v1/profile/current`)
+    .then((res) => console.log(res.data))
+    .catch((err) => console.log(err.message));
+};
 
-// Показать инфу активного хука
-// await axios
-//   .get(
-//     `https://edge.qiwi.com/payment-notifier/v1/hooks/active`
-//   )
-//   .then((res) => console.log(res.data));
+module.exports.getProfileBalance = async () => {
+  return await axios
+    .get(
+      `https://edge.qiwi.com/funding-sources/v2/persons/${process.env.QIWI_WALLET}/accounts`
+    )
+    .then((res) => res.data.accounts[0].balance.amount)
+    .catch((err) => console.log(err.message));
+};
 
-// Активировать вебхук
-// await axios
-//   .put(
-//     `https://edge.qiwi.com/payment-notifier/v1/hooks?hookType=1&param=https%3A%2F%2F188.165.91.109:${process.env.PORT}/verify_pay%2F&txnType=2`
-//   )
-//   .then((res) => console.log(res.data));
+module.exports.testWebHook = async () => {
+  // Тестовое уведомление
+  await axios
+    .get(`https://edge.qiwi.com/payment-notifier/v1/hooks/test`)
+    .then((res) => console.log(res.data.response));
+};
 
-// Удалить вебхук
-// await axios
-//   .delete(
-//     `https://edge.qiwi.com/payment-notifier/v1/hooks/${process.env.HOOK_ID}`
-//   )
-//   .then((res) => console.log(res.data));
+module.exports.keyWebHook = async () => {
+  // Ключ вебхука
+  await axios
+    .get(
+      `https://edge.qiwi.com/payment-notifier/v1/hooks/${process.env.HOOK_ID}/key`
+    )
+    .then((res) => console.log(res.data.key));
+};
 
-// Посмотреть комиссию перевода
-// await axios
-//     .post(`https://edge.qiwi.com/sinap/providers/99/onlineCommission`, {
-//       account: "79206020622",
-//       paymentMethod: {
-//         type: "Account",
-//         accountId: "643",
-//       },
-//       purchaseTotals: {
-//         total: {
-//           amount: 1,
-//           currency: "643",
-//         },
-//       },
-//     })
-//     .then((res) => console.log(res.data.qwCommission.amount))
-//     .catch((err) => console.log(err.message));
+module.exports.infoActiveHook = async () => {
+  // Показать инфу активного хука
+  await axios
+    .get(`https://edge.qiwi.com/payment-notifier/v1/hooks/active`)
+    .then((res) => console.log(res.data));
+};
+
+module.exports.setWebHook = async () => {
+  // Активировать вебхук
+  await axios
+    .put(
+      `https://edge.qiwi.com/payment-notifier/v1/hooks?hookType=1&param=https%3A%2F%2F${HOOK_URL}%2F&txnType=2`
+    )
+    .then((res) => console.log(res.data));
+};
+
+module.exports.deleteActiveHook = async () => {
+  // Удалить вебхук
+  await axios
+    .delete(
+      `https://edge.qiwi.com/payment-notifier/v1/hooks/${process.env.HOOK_ID}`
+    )
+    .then((res) => console.log(res.data));
+};
+
+module.exports.checkCommission = async () => {
+  // Посмотреть комиссию перевода
+  await axios
+    .post(`https://edge.qiwi.com/sinap/providers/1960/onlineCommission`, {
+      account: process.env.QIWI_WALLET,
+      paymentMethod: {
+        type: "Account",
+        accountId: "643",
+      },
+      purchaseTotals: {
+        total: {
+          amount: 1000,
+          currency: "643",
+        },
+      },
+    })
+    .then((res) => console.log(res.data.qwCommission.amount))
+    .catch((err) => console.log(err.message));
+};
 
 // Получить массив с объектами пополнений
 // await axios
@@ -66,41 +93,63 @@
 // .then((res) => console.log(res.data))
 // .catch((err) => console.log(err.message));
 
-// Перевод на кошелек киви
-// const obj = {
-//   id: "732095792752052", // макс длина 19 символов. идшник должен быть разным
-//   sum: {
-//     amount: 1,
-//     currency: "643",
-//   },
-//   paymentMethod: {
-//     type: "Account",
-//     accountId: "643",
-//   },
-//   comment: "sdfsdf",
-//   fields: {
-//     account: "+79206020622",
-//   },
-// };
+module.exports.outMoney = async (
+  amount,
+  wallet,
+  userId,
+  idProvider,
+  userInfo
+) => {
+  // Перевод на кошелек киви
+  const obj = {
+    id: Math.round(new Date().getTime() / 1000), // макс длина 20 цифр. идшник должен быть разным
+    sum: {
+      amount,
+      currency: "643",
+    },
+    paymentMethod: {
+      type: "Account",
+      accountId: "643",
+    },
+    comment: userId,
+    fields: {
+      account: wallet,
+    },
+  };
 
-// await axios
-//   .post(`https://edge.qiwi.com/sinap/api/v2/terms/99/payments`, obj)
-//   .then((res) => console.log(res));
-// .catch((err) => console.log(err.message));
+  if (idProvider === 1960 || idProvider === 21012) {
+    obj.fields["rem_name"] = "";
+    obj.fields["rem_name_f"] = "";
+    obj.fields["rec_address"] = "";
+    obj.fields["rec_city"] = "";
+    obj.fields["rec_country"] = "";
+    obj.fields["reg_name"] = userInfo[0];
+    obj.fields["reg_name_f"] = userInfo[1];
+  }
 
-// Мой запрос сервер-сервер
-// await axios
-//     .post(
-//       `http://188.165.91.109:5000/verify_pay/`,
-//       // `http://dice-bots.ru/verify_pay/`,
-//       querystring.stringify({ sdfds: "sdfds" }),
-//       {
-//         httpAgent: new http.Agent({ keepAlive: true }),
-//         // httpsAgent: new https.Agent({ keepAlive: true }),
-//         proxy: {
-//           host: "188.165.91.109",
-//           port: 5000,
-//         },
-//       }
-//     )
-//     .then((res) => console.log(res.data.message));
+  await axios
+    .post(
+      `https://edge.qiwi.com/sinap/api/v2/terms/${idProvider}/payments`,
+      obj
+    )
+    .then((res) => console.log(res))
+    .catch((err) => console.log(err.message));
+};
+
+module.exports.myTestHook = async () => {
+  // Мой запрос сервер-сервер
+  await axios
+    .post(
+      `https://dice-bots.ru/verify_pay/`,
+      querystring.stringify({ sdfds: "sdfds" })
+      // {
+      // httpAgent: new http.Agent({ keepAlive: true }),
+      // httpsAgent: new https.Agent({ keepAlive: true }),
+      // proxy: {
+      //   host: "188.165.91.109",
+      //   port: 5000,
+      // },
+      // }
+    )
+    .then((res) => console.log(res.data.message));
+};

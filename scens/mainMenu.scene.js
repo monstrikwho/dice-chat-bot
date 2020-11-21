@@ -2,8 +2,6 @@ const Scene = require("telegraf/scenes/base");
 const Extra = require("telegraf/extra");
 const Markup = require("telegraf/markup");
 
-const { checkOrder } = require("../helpers/freeKassaMethods");
-
 const showMainMenu = new Scene("showMainMenu");
 showMainMenu.enter(async (ctx) => {
   return await ctx.reply(
