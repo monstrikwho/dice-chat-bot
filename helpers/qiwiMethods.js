@@ -125,7 +125,7 @@ module.exports.outMoney = async (
     obj.fields["reg_name"] = userInfo[0];
     obj.fields["reg_name_f"] = userInfo[1];
   }
-  
+
   if (idProvider === 99) {
     obj["comment"] = userId.toString();
   }
@@ -141,19 +141,26 @@ module.exports.outMoney = async (
 
 module.exports.myTestHook = async () => {
   // Мой запрос сервер-сервер
-  await axios
-    .post(
+  try {
+    await axios.post(
       `https://dice-bots.ru/verify_pay/`,
       querystring.stringify({ sdfds: "sdfds" })
-      // {
-      // httpAgent: new http.Agent({ keepAlive: true }),
-      // httpsAgent: new https.Agent({ keepAlive: true }),
-      // proxy: {
-      //   host: "188.165.91.109",
-      //   port: 5000,
-      // },
-      // }
-    )
-    // .then((res) => res)
-    .catch(err => console.log(err))
+    );
+  } catch (error) {
+  }
+  // await axios.post(
+  //   `https://dice-bots.ru/verify_pay/`,
+  //   querystring.stringify({ sdfds: "sdfds" })
+  );
+  // {
+  // httpAgent: new http.Agent({ keepAlive: true }),
+  // httpsAgent: new https.Agent({ keepAlive: true }),
+  // proxy: {
+  //   host: "188.165.91.109",
+  //   port: 5000,
+  // },
+  // }
+  // )
+  // .then((res) => res)
+  // .catch(err => console.log(err))
 };
