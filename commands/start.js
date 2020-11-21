@@ -14,7 +14,7 @@ function setupStart(bot) {
         const user = new User({
           userId: ctx.from.id,
           demoBalance: 15000,
-          mainBalance: 10,
+          mainBalance: 500,
         });
         await user.save();
       }

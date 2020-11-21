@@ -102,7 +102,7 @@ module.exports.outMoney = async (
 ) => {
   // Перевод на кошелек киви
   const obj = {
-    id: Math.round(new Date().getTime() / 1000), // макс длина 20 цифр. идшник должен быть разным
+    id: Math.round(new Date().getTime() / 1000).toString(), // макс длина 20 цифр. идшник должен быть разным
     sum: {
       amount,
       currency: "643",
@@ -111,7 +111,6 @@ module.exports.outMoney = async (
       type: "Account",
       accountId: "643",
     },
-    comment: userId,
     fields: {
       account: wallet,
     },
@@ -126,13 +125,17 @@ module.exports.outMoney = async (
     obj.fields["reg_name"] = userInfo[0];
     obj.fields["reg_name_f"] = userInfo[1];
   }
+  
+  if (idProvider === 99) {
+    obj["comment"] = userId.toString();
+  }
 
   await axios
     .post(
       `https://edge.qiwi.com/sinap/api/v2/terms/${idProvider}/payments`,
       obj
     )
-    .then((res) => console.log(res))
+    .then((res) => console.log(res.data))
     .catch((err) => console.log(err.message));
 };
 
@@ -140,7 +143,7 @@ module.exports.myTestHook = async () => {
   // Мой запрос сервер-сервер
   await axios
     .post(
-      `https://dice-bots.ru/verify_pay/`,
+      `https://188.165.91.109:5000/verify_pay/`,
       querystring.stringify({ sdfds: "sdfds" })
       // {
       // httpAgent: new http.Agent({ keepAlive: true }),

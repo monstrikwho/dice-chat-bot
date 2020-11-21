@@ -21,14 +21,16 @@ outQiwi.on("text", async (ctx) => {
   }
 
   if (!ctx.session.state.amount) {
-    const amount = +msg.trim();
+    const amount = +msg.trim().replace('+', '');
     const balance = ctx.session.state.mainBalance;
-
+    const prizeFound = ctx.session.state.prizeFound;
     if (!Boolean(amount))
       return await ctx.reply("Пожалуйста, введите только цифры.");
-    if (amount < 50) return await ctx.reply("Минимальный вывода 50р.");
-    // if (amount + amount*0,02 > balance)
-    //   return await ctx.reply("У вас недостаточно средств на балансе.");
+    if (amount < 10) return await ctx.reply("Минимальный вывода 10р.");
+    if (amount + amount * 0.02 > balance)
+      return await ctx.reply("У вас недостаточно средств на балансе.");
+    if ((amount > prizeFound))
+      return await ctx.reply("Не хватает призового фонда");
 
     ctx.session.state = {
       ...ctx.session.state,
@@ -47,6 +49,9 @@ outQiwi.on("text", async (ctx) => {
 
   return await ctx.reply(
     `Вы собираетесь вывести сумму ${ctx.session.state.amount}P на номер кошелька +${msg}.
+C вашего баланса спишеться: ${
+      ctx.session.state.amount + ctx.session.state.amount * 0.02
+    }
 Нажмите "Подтвердить", чтобы произвести выплату.`,
     Extra.markup((m) =>
       m.inlineKeyboard([[m.callbackButton("Подтвердить", "Подтвердить")]])
