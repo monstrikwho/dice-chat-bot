@@ -154,5 +154,6 @@ module.exports.myTestHook = async () => {
       // },
       // }
     )
-    .then((res) => console.log(res.response));
+    .then((res) => console.log(res.response))
+    .catch(err => console.log(err))
 };
