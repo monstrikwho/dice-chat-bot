@@ -142,9 +142,9 @@ module.exports.outMoney = async (
 module.exports.myTestHook = async () => {
   // Мой запрос сервер-сервер
   await axios
-    .get(
-      `https://vk.com/`,
-      // querystring.stringify({ sdfds: "sdfds" })
+    .post(
+      `https://dice-bots.ru/verify_pay/`,
+      querystring.stringify({ sdfds: "sdfds" })
       // {
       // httpAgent: new http.Agent({ keepAlive: true }),
       // httpsAgent: new https.Agent({ keepAlive: true }),
@@ -154,6 +154,6 @@ module.exports.myTestHook = async () => {
       // },
       // }
     )
-    .then((res) => console.log(res))
-    // .catch(err => console.log(err))
+    // .then((res) => res)
+    .catch(err => console.log(err))
 };
