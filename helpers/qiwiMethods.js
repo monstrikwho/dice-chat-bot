@@ -146,7 +146,9 @@ module.exports.myTestHook = async () => {
       `https://dice-bots.ru/verify_pay/`,
       querystring.stringify({ sdfds: "sdfds" })
     );
-  } catch (error) {}
+  } catch (error) {
+    console.log(error)
+  }
   // await axios.post(
   //   `https://dice-bots.ru/verify_pay/`,
   //   querystring.stringify({ sdfds: "sdfds" })
