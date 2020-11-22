@@ -51,7 +51,7 @@ module.exports.setWebHook = async () => {
   // Активировать вебхук
   await axios
     .put(
-      `https://edge.qiwi.com/payment-notifier/v1/hooks?hookType=1&param=https%3A%2F%2F${HOOK_URL}%2F&txnType=2`
+      `https://edge.qiwi.com/payment-notifier/v1/hooks?hookType=1&param=https%3A%2F%2F${process.env.HOOK_URL}%2F&txnType=2`
     )
     .then((res) => console.log(res.data));
 };
