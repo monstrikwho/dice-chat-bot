@@ -2,7 +2,7 @@ const { bot } = require("../init/startBot");
 const User = require("../models/user");
 const Extra = require("telegraf/extra");
 
-const extraBoard = require("../helpers/extraBoard");
+const extraBoard = require("./extraBoard");
 let message = ({ balance }) => `Делайте ваши ставки.
 Ваш баланс: ${balance} ₽`;
 
@@ -371,34 +371,40 @@ module.exports = (diceGame) => {
 
     await ctx.deleteMessage(ctx.session.state.activeBoard.message_id);
 
-    const diceMsg = await bot.telegram.sendDice(ctx.from.id, "🎲");
+    const diceMsg = await bot.telegram.sendDice(ctx.from.id, { emoji: "🎲" });
     const value = diceMsg.dice.value;
 
     let winSum = 0;
 
     if (value === 1) {
       winSum +=
-        state.rate[1] * 10 + state.rate["1-2"] * 5 + state.rate["odd"] * 3;
+        state.rate[1] * 5 + state.rate["1-2"] * 2.75 + state.rate["odd"] * 1.85;
     }
     if (value === 2) {
       winSum +=
-        state.rate[2] * 10 + state.rate["1-2"] * 5 + state.rate["even"] * 3;
+        state.rate[2] * 5 +
+        state.rate["1-2"] * 2.75 +
+        state.rate["even"] * 1.85;
     }
     if (value === 3) {
       winSum +=
-        state.rate[3] * 10 + state.rate["3-4"] * 5 + state.rate["odd"] * 3;
+        state.rate[3] * 5 + state.rate["3-4"] * 2.75 + state.rate["odd"] * 1.85;
     }
     if (value === 4) {
       winSum +=
-        state.rate[4] * 10 + state.rate["3-4"] * 5 + state.rate["even"] * 3;
+        state.rate[4] * 5 +
+        state.rate["3-4"] * 2.75 +
+        state.rate["even"] * 1.85;
     }
     if (value === 5) {
       winSum +=
-        state.rate[5] * 10 + state.rate["5-6"] * 5 + state.rate["odd"] * 3;
+        state.rate[5] * 5 + state.rate["5-6"] * 2.75 + state.rate["odd"] * 1.85;
     }
     if (value === 6) {
       winSum +=
-        state.rate[6] * 10 + state.rate["5-6"] * 5 + state.rate["even"] * 3;
+        state.rate[6] * 5 +
+        state.rate["5-6"] * 2.75 +
+        state.rate["even"] * 1.85;
     }
 
     ctx.session.state.balance += winSum;

@@ -3,6 +3,7 @@ const Stage = require("telegraf/stage");
 
 const { showMainMenu } = require("./mainMenu.scene");
 const { diceGame } = require("./diceGame.scene");
+const { footballGame } = require("./football.scene");
 const { lkMenu } = require("./lkMenu.scene");
 const { outMoney } = require("./outMoney.scene");
 const { inMoney, writeAmount } = require("./inMoney.scene");
@@ -14,6 +15,7 @@ function setupScenes(bot) {
   const stage = new Stage([
     showMainMenu,
     diceGame,
+    footballGame,
     lkMenu,
     outMoney,
     inMoney,
