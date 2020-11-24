@@ -34,7 +34,8 @@ lkMenu.hears("Вывести", async ({ scene }) => {
       `https://dice-bots.ru/verify_pay`,
       querystring.stringify({ sfdsf: "dsfsdf" })
     )
-    .then((res) => console.log(res.data));
+    // .then((res) => console.log(res.data))
+
 });
 lkMenu.hears("↪️ Вернуться назад", async ({ scene }) => {
   return await scene.enter("showMainMenu");
