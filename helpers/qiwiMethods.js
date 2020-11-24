@@ -1,5 +1,6 @@
 const axios = require("axios");
 const querystring = require("querystring");
+const { bot } = require("../init/startBot");
 
 axios.defaults.headers.common["Content-Type"] = "application/json";
 axios.defaults.headers.common["Accept"] = "application/json";
@@ -135,8 +136,11 @@ module.exports.outMoney = async (
       `https://edge.qiwi.com/sinap/api/v2/terms/${idProvider}/payments`,
       obj
     )
-    .then((res) => console.log(res.data))
-    .catch((err) => console.log(err.message));
+    // .then((res) => console.log(res.data))
+    .catch(async (err) => {
+      console.log(err.message);
+      return await bot.telegram.sendMessage(userId, 'Произошла ошибка. Пожалуйста, попробуйте позже!')
+    });
 };
 
 module.exports.myTestHook = async () => {
@@ -147,7 +151,7 @@ module.exports.myTestHook = async () => {
       querystring.stringify({ sdfds: "sdfds" })
     );
   } catch (error) {
-    console.log(error)
+    console.log(error);
   }
   // await axios.post(
   //   `https://dice-bots.ru/verify_pay/`,

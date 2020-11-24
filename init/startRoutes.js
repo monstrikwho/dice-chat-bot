@@ -1,6 +1,7 @@
 const express = require("express");
-const app = express();
+const { bot } = require("../init/startBot");
 
+const app = express();
 app.use(express.json());
 
 app.post("/verify_pay", (req, res) => {
@@ -36,11 +37,18 @@ const User = require("../models/user");
 async function inCash(amount, userId) {
   const user = await User.findOne({ userId });
   await User.updateOne({ userId }, { mainBalance: user.mainBalance + amount });
+  await bot.telegram.sendMessage(
+    userId,
+    `На ваш баланс было начисленно ${amount}P.
+Ваш текущий баланс: ${user.mainBalance + amount}`
+  );
 }
 
 async function outCash(amount, userId) {
   const user = await User.findOne({ userId });
   await User.updateOne({ userId }, { mainBalance: user.mainBalance - amount });
+  await bot.telegram.sendMessage(userId, `С вашего баланса было списано ${amount}P.
+Ваш текущий баланс: ${user.mainBalance - amount}`)
 }
 
 // {"hash": "a56ed0090fa3fd2fd0b002ed80f85a120037a6a85f840938888275e1631da96f",
