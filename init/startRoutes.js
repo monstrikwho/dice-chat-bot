@@ -8,9 +8,8 @@ app.use(express.urlencoded({ extended: true }));
 
 app.post("/verify_pay", (req, res) => {
   
-  // console.log(123); // Call your action on the request here
-  console.log(req.body); // Call your action on the request here
-  res.status(200).end(); // Responding is important
+  console.log(req); 
+  res.status(200).end(); 
 });
 
 async function startRoutes() {
