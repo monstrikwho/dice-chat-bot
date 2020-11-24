@@ -45,7 +45,6 @@ outQiwi.on("text", async (ctx) => {
   ctx.session.state = {
     ...ctx.session.state,
     wallet: msg,
-    flag: false
   };
 
   return await ctx.reply(
@@ -60,17 +59,10 @@ C вашего баланса спишеться: ${ctx.session.state.amount}
   );
 });
 
-
 outQiwi.action("Подтвердить", async (ctx) => {
   const amount = ctx.session.state.amount;
   const wallet = ctx.session.state.wallet;
-  const flag = ctx.session.state.wallet;
-  if (flag)
-    return await ctx.reply(
-      "Вы уже сделали запрос на вывод. Пожалуйста, подождите его обработку."
-    );
 
-  ctx.session.state.flag = true
   return await outMoney(amount, `+${wallet}`, ctx.from.id, 99);
 });
 
