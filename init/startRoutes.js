@@ -25,11 +25,12 @@ function processing(data) {
   // if(hash === myHash) {
   //   console.log(true)
   // }
+  console.log(data);
+  console.log(status);
 
   if (type === "IN") return inCash(sum.amount, comment);
   if (type === "OUT") return outCash(sum.amount, comment);
 
-  console.log(data);
 }
 
 const User = require("../models/user");

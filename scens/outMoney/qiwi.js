@@ -21,20 +21,20 @@ outQiwi.on("text", async (ctx) => {
   }
 
   if (!ctx.session.state.amount) {
-    const amount = +msg.trim().replace('+', '');
+    const amount = +msg.trim().replace("+", "");
     const balance = ctx.session.state.mainBalance;
     const prizeFound = ctx.session.state.prizeFound;
     if (!Boolean(amount))
       return await ctx.reply("Пожалуйста, введите только цифры.");
-    if (amount < 10) return await ctx.reply("Минимальный вывода 10р.");
+    if (amount < 0) return await ctx.reply("Минимальный вывода 10р.");
     if (amount + amount * 0.02 > balance)
       return await ctx.reply("У вас недостаточно средств на балансе.");
-    if ((amount > prizeFound))
+    if (amount > prizeFound)
       return await ctx.reply("Не хватает призового фонда");
 
     ctx.session.state = {
       ...ctx.session.state,
-      amount,
+      amount: amount + amount * 0.02,
     };
     return await ctx.reply("Пожалуйста, введите номер qiwi кошелька.");
   }
@@ -45,13 +45,14 @@ outQiwi.on("text", async (ctx) => {
   ctx.session.state = {
     ...ctx.session.state,
     wallet: msg,
+    flag: false
   };
 
   return await ctx.reply(
-    `Вы собираетесь вывести сумму ${ctx.session.state.amount}P на номер кошелька +${msg}.
-C вашего баланса спишеться: ${
-      ctx.session.state.amount + ctx.session.state.amount * 0.02
-    }
+    `Вы собираетесь вывести сумму ${
+      ctx.session.state.amount - ctx.session.state.amount * 0.02
+    }P на номер кошелька +${msg}.
+C вашего баланса спишеться: ${ctx.session.state.amount}
 Нажмите "Подтвердить", чтобы произвести выплату.`,
     Extra.markup((m) =>
       m.inlineKeyboard([[m.callbackButton("Подтвердить", "Подтвердить")]])
@@ -59,9 +60,17 @@ C вашего баланса спишеться: ${
   );
 });
 
+
 outQiwi.action("Подтвердить", async (ctx) => {
   const amount = ctx.session.state.amount;
   const wallet = ctx.session.state.wallet;
+  const flag = ctx.session.state.wallet;
+  if (flag)
+    return await ctx.reply(
+      "Вы уже сделали запрос на вывод. Пожалуйста, подождите его обработку."
+    );
+
+  ctx.session.state.flag = true
   return await outMoney(amount, `+${wallet}`, ctx.from.id, 99);
 });
 
