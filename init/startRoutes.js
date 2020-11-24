@@ -1,5 +1,4 @@
 const express = require("express");
-const sha256 = require("sha256");
 const app = express();
 
 app.use(express.json());
@@ -21,15 +20,27 @@ function processing(data) {
   const type = data.payment.type; // 'IN' or 'OUT'
 
   const toHashStr = `${sum.currency}|${sum.amount}|${type}|${account}|${txnId}`;
-  console.log(toHashStr)
-  const myHash = sha256(toHashStr)
-  console.log(myHash)
-  
-  if(hash === myHash) {
-    console.log(true)
-  }
-  
-  console.log(data)
+
+  // if(hash === myHash) {
+  //   console.log(true)
+  // }
+
+  if (type === "IN") return inCash(sum.amount, comment);
+  if (type === "OUT") return outCash(sum.amount, comment);
+
+  console.log(data);
+}
+
+const User = require("../models/user");
+
+async function inCash(amount, userId) {
+  const user = await User.findOne({ userId });
+  await User.updateOne({ userId }, { mainBalance: user.mainBalance + amount });
+}
+
+async function outCash(amount, userId) {
+  const user = await User.findOne({ userId });
+  await User.updateOne({ userId }, { mainBalance: user.mainBalance - amount });
 }
 
 // {"hash": "a56ed0090fa3fd2fd0b002ed80f85a120037a6a85f840938888275e1631da96f",
