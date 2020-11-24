@@ -1,5 +1,5 @@
 const express = require("express");
-const md5 = require("js-md5");
+const sha256 = require("sha256");
 const app = express();
 
 app.use(express.json());
@@ -22,10 +22,10 @@ function processing(data) {
 
   const toHashStr = `${sum.currency}|${sum.amount}|${type}|${account}|${txnId}`;
   console.log(toHashStr)
-  const md5Hash = md5(toHashStr)
-  console.log(md5Hash)
+  const myHash = sha256(toHashStr)
+  console.log(myHash)
   
-  if(hash === md5Hash) {
+  if(hash === myHash) {
     console.log(true)
   }
   
