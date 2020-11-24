@@ -8,7 +8,7 @@ const app = express();
 
 app.post("/verify_pay", (req, res) => {
   
-  console.log(req.body); 
+  console.log(req); 
   res.status(200).end(); 
 });
 
