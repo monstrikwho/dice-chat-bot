@@ -3,8 +3,8 @@ const cors = require("cors");
 
 const app = express();
 
-app.use(cors());
-app.use(express.urlencoded({ extended: true }));
+// app.use(cors());
+// app.use(express.urlencoded({ extended: true }));
 
 app.post("/verify_pay", (req, res) => {
   
