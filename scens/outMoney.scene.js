@@ -2,7 +2,7 @@ const Scene = require("telegraf/scenes/base");
 const Extra = require("telegraf/extra");
 const Markup = require("telegraf/markup");
 
-const { getProfileBalance } = require("../helpers/qiwiMethods");
+const { getProfileBalance, testWebHook } = require("../helpers/qiwiMethods");
 const User = require("../models/user");
 
 const outMoney = new Scene("outMoney");
@@ -14,6 +14,8 @@ outMoney.enter(async (ctx) => {
     mainBalance,
     prizeFound
   };
+
+  await testWebHook()
 
   return await ctx.reply(
     `Призовой фонд: ${prizeFound} ₽
