@@ -21,11 +21,14 @@ function processing(data) {
   const type = data.payment.type; // 'IN' or 'OUT'
 
   const toHashStr = `${sum.currency}|${sum.amount}|${type}|${account}|${txnId}`;
+  console.log(toHashStr)
   const md5Hash = md5(toHashStr)
+  console.log(md5Hash)
   
   if(hash === md5Hash) {
     console.log(true)
   }
+  
   console.log(data)
 }
 
