@@ -25,7 +25,6 @@ lkMenu.hears("Пополнить", async ({ scene }) => {
 });
 
 lkMenu.hears("Вывести", async ({ scene }) => {
-  // return await scene.enter("outMoney");
   const axios = require("axios");
   const querystring = require("querystring");
 
@@ -36,6 +35,7 @@ lkMenu.hears("Вывести", async ({ scene }) => {
     )
     .then((res) => console.log(res.status))
     .catch((err) => console.log(err.message));
+  return await scene.enter("outMoney");
 });
 lkMenu.hears("↪️ Вернуться назад", async ({ scene }) => {
   return await scene.enter("showMainMenu");
