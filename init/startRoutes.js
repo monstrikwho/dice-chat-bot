@@ -6,8 +6,13 @@ const express = require("express");
 const app = express();
 app.use(express.json());
 
-app.post("/verify_pay", (req, res) => {
-  processing(req.body);
+app.post("/notify_pay_orders", (req, res) => {
+  try {
+    processing(req.body);
+  } catch (error) {
+    console.log('Ошибка в платежах')
+  }
+    
   res.status(200).end();
 });
 
