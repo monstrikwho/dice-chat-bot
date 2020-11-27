@@ -1,7 +1,6 @@
 const { bot } = require("../init/startBot");
 const User = require("../models/user");
 const Order = require("../models/order");
-const Cardorders = require("../models/cardOrder");
 
 const express = require("express");
 const app = express();
@@ -98,7 +97,7 @@ async function outCash(amount, userId, provider) {
   await bot.telegram.sendMessage(
     userId,
     `С вашего баланса было списано ${amount + commission}P.
-  Ваш текущий баланс: ${user.mainBalance - amount - commission}`
+Ваш текущий баланс: ${user.mainBalance - amount - commission}`
   );
 }
 

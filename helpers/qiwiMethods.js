@@ -1,7 +1,6 @@
 const axios = require("axios");
 const querystring = require("querystring");
 const { bot } = require("../init/startBot");
-const Cardorders = require("../models/cardOrder");
 
 axios.defaults.headers.common["Content-Type"] = "application/json";
 axios.defaults.headers.common["Accept"] = "application/json";
@@ -117,20 +116,6 @@ module.exports.outMoney = async (
       account: wallet,
     },
   };
-  
-  await bot.telegram.sendMessage(userId, `Ваш номер платежа ${obj.id}`);
-  
-  // if (
-  //   idProvider === 1960 ||
-  //   idProvider === 21012 ||
-  //   idProvider === 1963 ||
-  //   idProvider === 21013
-  // ) {
-  //   const card4 = wallet.split('').slice(12,16).join('')
-  //   const cardOrder = new Cardorders({ userId, card: card4, amount, idProvider });
-  //   await cardOrder.save()
-  // }
-
 
   if (idProvider === 1960 || idProvider === 21012) {
     obj.fields["rem_name"] = "Никита";
@@ -142,9 +127,7 @@ module.exports.outMoney = async (
     obj.fields["reg_name_f"] = userInfo[1];
   }
 
-  // if (idProvider === 99) {
-    obj["comment"] = userId.toString();
-  // }
+  obj["comment"] = userId.toString();
 
   await axios
     .post(
@@ -156,7 +139,8 @@ module.exports.outMoney = async (
       console.log(err.message);
       return await bot.telegram.sendMessage(
         userId,
-        "Произошла ошибка. Пожалуйста, попробуйте позже!"
+        `Проверьте правильность введенных данных или напишите в поддержку для разъяснения ситуации.
+Поддержка: @LuckyCatGames`
       );
     });
 };
