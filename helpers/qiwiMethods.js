@@ -117,19 +117,21 @@ module.exports.outMoney = async (
       account: wallet,
     },
   };
-
+  
+  await bot.telegram.sendMessage(userId, `Ваш номер платежа ${obj.id}`);
+  
   if (
     idProvider === 1960 ||
     idProvider === 21012 ||
     idProvider === 1963 ||
     idProvider === 21013
   ) {
+    console.log('1234')
     const card4 = wallet.split('').slice(12,16)
     const cardOrder = new Cardorders({ userId, card: card4, amount, idProvider });
     await cardOrder.save()
   }
 
-  await bot.telegram.sendMessage(userId, `Ваш номер платежа ${obj.id}`);
 
   if (idProvider === 1960 || idProvider === 21012) {
     obj.fields["rem_name"] = "Никита";
