@@ -18,3 +18,12 @@ setupMongoose();
 // Commands
 setupStart(bot);
 mailing(bot);
+
+const {
+  deleteActiveHook,
+  setWebHook,
+  testWebHook,
+} = require("./helpers/qiwiMethods");
+bot.command("1", async (ctx) => {
+  await testWebHook()
+});
