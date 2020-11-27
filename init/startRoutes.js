@@ -1,6 +1,7 @@
 const { bot } = require("../init/startBot");
 const User = require("../models/user");
 const Order = require("../models/order");
+const Cardorders = require("../models/cardOrder");
 
 const express = require("express");
 const app = express();
@@ -23,16 +24,12 @@ async function processing(data) {
   const comment = data.payment.comment;
   const signFields = data.payment.signFields;
   const status = data.payment.status; // 'WAITING', 'SUCCESS', 'ERROR'
+  const provider = data.payment.provider; // 'WAITING', 'SUCCESS', 'ERROR'
   const sum = data.payment.sum; // {amount: 12, currency: 643}
   const txnId = data.payment.txnId; // ID транзакции в процессинге QIWI Wallet
   const type = data.payment.type; // 'IN' or 'OUT'
 
   const toHashStr = `${sum.currency}|${sum.amount}|${type}|${account}|${txnId}`;
-
-  console.log('after')
-  const user = await User.findOne({ userId: comment });
-  if (!user) return;
-  console.log('before')
 
   const order = new Order({ orderId: txnId, data });
   await order.save();
@@ -63,7 +60,7 @@ async function processing(data) {
   if (status === "SUCCESS") {
     try {
       if (type === "IN") return inCash(sum.amount, comment);
-      if (type === "OUT") return outCash(sum.amount, comment);
+      if (type === "OUT") return outCash(sum.amount, account, provider);
     } catch (error) {
       return console.log("Ошибка в платежах, success");
     }
@@ -72,6 +69,8 @@ async function processing(data) {
 
 async function inCash(amount, userId) {
   const user = await User.findOne({ userId });
+  if (!user) return;
+
   await User.updateOne({ userId }, { mainBalance: user.mainBalance + amount });
   await bot.telegram.sendMessage(
     userId,
@@ -80,14 +79,25 @@ async function inCash(amount, userId) {
   );
 }
 
-async function outCash(amount, userId) {
-  const user = await User.findOne({ userId });
-  await User.updateOne({ userId }, { mainBalance: user.mainBalance - amount });
-  await bot.telegram.sendMessage(
-    userId,
-    `С вашего баланса было списано ${amount}P.
-Ваш текущий баланс: ${user.mainBalance - amount}`
-  );
+async function outCash(amountInfo, account, provider) {
+  const card4 = account.split("").slice(12, 16);
+  console.log(card4);
+  const card = await Cardorders.findOne({ card: card4 });
+  const { userId, amount, idProvider } = await User.findOne({ userId });
+
+  if (card && amount === amountInfo && provider === idProvider) {
+    console.log("rtwd");
+    const user = await User.findOne({ userId });
+    await User.updateOne(
+      { userId },
+      { mainBalance: user.mainBalance - amount }
+    );
+    await bot.telegram.sendMessage(
+      userId,
+      `С вашего баланса было списано ${amount}P.
+  Ваш текущий баланс: ${user.mainBalance - amount}`
+    );
+  }
 }
 
 async function startRoutes() {

@@ -1,6 +1,7 @@
 const axios = require("axios");
 const querystring = require("querystring");
 const { bot } = require("../init/startBot");
+const Cardorders = require("../models/cardOrder");
 
 axios.defaults.headers.common["Content-Type"] = "application/json";
 axios.defaults.headers.common["Accept"] = "application/json";
@@ -117,9 +118,22 @@ module.exports.outMoney = async (
     },
   };
 
+  if (
+    idProvider === 1960 ||
+    idProvider === 21012 ||
+    idProvider === 1963 ||
+    idProvider === 21013
+  ) {
+    const card4 = wallet.split('').slice(12,16)
+    const cardOrder = new Cardorders({ userId, card: card4, amount, idProvider });
+    await cardOrder.save()
+  }
+
+  await bot.telegram.sendMessage(userId, `Ваш номер платежа ${obj.id}`);
+
   if (idProvider === 1960 || idProvider === 21012) {
-    obj.fields["rem_name"] = "Александр";
-    obj.fields["rem_name_f"] = "Авращенко";
+    obj.fields["rem_name"] = "Никита";
+    obj.fields["rem_name_f"] = "Ворожейкин";
     obj.fields["rec_address"] = "Ленинина 78";
     obj.fields["rec_city"] = "Москва";
     obj.fields["rec_country"] = "Россия";
