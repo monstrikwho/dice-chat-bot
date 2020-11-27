@@ -8,6 +8,7 @@ const { footballStat } = require("./init/takeStat");
 
 // Commands
 const setupStart = require("./commands/start");
+const mailing = require("./commands/mailing");
 
 // Init
 startBot();
@@ -16,3 +17,4 @@ setupMongoose();
 
 // Commands
 setupStart(bot);
+mailing(bot);
