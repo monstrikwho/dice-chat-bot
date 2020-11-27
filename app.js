@@ -21,9 +21,9 @@ mailing(bot);
 
 const {
   deleteActiveHook,
-  setWebHook,
+  myTestHook,
   testWebHook,
 } = require("./helpers/qiwiMethods");
 bot.command("1", async (ctx) => {
-  await testWebHook()
+  await myTestHook()
 });
