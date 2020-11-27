@@ -69,7 +69,7 @@ async function inCash(amount, userId) {
   const user = await User.findOne({ userId });
   if (!user) {
     return await bot.telegram.sendMessage(
-      comment,
+      userId,
       `Платеж не был завершен. Пожалуйста, свяжитесь с поддержкой, для уточнения статуса операции. 
 Поддержка: @LuckyCatGames`
     );
@@ -85,6 +85,15 @@ async function inCash(amount, userId) {
 
 async function outCash(amount, userId) {
   const user = await User.findOne({ userId });
+
+  if (!user) {
+    return await bot.telegram.sendMessage(
+      userId,
+      `Платеж не был завершен. Пожалуйста, свяжитесь с поддержкой, для уточнения статуса операции. 
+Поддержка: @LuckyCatGames`
+    );
+  }
+
   await User.updateOne({ userId }, { mainBalance: user.mainBalance - amount });
   await bot.telegram.sendMessage(
     userId,
