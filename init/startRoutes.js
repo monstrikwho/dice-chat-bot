@@ -60,7 +60,7 @@ async function processing(data) {
   if (status === "SUCCESS") {
     try {
       if (type === "IN") return inCash(sum.amount, comment);
-      if (type === "OUT") return outCash(sum.amount, account, provider);
+      // if (type === "OUT") return outCash(sum.amount, account, provider);
     } catch (error) {
       return console.log("Ошибка в платежах, success");
     }
