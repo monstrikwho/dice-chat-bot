@@ -55,6 +55,10 @@ module.exports = (game) => {
       );
     }
 
+    if (amountRate === 0) {
+      return await ctx.answerCbQuery("Вы не можете поставить ставку 0₽", true);
+    }
+
     state.balance = Math.floor((state.balance - amountRate) * 100) / 100;
     state.rate["goal"] += amountRate;
     state.countRate += 1;
@@ -83,6 +87,10 @@ module.exports = (game) => {
         "У вас недостаточно средств на балансе",
         true
       );
+    }
+
+    if (amountRate === 0) {
+      return await ctx.answerCbQuery("Вы не можете поставить ставку 0₽", true);
     }
 
     state.balance = Math.floor((state.balance - amountRate) * 100) / 100;

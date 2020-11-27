@@ -54,6 +54,10 @@ module.exports = (game) => {
       );
     }
 
+    if (amountRate === 0) {
+      return await ctx.answerCbQuery("Вы не можете поставить ставку 0₽", true);
+    }
+
     state.balance = Math.floor((state.balance - amountRate) * 100) / 100;
     state.rate["jek"] += amountRate;
     state.countRate += 1;
@@ -139,7 +143,9 @@ module.exports = (game) => {
       );
 
     if (+msg < +process.env.MIN_RATE) {
-      return await ctx.reply(`Минимальная сумма ставки составляет ${process.env.MIN_RATE}₽`);
+      return await ctx.reply(
+        `Минимальная сумма ставки составляет ${process.env.MIN_RATE}₽`
+      );
     }
 
     ctx.session.state = {

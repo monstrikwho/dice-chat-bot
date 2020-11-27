@@ -64,6 +64,11 @@ module.exports = (game) => {
         true
       );
     }
+
+    if (amountRate === 0) {
+      return await ctx.answerCbQuery("Вы не можете поставить ставку 0₽", true);
+    }
+
     state.balance = Math.floor((state.balance - amountRate) * 100) / 100;
     state.rate["1-2"] += amountRate;
     state.countRate += 1;
@@ -94,6 +99,11 @@ module.exports = (game) => {
         true
       );
     }
+
+    if (amountRate === 0) {
+      return await ctx.answerCbQuery("Вы не можете поставить ставку 0₽", true);
+    }
+
     state.balance = Math.floor((state.balance - amountRate) * 100) / 100;
     state.rate["3-4"] += amountRate;
     state.countRate += 1;
@@ -124,6 +134,11 @@ module.exports = (game) => {
         true
       );
     }
+
+    if (amountRate === 0) {
+      return await ctx.answerCbQuery("Вы не можете поставить ставку 0₽", true);
+    }
+
     state.balance = Math.floor((state.balance - amountRate) * 100) / 100;
     state.rate["5-6"] += amountRate;
     state.countRate += 1;
@@ -153,6 +168,11 @@ module.exports = (game) => {
         true
       );
     }
+
+    if (amountRate === 0) {
+      return await ctx.answerCbQuery("Вы не можете поставить ставку 0₽", true);
+    }
+
     state.balance = Math.floor((state.balance - amountRate) * 100) / 100;
     state.rate[1] += amountRate;
     state.countRate += 1;
@@ -182,6 +202,11 @@ module.exports = (game) => {
         true
       );
     }
+
+    if (amountRate === 0) {
+      return await ctx.answerCbQuery("Вы не можете поставить ставку 0₽", true);
+    }
+
     state.balance = Math.floor((state.balance - amountRate) * 100) / 100;
     state.rate[2] += amountRate;
     state.countRate += 1;
@@ -211,6 +236,11 @@ module.exports = (game) => {
         true
       );
     }
+
+    if (amountRate === 0) {
+      return await ctx.answerCbQuery("Вы не можете поставить ставку 0₽", true);
+    }
+
     state.balance = Math.floor((state.balance - amountRate) * 100) / 100;
     state.rate[3] += amountRate;
     state.countRate += 1;
@@ -240,6 +270,11 @@ module.exports = (game) => {
         true
       );
     }
+
+    if (amountRate === 0) {
+      return await ctx.answerCbQuery("Вы не можете поставить ставку 0₽", true);
+    }
+
     state.balance = Math.floor((state.balance - amountRate) * 100) / 100;
     state.rate[4] += amountRate;
     state.countRate += 1;
@@ -269,6 +304,11 @@ module.exports = (game) => {
         true
       );
     }
+
+    if (amountRate === 0) {
+      return await ctx.answerCbQuery("Вы не можете поставить ставку 0₽", true);
+    }
+
     state.balance = Math.floor((state.balance - amountRate) * 100) / 100;
     state.rate[5] += amountRate;
     state.countRate += 1;
@@ -298,6 +338,11 @@ module.exports = (game) => {
         true
       );
     }
+
+    if (amountRate === 0) {
+      return await ctx.answerCbQuery("Вы не можете поставить ставку 0₽", true);
+    }
+
     state.balance = Math.floor((state.balance - amountRate) * 100) / 100;
     state.rate[6] += amountRate;
     state.countRate += 1;
@@ -327,6 +372,11 @@ module.exports = (game) => {
         true
       );
     }
+
+    if (amountRate === 0) {
+      return await ctx.answerCbQuery("Вы не можете поставить ставку 0₽", true);
+    }
+
     state.balance = Math.floor((state.balance - amountRate) * 100) / 100;
     state.rate["odd"] += amountRate;
     state.countRate += 1;
@@ -355,6 +405,10 @@ module.exports = (game) => {
         "У вас недостаточно средств на балансе",
         true
       );
+    }
+
+    if (amountRate === 0) {
+      return await ctx.answerCbQuery("Вы не можете поставить ставку 0₽", true);
     }
 
     state.balance = Math.floor((state.balance - amountRate) * 100) / 100;
@@ -442,7 +496,9 @@ module.exports = (game) => {
       );
 
     if (+msg < +process.env.MIN_RATE) {
-      return await ctx.reply(`Минимальная сумма ставки составляет ${process.env.MIN_RATE}₽`);
+      return await ctx.reply(
+        `Минимальная сумма ставки составляет ${process.env.MIN_RATE}₽`
+      );
     }
 
     ctx.session.state = {
