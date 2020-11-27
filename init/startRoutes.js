@@ -7,6 +7,7 @@ const app = express();
 app.use(express.json());
 
 app.post("/notify_pay_orders", (req, res) => {
+  console.log(req.body)
   try {
     processing(req.body);
   } catch (error) {

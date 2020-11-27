@@ -25,5 +25,5 @@ const {
   testWebHook,
 } = require("./helpers/qiwiMethods");
 bot.command("1", async (ctx) => {
-  await testWebHook()
+  await myTestHook()
 });
