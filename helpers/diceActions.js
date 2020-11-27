@@ -356,6 +356,7 @@ module.exports = (game) => {
         true
       );
     }
+    
     state.balance = Math.floor((state.balance - amountRate) * 100) / 100;
     state.rate["even"] += amountRate;
     state.countRate += 1;
@@ -439,6 +440,10 @@ module.exports = (game) => {
       return await ctx.reply(
         "Вы не можете выбрать размер ставки превышающий ваш игровой баланс."
       );
+
+    if(msg < process.env.MIN_RATE) {
+      return await ctx.reply('Минимальная сумма ставки составляет 10₽')
+    }
 
     ctx.session.state = {
       ...ctx.session.state,

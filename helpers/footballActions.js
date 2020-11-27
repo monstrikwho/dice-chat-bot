@@ -55,10 +55,6 @@ module.exports = (game) => {
       );
     }
 
-    if (amountRate < 1) {
-      return await ctx.answerCbQuery("Минимальная ставка 1₽", true);
-    }
-
     state.balance = Math.floor((state.balance - amountRate) * 100) / 100;
     state.rate["goal"] += amountRate;
     state.countRate += 1;
@@ -87,10 +83,6 @@ module.exports = (game) => {
         "У вас недостаточно средств на балансе",
         true
       );
-    }
-
-    if (amountRate < 1) {
-      return await ctx.answerCbQuery("Минимальная ставка 1₽", true);
     }
 
     state.balance = Math.floor((state.balance - amountRate) * 100) / 100;
@@ -176,6 +168,10 @@ module.exports = (game) => {
       return await ctx.reply(
         "Вы не можете выбрать размер ставки превышающий ваш игровой баланс."
       );
+
+    if (msg < process.env.MIN_RATE) {
+      return await ctx.reply("Минимальная сумма ставки составляет 10₽");
+    }
 
     ctx.session.state = {
       ...ctx.session.state,
