@@ -60,14 +60,14 @@ async function processing(data) {
   if (status === "SUCCESS") {
     try {
       if (type === "IN") return inCash(sum.amount, comment);
-      if (type === "OUT") return outCash(sum.amount, comment);
+      if (type === "OUT") return outCash(sum.amount, comment, provider);
     } catch (error) {
       return console.log("Ошибка в платежах, success");
     }
   }
 }
 
-async function inCash(amount, userId) {
+async function inCash(amount, userId,provider) {
   const user = await User.findOne({ userId });
   if (!user) return;
 
@@ -82,11 +82,20 @@ async function inCash(amount, userId) {
 async function outCash(amount, userId) {
   const user = await User.findOne({ userId });
   if (!user) return;
-  await User.updateOne({ userId }, { mainBalance: user.mainBalance - amount });
+
+  let commission = 0
+  if(provider === 1963 || provider === 21013) {
+    commission = 50 + amount * 0.02
+  }
+  if(provider === 1960 || provider === 21012) {
+    commission = 100 + amount * 0.02
+  }
+  
+  await User.updateOne({ userId }, { mainBalance: user.mainBalance - amount - commission });
   await bot.telegram.sendMessage(
     userId,
-    `С вашего баланса было списано ${amount}P.
-  Ваш текущий баланс: ${user.mainBalance - amount}`
+    `С вашего баланса было списано ${amount - commission}P.
+  Ваш текущий баланс: ${user.mainBalance - amount - commission}`
   );
 }
 
