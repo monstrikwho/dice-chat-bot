@@ -485,7 +485,7 @@ module.exports = (game) => {
   game.on("text", async (ctx) => {
     const msg = ctx.update.message.text.replace(/-/, "");
 
-    if (!ctx.session.state.otherRateFlag) return;
+    if (!ctx.session.state.otherRateActive) return;
 
     if (!isNumber(msg))
       return await ctx.reply("Пожалуйста, введите только положительные цифры.");
@@ -505,8 +505,6 @@ module.exports = (game) => {
       ...ctx.session.state,
       otherRate: msg,
       valueRate: 0,
-      otherRateFlag: false,
-      otherRateActive: true,
     };
 
     await ctx.reply(`Вы успешно выбрали размер ставки: ${msg}₽`);
