@@ -29,8 +29,10 @@ async function processing(data) {
 
   const toHashStr = `${sum.currency}|${sum.amount}|${type}|${account}|${txnId}`;
 
+  console.log('after')
   const user = await User.findOne({ userId: comment });
   if (!user) return;
+  console.log('before')
 
   const order = new Order({ orderId: txnId, data });
   await order.save();

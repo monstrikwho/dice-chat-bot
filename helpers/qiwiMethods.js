@@ -118,11 +118,11 @@ module.exports.outMoney = async (
   };
 
   if (idProvider === 1960 || idProvider === 21012) {
-    obj.fields["rem_name"] = "";
-    obj.fields["rem_name_f"] = "";
-    obj.fields["rec_address"] = "";
-    obj.fields["rec_city"] = "";
-    obj.fields["rec_country"] = "";
+    obj.fields["rem_name"] = "Александр";
+    obj.fields["rem_name_f"] = "Авращенко";
+    obj.fields["rec_address"] = "Ленинина 78";
+    obj.fields["rec_city"] = "Москва";
+    obj.fields["rec_country"] = "Россия";
     obj.fields["reg_name"] = userInfo[0];
     obj.fields["reg_name_f"] = userInfo[1];
   }
