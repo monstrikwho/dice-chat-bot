@@ -97,7 +97,7 @@ async function outCash(amount, userId, provider) {
   );
   await bot.telegram.sendMessage(
     userId,
-    `С вашего баланса было списано ${amount - commission}P.
+    `С вашего баланса было списано ${amount + commission}P.
   Ваш текущий баланс: ${user.mainBalance - amount - commission}`
   );
 }
