@@ -138,8 +138,8 @@ module.exports = (game) => {
         "Вы не можете выбрать размер ставки превышающий ваш игровой баланс."
       );
 
-    if (msg < process.env.MIN_RATE) {
-      return await ctx.reply("Минимальная сумма ставки составляет 10₽");
+    if (+msg < +process.env.MIN_RATE) {
+      return await ctx.reply(`Минимальная сумма ставки составляет ${process.env.MIN_RATE}₽`);
     }
 
     ctx.session.state = {
