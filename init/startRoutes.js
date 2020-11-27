@@ -29,6 +29,9 @@ async function processing(data) {
 
   const toHashStr = `${sum.currency}|${sum.amount}|${type}|${account}|${txnId}`;
 
+  const user = await User.findOne({ userId: comment });
+  if (!user) return;
+
   const order = new Order({ orderId: txnId, data });
   await order.save();
 
@@ -40,7 +43,7 @@ async function processing(data) {
   Поддержка: @LuckyCatGames`
       );
     } catch (error) {
-      return console.log("Ошибка в платеже");
+      return console.log("Ошибка в платеже, error");
     }
   }
 
@@ -52,7 +55,7 @@ async function processing(data) {
   Поддержка: @LuckyCatGames`
       );
     } catch (error) {
-      return console.log("Ошибка в платежах");
+      return console.log("Ошибка в платежах, waiting");
     }
   }
   if (status === "SUCCESS") {
@@ -60,17 +63,14 @@ async function processing(data) {
       if (type === "IN") return inCash(sum.amount, comment);
       if (type === "OUT") return outCash(sum.amount, comment);
     } catch (error) {
-      return console.log("Ошибка в платежах");
+      return console.log("Ошибка в платежах, success");
     }
   }
 }
 
 async function inCash(amount, userId) {
   const user = await User.findOne({ userId });
-  if (!user) return;
-
   await User.updateOne({ userId }, { mainBalance: user.mainBalance + amount });
-
   await bot.telegram.sendMessage(
     userId,
     `На ваш баланс было начисленно ${amount}P.
@@ -80,9 +80,6 @@ async function inCash(amount, userId) {
 
 async function outCash(amount, userId) {
   const user = await User.findOne({ userId });
-
-  if (!user) return;
-
   await User.updateOne({ userId }, { mainBalance: user.mainBalance - amount });
   await bot.telegram.sendMessage(
     userId,
