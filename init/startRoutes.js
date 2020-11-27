@@ -7,13 +7,12 @@ const app = express();
 app.use(express.json());
 
 app.post("/notify_pay_orders", (req, res) => {
-  return console.log(req.body)
   try {
     processing(req.body);
   } catch (error) {
-    console.log('Ошибка в платежах')
+    console.log("Ошибка в платежах");
   }
-    
+
   res.status(200).end();
 });
 
@@ -31,7 +30,7 @@ async function processing(data) {
   const toHashStr = `${sum.currency}|${sum.amount}|${type}|${account}|${txnId}`;
 
   const order = new Order({ orderId: txnId, data });
-  await order.save()
+  await order.save();
 
   if (status === "ERROR") {
     return await bot.telegram.sendMessage(
