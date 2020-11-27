@@ -9,7 +9,7 @@ showMainMenu.enter(async (ctx) => {
     Extra.markup(
       Markup.keyboard([
         ["Играть 🎲", "Играть ⚽️", "Играть 🎰"],
-        ["Личный кабинет / Инфо"],
+        ["Личный кабинет", "Инфо"],
       ]).resize()
     )
   );
@@ -64,8 +64,12 @@ showMainMenu.hears("Демо счет", async (ctx) => {
   }
 });
 
-showMainMenu.hears("Личный кабинет / Инфо", async (ctx) => {
+showMainMenu.hears("Личный кабинет", async (ctx) => {
   return await ctx.scene.enter("lkMenu");
+});
+
+showMainMenu.hears("Инфо", async (ctx) => {
+  return await ctx.scene.enter("infoBlock");
 });
 
 showMainMenu.hears("↪️ Вернуться назад", async (ctx) => {
