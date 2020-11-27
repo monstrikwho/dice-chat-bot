@@ -71,7 +71,7 @@ outCardRu.action("Подтвердить", async (ctx) => {
   const amount = ctx.session.state.amount;
   const wallet = ctx.session.state.wallet;
   const idProvider = ctx.session.state.idProvider;
-  return await outMoney(amount, wallet, ctx.from.id, idProvider);
+  return await outMoney(amount, `${wallet}`, ctx.from.id, idProvider);
 });
 
 module.exports = { outCardRu };

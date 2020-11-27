@@ -86,7 +86,7 @@ outCardOther.action("Подтвердить", async (ctx) => {
   const wallet = ctx.session.state.wallet;
   const idProvider = ctx.session.state.idProvider;
   const userInfo = ctx.session.state.userInfo;
-  return await outMoney(amount, wallet, ctx.from.id, idProvider, userInfo);
+  return await outMoney(amount, `${wallet}`, ctx.from.id, idProvider, userInfo);
 });
 
 module.exports = { outCardOther };
