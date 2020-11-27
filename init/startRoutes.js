@@ -67,7 +67,7 @@ async function processing(data) {
   }
 }
 
-async function inCash(amount, userId,provider) {
+async function inCash(amount, userId) {
   const user = await User.findOne({ userId });
   if (!user) return;
 
@@ -79,19 +79,22 @@ async function inCash(amount, userId,provider) {
   );
 }
 
-async function outCash(amount, userId) {
+async function outCash(amount, userId, provider) {
   const user = await User.findOne({ userId });
   if (!user) return;
 
-  let commission = 0
-  if(provider === 1963 || provider === 21013) {
-    commission = 50 + amount * 0.02
+  let commission = 0;
+  if (provider === 1963 || provider === 21013) {
+    commission = 50 + amount * 0.02;
   }
-  if(provider === 1960 || provider === 21012) {
-    commission = 100 + amount * 0.02
+  if (provider === 1960 || provider === 21012) {
+    commission = 100 + amount * 0.02;
   }
-  
-  await User.updateOne({ userId }, { mainBalance: user.mainBalance - amount - commission });
+
+  await User.updateOne(
+    { userId },
+    { mainBalance: user.mainBalance - amount - commission }
+  );
   await bot.telegram.sendMessage(
     userId,
     `С вашего баланса было списано ${amount - commission}P.
