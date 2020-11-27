@@ -12,7 +12,7 @@ outMoney.enter(async (ctx) => {
 
   ctx.session.state = {
     mainBalance,
-    prizeFound,
+    // prizeFound,
   };
 
   return await ctx.reply(
