@@ -9,7 +9,7 @@ showMainMenu.enter(async (ctx) => {
     Extra.markup(
       Markup.keyboard([
         ["Играть 🎲", "Играть ⚽️", "Играть 🎰"],
-        ["Личный кабинет"],
+        ["Личный кабинет / Инфо"],
       ]).resize()
     )
   );
@@ -18,8 +18,6 @@ showMainMenu.enter(async (ctx) => {
 showMainMenu.hears(/(?:Играть)/, async (ctx) => {
   const emoji = ctx.update.message.text.replace("Играть ", "");
   ctx.session.state = { game: emoji };
-
-  if (emoji === "🎰") return ctx.reply("Игра будет готова в ближайшее время");
 
   await ctx.reply(
     "Выберите счет с которым вы хотите играть.",
@@ -37,11 +35,15 @@ showMainMenu.hears("Основной счет", async (ctx) => {
 
   if (diceGame === "🎲") {
     ctx.session.state.activeGame = "mainGame";
-    await ctx.scene.enter("diceGame");
+    return await ctx.scene.enter("diceGame");
   }
   if (diceGame === "⚽️") {
     ctx.session.state.activeGame = "mainGame";
-    await ctx.scene.enter("footballGame");
+    return await ctx.scene.enter("footballGame");
+  }
+  if (diceGame === "🎰") {
+    ctx.session.state.activeGame = "mainGame";
+    return await ctx.scene.enter("slotGame");
   }
 });
 
@@ -50,15 +52,19 @@ showMainMenu.hears("Демо счет", async (ctx) => {
 
   if (diceGame === "🎲") {
     ctx.session.state.activeGame = "demoGame";
-    await ctx.scene.enter("diceGame");
+    return await ctx.scene.enter("diceGame");
   }
   if (diceGame === "⚽️") {
     ctx.session.state.activeGame = "demoGame";
-    await ctx.scene.enter("footballGame");
+    return await ctx.scene.enter("footballGame");
+  }
+  if (diceGame === "🎰") {
+    ctx.session.state.activeGame = "demoGame";
+    return await ctx.scene.enter("slotGame");
   }
 });
 
-showMainMenu.hears("Личный кабинет", async (ctx) => {
+showMainMenu.hears("Личный кабинет / Инфо", async (ctx) => {
   return await ctx.scene.enter("lkMenu");
 });
 

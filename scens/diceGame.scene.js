@@ -5,8 +5,8 @@ const Scene = require("telegraf/scenes/base");
 const Extra = require("telegraf/extra");
 const Markup = require("telegraf/markup");
 
-const extraBoard = require("../helpers/extraBoard");
-const actionsBord = require("../helpers/actionsBoard");
+const extraBoard = require("../helpers/diceExtra");
+const actionsBord = require("../helpers/diceActions");
 
 const diceGame = new Scene("diceGame");
 diceGame.enter(async (ctx) => {
@@ -31,9 +31,11 @@ diceGame.enter(async (ctx) => {
       even: 0,
       odd: 0,
     },
-    valueRate: 1,
+    valueRate: 10,
+    otherRate: 0,
     countRate: 0,
     activeGame,
+    rateMenu: true,
     balance: activeGame === "mainGame" ? mainBalance : demoBalance,
   };
   ctx.session.state = initState;
@@ -41,12 +43,11 @@ diceGame.enter(async (ctx) => {
   // Отправляем первое сообщение с пустой клавиатурой
   await bot.telegram.sendMessage(
     ctx.from.id,
-    "Вы вошли в сцену с игрой",
+    "Делайте ваши ставки",
     Extra.markup(Markup.keyboard([["🏡 Вернуться на главную"]]).resize())
   );
 
-  let message = ({ balance }) => `Делайте ваши ставки.
-Ваш баланс: ${balance} ₽`;
+  let message = ({ balance }) => `Ваш баланс: ${balance} ₽`;
 
   // Отправляем init board
   ctx.session.state.activeBoard = await ctx.reply(

@@ -3,6 +3,9 @@ const Extra = require("telegraf/extra");
 module.exports = (state) => {
   const inlineBtnHook = (m, name) => m.callbackButton(name, name);
   const valueRate = (count) => {
+    if (count === -1 && state.otherRateActive)
+      return `💰 Другая сумма - ${state.otherRate}₽`;
+    if (count === -1) return `✏️ Другая сумма - ${state.otherRate}₽`;
     if (state.valueRate === count) return `💰 ${count}₽`;
     return `${count}₽`;
   };
@@ -10,13 +13,13 @@ module.exports = (state) => {
   return Extra.markup((m) =>
     m.inlineKeyboard([
       [
-        inlineBtnHook(m, valueRate(1)),
-        inlineBtnHook(m, valueRate(5)),
         inlineBtnHook(m, valueRate(10)),
         inlineBtnHook(m, valueRate(50)),
         inlineBtnHook(m, valueRate(100)),
         inlineBtnHook(m, valueRate(500)),
+        inlineBtnHook(m, valueRate(1000)),
       ],
+      [inlineBtnHook(m, valueRate(-1)), inlineBtnHook(m, `🗑 Очистить ставки`)],
       [
         inlineBtnHook(m, `1️⃣  -  💰 ${state.rate[1]}  [x5]`),
         inlineBtnHook(m, `2️⃣  -  💰 ${state.rate[2]}  [x5]`),
@@ -33,10 +36,9 @@ module.exports = (state) => {
         inlineBtnHook(m, `Нечетное  -  💰 ${state.rate["odd"]}  [x1.85]`),
         inlineBtnHook(m, `Четное  -  💰 ${state.rate["even"]}  [x1.85]`),
       ],
-      [inlineBtnHook(m, `1️⃣ - 2️⃣   -   💰 ${state.rate["1-2"]}  [x2.75]`)],
-      [inlineBtnHook(m, `3️⃣ - 4️⃣   -   💰 ${state.rate["3-4"]}  [x2.75]`)],
-      [inlineBtnHook(m, `5️⃣ - 6️⃣   -   💰 ${state.rate["5-6"]}  [x2.75]`)],
-      [inlineBtnHook(m, `Очистить ставки`)],
+      [inlineBtnHook(m, `1️⃣ - 2️⃣   -   💰 ${state.rate["1-2"]}  [x2.7]`)],
+      [inlineBtnHook(m, `3️⃣ - 4️⃣   -   💰 ${state.rate["3-4"]}  [x2.7]`)],
+      [inlineBtnHook(m, `5️⃣ - 6️⃣   -   💰 ${state.rate["5-6"]}  [x2.7]`)],
       [inlineBtnHook(m, `Бросить кости 🎲`)],
     ])
   );

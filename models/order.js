@@ -3,7 +3,9 @@ const { Schema, model } = require("mongoose");
 const schema = new Schema({
   orderId: {
     type: Number,
-    unique: true,
+  },
+  data: {
+    type: Object,
   },
 });
 

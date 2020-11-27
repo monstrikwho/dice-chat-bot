@@ -14,6 +14,7 @@ lkMenu.enter(async (ctx) => {
     Extra.markup(
       Markup.keyboard([
         ["Пополнить", "Вывести"],
+        ["Информационный блок"],
         ["↪️ Вернуться назад"],
       ]).resize()
     )
@@ -27,6 +28,11 @@ lkMenu.hears("Пополнить", async ({ scene }) => {
 lkMenu.hears("Вывести", async ({ scene }) => {
   return await scene.enter("outMoney");
 });
+
+lkMenu.hears("Информационный блок", async ({ scene }) => {
+  return await scene.enter("infoBlock");
+});
+
 lkMenu.hears("↪️ Вернуться назад", async ({ scene }) => {
   return await scene.enter("showMainMenu");
 });

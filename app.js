@@ -4,6 +4,7 @@ require("dotenv").config();
 const { bot, startBot } = require("./init/startBot");
 const { app, startRoutes } = require("./init/startRoutes");
 const setupMongoose = require("./init/setupMongoose");
+const { footballStat } = require("./init/takeStat");
 
 // Commands
 const setupStart = require("./commands/start");
@@ -15,5 +16,3 @@ setupMongoose();
 
 // Commands
 setupStart(bot);
-
-

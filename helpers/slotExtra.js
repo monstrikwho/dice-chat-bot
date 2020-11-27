@@ -6,7 +6,7 @@ module.exports = (state) => {
     if (count === -1 && state.otherRateActive)
       return `💰 Другая сумма - ${state.otherRate}₽`;
     if (count === -1) return `✏️ Другая сумма - ${state.otherRate}₽`;
-    if (state.valueRate === count) return `💰 ${count}₽`;
+    if (state.valueRate === count && !state.otherRateActive) return `💰 ${count}₽`;
     return `${count}₽`;
   };
 
@@ -20,11 +20,8 @@ module.exports = (state) => {
         inlineBtnHook(m, valueRate(1000)),
       ],
       [inlineBtnHook(m, valueRate(-1)), inlineBtnHook(m, `🗑 Очистить ставки`)],
-      [
-        inlineBtnHook(m, `Забил  -  💰 ${state.rate["goal"]}  [x1.4]`),
-        inlineBtnHook(m, `Промах  -  💰 ${state.rate["out"]}  [x2.1]`),
-      ],
-      [inlineBtnHook(m, `Ударить по воротам ⚽️`)],
+      [inlineBtnHook(m, `Поставить  -  💰 ${state.rate["jek"]}  [x12]`)],
+      [inlineBtnHook(m, `Крутить барабан 🎰`)],
     ])
   );
 };

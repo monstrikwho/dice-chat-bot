@@ -139,7 +139,10 @@ module.exports.outMoney = async (
     // .then((res) => console.log(res.data))
     .catch(async (err) => {
       console.log(err.message);
-      return await bot.telegram.sendMessage(userId, 'Произошла ошибка. Пожалуйста, попробуйте позже!')
+      return await bot.telegram.sendMessage(
+        userId,
+        "Произошла ошибка. Пожалуйста, попробуйте позже!"
+      );
     });
 };
 
@@ -153,19 +156,4 @@ module.exports.myTestHook = async () => {
   } catch (error) {
     console.log(error);
   }
-  // await axios.post(
-  //   `https://dice-bots.ru/verify_pay/`,
-  //   querystring.stringify({ sdfds: "sdfds" })
-  // );
-  // {
-  // httpAgent: new http.Agent({ keepAlive: true }),
-  // httpsAgent: new https.Agent({ keepAlive: true }),
-  // proxy: {
-  //   host: "188.165.91.109",
-  //   port: 5000,
-  // },
-  // }
-  // )
-  // .then((res) => res)
-  // .catch(err => console.log(err))
 };

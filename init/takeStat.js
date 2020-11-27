@@ -7,19 +7,14 @@ module.exports.footballStat = (bot) => {
 
     const [setting] = await Setting.find();
 
-    let count = 0;
-    let winRate = 0;
-    let percent = 0;
+    let count = setting.footballGame.count + 1;
+    let winRate = setting.footballGame.winRate;
 
-    if (setting.footballGame) {
-      count = setting.footballGame.count + 1;
-      if (value === 3 || value === 5) {
-        winRate = setting.footballGame.winRate + 1;
-      } else {
-        winRate = setting.footballGame.winRate;
-      }
-      percent = (winRate / count) * 100;
+    if (value === 3 || value === 4 || value === 5) {
+      winRate++;
     }
+
+    let percent = (winRate / count) * 100;
 
     setting.footballGame = {
       count,
@@ -28,7 +23,7 @@ module.exports.footballStat = (bot) => {
     };
 
     await setting.save();
-  }, 2000);
+  }, 1000);
 };
 
 module.exports.slotStat = (bot) => {

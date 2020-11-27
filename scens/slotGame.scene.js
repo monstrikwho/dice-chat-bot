@@ -5,11 +5,11 @@ const Scene = require("telegraf/scenes/base");
 const Extra = require("telegraf/extra");
 const Markup = require("telegraf/markup");
 
-const extraBoard = require("../helpers/footballExtra");
-const actionsBord = require("../helpers/footballActions");
+const extraBoard = require("../helpers/slotExtra");
+const actionsBord = require("../helpers/slotActions");
 
-const footballGame = new Scene("footballGame");
-footballGame.enter(async (ctx) => {
+const slotGame = new Scene("slotGame");
+slotGame.enter(async (ctx) => {
   const { demoBalance, mainBalance } = await User.findOne({
     userId: ctx.from.id,
   });
@@ -19,8 +19,7 @@ footballGame.enter(async (ctx) => {
   // Записываем в стейт начальный стейт и баланс игрока
   const initState = {
     rate: {
-      goal: 0,
-      out: 0,
+      jek: 0,
     },
     valueRate: 10,
     otherRate: 0,
@@ -47,10 +46,10 @@ footballGame.enter(async (ctx) => {
   );
 
   // Подключаем actions
-  actionsBord(footballGame);
+  actionsBord(slotGame);
 });
 
-footballGame.hears(
+slotGame.hears(
   "🏡 Вернуться на главную",
   async ({ scene, deleteMessage, session }) => {
     await deleteMessage(session.state.activeBoard.message_id);
@@ -59,4 +58,4 @@ footballGame.hears(
   }
 );
 
-module.exports = { footballGame };
+module.exports = { slotGame };
