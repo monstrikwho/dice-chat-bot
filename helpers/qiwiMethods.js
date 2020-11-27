@@ -120,17 +120,16 @@ module.exports.outMoney = async (
   
   await bot.telegram.sendMessage(userId, `Ваш номер платежа ${obj.id}`);
   
-  if (
-    idProvider === 1960 ||
-    idProvider === 21012 ||
-    idProvider === 1963 ||
-    idProvider === 21013
-  ) {
-    console.log('1234')
-    const card4 = wallet.split('').slice(12,16).join('')
-    const cardOrder = new Cardorders({ userId, card: card4, amount, idProvider });
-    await cardOrder.save()
-  }
+  // if (
+  //   idProvider === 1960 ||
+  //   idProvider === 21012 ||
+  //   idProvider === 1963 ||
+  //   idProvider === 21013
+  // ) {
+  //   const card4 = wallet.split('').slice(12,16).join('')
+  //   const cardOrder = new Cardorders({ userId, card: card4, amount, idProvider });
+  //   await cardOrder.save()
+  // }
 
 
   if (idProvider === 1960 || idProvider === 21012) {
@@ -143,9 +142,9 @@ module.exports.outMoney = async (
     obj.fields["reg_name_f"] = userInfo[1];
   }
 
-  if (idProvider === 99) {
+  // if (idProvider === 99) {
     obj["comment"] = userId.toString();
-  }
+  // }
 
   await axios
     .post(
