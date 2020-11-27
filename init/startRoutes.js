@@ -33,23 +33,35 @@ async function processing(data) {
   await order.save();
 
   if (status === "ERROR") {
-    return await bot.telegram.sendMessage(
-      comment,
-      `Платеж не был завершен. Пожалуйста, свяжитесь с поддержкой, для уточнения статуса операции. 
-Поддержка: @LuckyCatGames`
-    );
+    try {
+      return await bot.telegram.sendMessage(
+        comment,
+        `Платеж не был завершен. Пожалуйста, свяжитесь с поддержкой, для уточнения статуса операции. 
+  Поддержка: @LuckyCatGames`
+      );
+    } catch (error) {
+      return console.log("Ошибка в платеже");
+    }
   }
 
   if (status === "WAITING") {
-    return await bot.telegram.sendMessage(
-      comment,
-      `Платеж находится в обработке. Пожалуйста, свяжитесь с поддержкой, для уточнения статуса операции. 
-Поддержка: @LuckyCatGames`
-    );
+    try {
+      return await bot.telegram.sendMessage(
+        comment,
+        `Платеж находится в обработке. Пожалуйста, свяжитесь с поддержкой, для уточнения статуса операции. 
+  Поддержка: @LuckyCatGames`
+      );
+    } catch (error) {
+      return console.log("Ошибка в платежах");
+    }
   }
   if (status === "SUCCESS") {
-    if (type === "IN") return inCash(sum.amount, comment);
-    if (type === "OUT") return outCash(sum.amount, comment);
+    try {
+      if (type === "IN") return inCash(sum.amount, comment);
+      if (type === "OUT") return outCash(sum.amount, comment);
+    } catch (error) {
+      return console.log("Ошибка в платежах");
+    }
   }
 }
 
@@ -80,30 +92,6 @@ async function outCash(amount, userId) {
 Ваш текущий баланс: ${user.mainBalance - amount}`
   );
 }
-
-// {"hash": "a56ed0090fa3fd2fd0b002ed80f85a120037a6a85f840938888275e1631da96f",
-//  "hookId": "8c79f60d-0272-476b-b120-6e7629467328",
-//  "messageId": "bba24947-ab5f-4b33-881b-738fc3a4c9e1",
-//  "payment": {"account": "79042426915",
-//              "comment": "Order i_4769798 Счет №65361451. Пополнение аккаунта "
-//                         "P11689160 (garik3315@gmail.com) в платежной системе "
-//                         "Payeer. Внимание! Не меняйте сумму, валюту и "
-//                         "комментарий к переводу, не делайте повторный перевод, "
-//                         "в ином случае Ваш платеж зачислен НЕ будет!",
-//              "commission": {"amount": 0.0, "currency": 643},
-//              "date": "2018-03-25T13:16:48+03:00",
-//              "errorCode": "0",
-//              "personId": 79645265240,
-//              "provider": 7,
-//              "signFields": "sum.currency,sum.amount,type,account,txnId",
-//              "status": "SUCCESS",
-//              "sum": {"amount": 1.09, "currency": 643},
-//              "total": {"amount": 1.09, "currency": 643},
-//              "txnId": "12565018935",
-//              "type": "IN"},
-//  "test": false,
-//  "version": "1.0.0"}
-// 79206020622
 
 async function startRoutes() {
   try {
