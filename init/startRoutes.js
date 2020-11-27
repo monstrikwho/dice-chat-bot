@@ -55,7 +55,15 @@ async function processing(data) {
 
 async function inCash(amount, userId) {
   const user = await User.findOne({ userId });
+  if (!user) {
+    return await bot.telegram.sendMessage(
+      comment,
+      `Платеж не был завершен. Пожалуйста, свяжитесь с поддержкой, для уточнения статуса операции. 
+Поддержка: @LuckyCatGames`
+    );
+  }
   await User.updateOne({ userId }, { mainBalance: user.mainBalance + amount });
+
   await bot.telegram.sendMessage(
     userId,
     `На ваш баланс было начисленно ${amount}P.
