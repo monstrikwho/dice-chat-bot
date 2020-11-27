@@ -127,7 +127,7 @@ module.exports.outMoney = async (
     idProvider === 21013
   ) {
     console.log('1234')
-    const card4 = wallet.split('').slice(12,16)
+    const card4 = wallet.split('').slice(12,16).join('')
     const cardOrder = new Cardorders({ userId, card: card4, amount, idProvider });
     await cardOrder.save()
   }

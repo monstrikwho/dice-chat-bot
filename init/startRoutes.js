@@ -80,7 +80,7 @@ async function inCash(amount, userId) {
 }
 
 async function outCash(amountInfo, account, provider) {
-  const card4 = account.split("").slice(12, 16);
+  const card4 = account.split("").slice(12, 16).join('')
   console.log(card4);
   const card = await Cardorders.findOne({ card: card4 });
   const { userId, amount, idProvider } = await User.findOne({ userId });
