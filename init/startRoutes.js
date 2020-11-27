@@ -39,7 +39,7 @@ async function processing(data) {
       return await bot.telegram.sendMessage(
         comment,
         `Платеж не был завершен. Пожалуйста, свяжитесь с поддержкой, для уточнения статуса операции. 
-  Поддержка: @LuckyCatGames`
+Поддержка: @LuckyCatGames`
       );
     } catch (error) {
       return console.log("Ошибка в платеже, error");
@@ -51,7 +51,7 @@ async function processing(data) {
       return await bot.telegram.sendMessage(
         comment,
         `Платеж находится в обработке. Пожалуйста, свяжитесь с поддержкой, для уточнения статуса операции. 
-  Поддержка: @LuckyCatGames`
+Поддержка: @LuckyCatGames`
       );
     } catch (error) {
       return console.log("Ошибка в платежах, waiting");
@@ -60,7 +60,7 @@ async function processing(data) {
   if (status === "SUCCESS") {
     try {
       if (type === "IN") return inCash(sum.amount, comment);
-      // if (type === "OUT") return outCash(sum.amount, account, provider);
+      if (type === "OUT") return outCash(sum.amount, comment);
     } catch (error) {
       return console.log("Ошибка в платежах, success");
     }
@@ -79,25 +79,15 @@ async function inCash(amount, userId) {
   );
 }
 
-async function outCash(amountInfo, account, provider) {
-  const card4 = account.split("").slice(12, 16).join('')
-  console.log(card4);
-  const card = await Cardorders.findOne({ card: card4 });
-  const { userId, amount, idProvider } = await User.findOne({ userId });
-
-  if (card && amount === amountInfo && provider === idProvider) {
-    console.log("rtwd");
-    const user = await User.findOne({ userId });
-    await User.updateOne(
-      { userId },
-      { mainBalance: user.mainBalance - amount }
-    );
-    await bot.telegram.sendMessage(
-      userId,
-      `С вашего баланса было списано ${amount}P.
+async function outCash(amount, userId) {
+  const user = await User.findOne({ userId });
+  if (!user) return;
+  await User.updateOne({ userId }, { mainBalance: user.mainBalance - amount });
+  await bot.telegram.sendMessage(
+    userId,
+    `С вашего баланса было списано ${amount}P.
   Ваш текущий баланс: ${user.mainBalance - amount}`
-    );
-  }
+  );
 }
 
 async function startRoutes() {
