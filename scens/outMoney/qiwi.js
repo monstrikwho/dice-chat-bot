@@ -57,7 +57,7 @@ outQiwi.on("text", async (ctx) => {
     wallet: msg,
   };
 
-  ctx.session.stat.activeMsg = await ctx.reply(
+  ctx.session.state.activeMsg = await ctx.reply(
     `Вы собираетесь вывести сумму ${ctx.session.state.amount}P на номер кошелька +${msg}.
 C вашего баланса спишеться: ${ctx.session.state.amount}
 Нажмите "Подтвердить", чтобы произвести выплату.`,
