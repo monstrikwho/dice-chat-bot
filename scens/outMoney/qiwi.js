@@ -9,7 +9,7 @@ const outQiwi = new Scene("outQiwi");
 outQiwi.enter(async (ctx) => {
   return await ctx.reply(
     `Минимальная сумма вывода: ${process.env.OUT_QIWI}p
-Коммиссия: 2%. 
+Коммиссия: 0%. 
 Пожалуйста, введите сумму.`,
     Extra.markup(Markup.keyboard([["↪️ Вернуться назад"]]).resize())
   );
@@ -37,7 +37,9 @@ outQiwi.on("text", async (ctx) => {
     if (amount * 1.02 > balance)
       return await ctx.reply("У вас недостаточно средств на балансе.");
     if (amount > prizeFound)
-      return await ctx.reply("На данный момент мы столкнулись с проблемой автоматического вывода. Пожалуйста, напишите в поддержку для вывода в ручном режиме. @LuckyCatGames");
+      return await ctx.reply(
+        "На данный момент мы столкнулись с проблемой автоматического вывода. Пожалуйста, напишите в поддержку для вывода в ручном режиме. @LuckyCatGames"
+      );
 
     ctx.session.state = {
       ...ctx.session.state,
@@ -56,10 +58,8 @@ outQiwi.on("text", async (ctx) => {
   };
 
   return await ctx.reply(
-    `Вы собираетесь вывести сумму ${
-      ctx.session.state.amount
-    }P на номер кошелька +${msg}.
-C вашего баланса спишеться: ${ctx.session.state.amount * 1.02}
+    `Вы собираетесь вывести сумму ${ctx.session.state.amount}P на номер кошелька +${msg}.
+C вашего баланса спишеться: ${ctx.session.state.amount}
 Нажмите "Подтвердить", чтобы произвести выплату.`,
     Extra.markup((m) =>
       m.inlineKeyboard([[m.callbackButton("Подтвердить", "Подтвердить")]])
