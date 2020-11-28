@@ -8,11 +8,11 @@ const User = require("../models/user");
 const outMoney = new Scene("outMoney");
 outMoney.enter(async (ctx) => {
   const { mainBalance } = await User.findOne({ userId: ctx.from.id });
-  // const prizeFound = await getProfileBalance();
+  const prizeFound = await getProfileBalance();
 
   ctx.session.state = {
     mainBalance,
-    // prizeFound,
+    prizeFound,
   };
 
   return await ctx.reply(

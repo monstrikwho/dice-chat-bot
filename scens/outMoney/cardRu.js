@@ -55,7 +55,7 @@ outCardRu.on("text", async (ctx) => {
     wallet: +msg.trim(),
   };
 
-  return await ctx.reply(
+  ctx.session.state.activeMsg = await ctx.reply(
     `Вы собираетесь вывести сумму ${
       ctx.session.state.amount
     }P на номер карты ${msg}.
@@ -68,6 +68,7 @@ C вашего баланса спишется: ${ctx.session.state.amount * 1.0
 });
 
 outCardRu.action("Подтвердить", async (ctx) => {
+  await ctx.deleteMessage(ctx.session.state.activeMsg.message_id);
   const amount = ctx.session.state.amount;
   const wallet = ctx.session.state.wallet;
   const idProvider = ctx.session.state.idProvider;
