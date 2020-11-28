@@ -30,7 +30,9 @@ outCardOther.on("text", async (ctx) => {
     if (!isNumber(amount))
       return await ctx.reply("Пожалуйста, введите только цифры.");
     if (amount < process.env.OUT_CARD)
-      return await ctx.reply(`Минимальная сумма вывода ${process.env.OUT_CARD}р. Пожалуйста, введите другую сумму.`);
+      return await ctx.reply(
+        `Минимальная сумма вывода ${process.env.OUT_CARD}р. Пожалуйста, введите другую сумму.`
+      );
     if (amount * 1.02 + 100 > balance)
       return await ctx.reply("У вас недостаточно средств на балансе.");
     if (amount > prizeFound)
@@ -64,24 +66,22 @@ outCardOther.on("text", async (ctx) => {
   ctx.session.state = {
     ...ctx.session.state,
     userInfo: msg.trim().split(" ", 2), // max two value
+    activeMsg: await ctx.reply(
+      `Вы собираетесь вывести сумму ${
+        ctx.session.state.amount
+      }P на номер карты ${ctx.session.state.wallet}.
+    Получатель: ${msg}.
+    C вашего баланса спишется: ${ctx.session.state.amount * 1.02 + 100}
+    Нажмите "Подтвердить", чтобы произвести выплату.`,
+      Extra.markup((m) =>
+        m.inlineKeyboard([[m.callbackButton("Подтвердить", "Подтвердить")]])
+      )
+    ),
   };
-
-  return await ctx.reply(
-    `Вы собираетесь вывести сумму ${ctx.session.state.amount}P на номер карты ${
-      ctx.session.state.wallet
-    }.
-Получатель: ${msg}.
-C вашего баланса спишется: ${ctx.session.state.amount * 1.02 + 100}
-Нажмите "Подтвердить", чтобы произвести выплату.`,
-    Extra.markup((m) =>
-      m.inlineKeyboard([[m.callbackButton("Подтвердить", "Подтвердить")]])
-    )
-  );
-
-  // const wallet = "4100116057553711"
 });
 
 outCardOther.action("Подтвердить", async (ctx) => {
+  await ctx.deleteMessage(ctx.session.state.activeMsg.message_id);
   const amount = ctx.session.state.amount;
   const wallet = ctx.session.state.wallet;
   const idProvider = ctx.session.state.idProvider;

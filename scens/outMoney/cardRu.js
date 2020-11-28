@@ -53,21 +53,21 @@ outCardRu.on("text", async (ctx) => {
   ctx.session.state = {
     ...ctx.session.state,
     wallet: +msg.trim(),
+    activeMsg: await ctx.reply(
+      `Вы собираетесь вывести сумму ${
+        ctx.session.state.amount
+      }P на номер карты ${msg}.
+  C вашего баланса спишется: ${ctx.session.state.amount * 1.02 + 50}
+  Нажмите "Подтвердить", чтобы произвести выплату.`,
+      Extra.markup((m) =>
+        m.inlineKeyboard([[m.callbackButton("Подтвердить", "Подтвердить")]])
+      )
+    ),
   };
-
-  return await ctx.reply(
-    `Вы собираетесь вывести сумму ${
-      ctx.session.state.amount
-    }P на номер карты ${msg}.
-C вашего баланса спишется: ${ctx.session.state.amount * 1.02 + 50}
-Нажмите "Подтвердить", чтобы произвести выплату.`,
-    Extra.markup((m) =>
-      m.inlineKeyboard([[m.callbackButton("Подтвердить", "Подтвердить")]])
-    )
-  );
 });
 
 outCardRu.action("Подтвердить", async (ctx) => {
+  await ctx.deleteMessage(ctx.session.state.activeMsg.message_id);
   const amount = ctx.session.state.amount;
   const wallet = ctx.session.state.wallet;
   const idProvider = ctx.session.state.idProvider;

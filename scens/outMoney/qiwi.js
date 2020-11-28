@@ -34,7 +34,7 @@ outQiwi.on("text", async (ctx) => {
       return await ctx.reply(
         `Минимальная сумма вывода ${process.env.OUT_QIWI}р. Пожалуйста, введите другую сумму.`
       );
-    if (amount * 1.02 > balance)
+    if (amount > balance)
       return await ctx.reply("У вас недостаточно средств на балансе.");
     if (amount > prizeFound)
       return await ctx.reply(
@@ -55,19 +55,19 @@ outQiwi.on("text", async (ctx) => {
   ctx.session.state = {
     ...ctx.session.state,
     wallet: msg,
+    activeMsg: await ctx.reply(
+      `Вы собираетесь вывести сумму ${ctx.session.state.amount}P на номер кошелька +${msg}.
+   C вашего баланса спишеться: ${ctx.session.state.amount}
+   Нажмите "Подтвердить", чтобы произвести выплату.`,
+      Extra.markup((m) =>
+        m.inlineKeyboard([[m.callbackButton("Подтвердить", "Подтвердить")]])
+      )
+    ),
   };
-
-  return await ctx.reply(
-    `Вы собираетесь вывести сумму ${ctx.session.state.amount}P на номер кошелька +${msg}.
-C вашего баланса спишеться: ${ctx.session.state.amount}
-Нажмите "Подтвердить", чтобы произвести выплату.`,
-    Extra.markup((m) =>
-      m.inlineKeyboard([[m.callbackButton("Подтвердить", "Подтвердить")]])
-    )
-  );
 });
 
 outQiwi.action("Подтвердить", async (ctx) => {
+  await ctx.deleteMessage(ctx.session.state.activeMsg.message_id);
   const amount = ctx.session.state.amount;
   const wallet = ctx.session.state.wallet;
   return await outMoney(amount, `+${wallet}`, ctx.from.id, 99);
