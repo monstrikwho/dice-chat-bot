@@ -52,8 +52,11 @@ slotGame.enter(async (ctx) => {
 slotGame.hears(
   "🏡 Вернуться на главную",
   async ({ scene, deleteMessage, session }) => {
-    await deleteMessage(session.state.activeBoard.message_id);
-
+    try {
+      await deleteMessage(session.state.activeBoard.message_id);
+    } catch (error) {
+      console.log(error.message);
+    }
     await scene.enter("showMainMenu");
   }
 );

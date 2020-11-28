@@ -159,7 +159,11 @@ module.exports = (game) => {
     const state = ctx.session.state;
 
     // Удаляем сообщение "Сделать еще одну ставку"
-    await ctx.deleteMessage(state.activeBoard.message_id);
+    try {
+      await ctx.deleteMessage(state.activeBoard.message_id);
+    } catch (error) {
+      console.log(error.message);
+    }
 
     // Изменяем активный board
     ctx.session.state.activeBoard = await bot.telegram.sendMessage(
@@ -179,7 +183,11 @@ module.exports = (game) => {
       );
     }
 
-    await ctx.deleteMessage(ctx.session.state.activeBoard.message_id);
+    try {
+      await ctx.deleteMessage(ctx.session.state.activeBoard.message_id);
+    } catch (error) {
+      console.log(error.message);
+    }
 
     const diceMsg = await bot.telegram.sendDice(ctx.from.id, { emoji: "🎰" });
     const value = diceMsg.dice.value;
@@ -234,7 +242,11 @@ module.exports = (game) => {
     let state = ctx.session.state;
 
     // Удаляем сообщение "Сделать еще одну ставку"
-    await ctx.deleteMessage(state.activeBoard.message_id);
+    try {
+      await ctx.deleteMessage(state.activeBoard.message_id);
+    } catch (error) {
+      console.log(error.message);
+    }
 
     const { mainBalance, demoBalance } = await User.findOne({
       userId: ctx.from.id,
@@ -265,7 +277,11 @@ module.exports = (game) => {
       );
     }
 
-    await ctx.deleteMessage(ctx.session.state.activeBoard.message_id);
+    try {
+      await ctx.deleteMessage(ctx.session.state.activeBoard.message_id);
+    } catch (error) {
+      console.log(error.message);
+    }
 
     const diceMsg = await bot.telegram.sendDice(ctx.from.id, { emoji: "🎰" });
     const value = diceMsg.dice.value;
@@ -349,7 +365,11 @@ module.exports = (game) => {
       ctx.session.state.balance -= amountRate;
     }
 
-    await ctx.deleteMessage(ctx.session.state.activeBoard.message_id);
+    try {
+      await ctx.deleteMessage(ctx.session.state.activeBoard.message_id);
+    } catch (error) {
+      console.log(error.message);
+    }
 
     let winSum = 0;
     let resMsg =
