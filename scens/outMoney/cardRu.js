@@ -20,10 +20,6 @@ outCardRu.on("text", async (ctx) => {
 
   
   if (msg === "↪️ Вернуться назад") {
-    if (ctx.session.state.activeMsg) {
-      await ctx.deleteMessage(ctx.session.state.activeMsg.message_id);
-      ctx.session.state.activeMsg = false;
-    }
     return await ctx.scene.enter("outMoney");
   }
 
@@ -74,6 +70,7 @@ C вашего баланса спишется: ${ctx.session.state.amount * 1.0
 });
 
 outCardRu.action("Подтвердить", async (ctx) => {
+  if (!ctx.session.state.activeMsg) return;
   if (ctx.session.state.payFlag) return;
   ctx.session.state = {
     ...ctx.session.state,

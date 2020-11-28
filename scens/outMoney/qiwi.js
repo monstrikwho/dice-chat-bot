@@ -20,10 +20,6 @@ outQiwi.on("text", async (ctx) => {
 
   if (msg === "↪️ Вернуться назад") {
     ctx.session.state = {};
-    if (ctx.session.state.activeMsg) {
-      await ctx.deleteMessage(ctx.session.state.activeMsg.message_id);
-      ctx.session.state.activeMsg = false;
-    }
     return await ctx.scene.enter("outMoney");
   }
 
@@ -73,6 +69,7 @@ C вашего баланса спишеться: ${ctx.session.state.amount}
 });
 
 outQiwi.action("Подтвердить", async (ctx) => {
+  if (!ctx.session.state.activeMsg) return;
   if (ctx.session.state.payFlag) return;
   ctx.session.state = {
     ...ctx.session.state,
