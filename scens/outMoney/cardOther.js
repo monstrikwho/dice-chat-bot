@@ -18,7 +18,12 @@ outCardOther.enter(async (ctx) => {
 outCardOther.on("text", async (ctx) => {
   const msg = ctx.update.message.text;
 
+  if (ctx.session.state.payFlag) return;
+
   if (msg === "↪️ Вернуться назад") {
+    if (ctx.session.state.activeMsg) {
+      await ctx.deleteMessage(ctx.session.state.activeMsg.message_id);
+    }
     return await ctx.scene.enter("outMoney");
   }
 
@@ -70,9 +75,9 @@ outCardOther.on("text", async (ctx) => {
       `Вы собираетесь вывести сумму ${
         ctx.session.state.amount
       }P на номер карты ${ctx.session.state.wallet}.
-    Получатель: ${msg}.
-    C вашего баланса спишется: ${ctx.session.state.amount * 1.02 + 100}
-    Нажмите "Подтвердить", чтобы произвести выплату.`,
+Получатель: ${msg}.
+C вашего баланса спишется: ${ctx.session.state.amount * 1.02 + 100}
+Нажмите "Подтвердить", чтобы произвести выплату.`,
       Extra.markup((m) =>
         m.inlineKeyboard([[m.callbackButton("Подтвердить", "Подтвердить")]])
       )
@@ -81,6 +86,11 @@ outCardOther.on("text", async (ctx) => {
 });
 
 outCardOther.action("Подтвердить", async (ctx) => {
+  if (ctx.session.state.payFlag) return;
+  ctx.session.state = {
+    ...ctx.session.state,
+    payFlag: true,
+  };
   await ctx.deleteMessage(ctx.session.state.activeMsg.message_id);
   const amount = ctx.session.state.amount;
   const wallet = ctx.session.state.wallet;

@@ -11,6 +11,12 @@ const schema = new Schema({
   mainBalance: {
     type: Number,
   },
+  regDate: {
+    type: String,
+  },
+  userName: {
+    type: String,
+  },
 });
 
 module.exports = model("Users", schema);

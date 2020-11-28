@@ -18,8 +18,13 @@ outQiwi.enter(async (ctx) => {
 outQiwi.on("text", async (ctx) => {
   const msg = ctx.update.message.text;
 
+  if (ctx.session.state.payFlag) return;
+
   if (msg === "↪️ Вернуться назад") {
     ctx.session.state = {};
+    if (ctx.session.state.activeMsg) {
+      await ctx.deleteMessage(ctx.session.state.activeMsg.message_id);
+    }
     return await ctx.scene.enter("outMoney");
   }
 
@@ -57,8 +62,8 @@ outQiwi.on("text", async (ctx) => {
     wallet: msg,
     activeMsg: await ctx.reply(
       `Вы собираетесь вывести сумму ${ctx.session.state.amount}P на номер кошелька +${msg}.
-   C вашего баланса спишеться: ${ctx.session.state.amount}
-   Нажмите "Подтвердить", чтобы произвести выплату.`,
+C вашего баланса спишеться: ${ctx.session.state.amount}
+Нажмите "Подтвердить", чтобы произвести выплату.`,
       Extra.markup((m) =>
         m.inlineKeyboard([[m.callbackButton("Подтвердить", "Подтвердить")]])
       )
@@ -67,6 +72,11 @@ outQiwi.on("text", async (ctx) => {
 });
 
 outQiwi.action("Подтвердить", async (ctx) => {
+  if (ctx.session.state.payFlag) return;
+  ctx.session.state = {
+    ...ctx.session.state,
+    payFlag: true,
+  };
   await ctx.deleteMessage(ctx.session.state.activeMsg.message_id);
   const amount = ctx.session.state.amount;
   const wallet = ctx.session.state.wallet;
