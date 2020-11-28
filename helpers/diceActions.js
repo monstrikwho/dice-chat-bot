@@ -740,6 +740,8 @@ module.exports = (game) => {
   });
 
   game.on("dice", async (ctx) => {
+    if (ctx.update.message.forward_date) return;
+
     const dice = ctx.update.message.dice;
     if (dice.emoji !== "🎲") return;
 
