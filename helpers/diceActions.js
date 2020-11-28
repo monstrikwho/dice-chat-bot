@@ -595,21 +595,29 @@ module.exports = (game) => {
       );
     }
 
-    ctx.session.state.activeBoard = await ctx.reply(
-      `${resMsg}
-      
-Ваша общая ставка - ${sumRate}
-Ваш выигрыш - ${Math.floor(winSum * 100) / 100}
-Ваш баланс - ${Math.floor(ctx.session.state.balance * 100) / 100}`,
-      Extra.markup((m) =>
-        m.inlineKeyboard([
-          [
-            m.callbackButton("Сделать другую ставку", "Сделать другую ставку"),
-            m.callbackButton("Бросить кости еще раз", "Бросить кости еще раз"),
-          ],
-        ])
-      )
-    );
+    setTimeout(async () => {
+      ctx.session.state.activeBoard = await ctx.reply(
+        `${resMsg}
+        
+  Ваша общая ставка - ${sumRate}
+  Ваш выигрыш - ${Math.floor(winSum * 100) / 100}
+  Ваш баланс - ${Math.floor(ctx.session.state.balance * 100) / 100}`,
+        Extra.markup((m) =>
+          m.inlineKeyboard([
+            [
+              m.callbackButton(
+                "Сделать другую ставку",
+                "Сделать другую ставку"
+              ),
+              m.callbackButton(
+                "Бросить кости еще раз",
+                "Бросить кости еще раз"
+              ),
+            ],
+          ])
+        )
+      );
+    }, 4000);
   });
 
   game.action(/Сделать другую ставку/, async (ctx) => {
@@ -722,21 +730,29 @@ module.exports = (game) => {
       );
     }
 
-    ctx.session.state.activeBoard = await ctx.reply(
-      `${resMsg}
-      
-Ваша общая ставка - ${sumRate}
-Ваш выигрыш - ${Math.floor(winSum * 100) / 100}
-Ваш баланс - ${Math.floor(ctx.session.state.balance * 100) / 100}`,
-      Extra.markup((m) =>
-        m.inlineKeyboard([
-          [
-            m.callbackButton("Сделать другую ставку", "Сделать другую ставку"),
-            m.callbackButton("Бросить кости еще раз", "Бросить кости еще раз"),
-          ],
-        ])
-      )
-    );
+    setTimeout(async () => {
+      ctx.session.state.activeBoard = await ctx.reply(
+        `${resMsg}
+        
+  Ваша общая ставка - ${sumRate}
+  Ваш выигрыш - ${Math.floor(winSum * 100) / 100}
+  Ваш баланс - ${Math.floor(ctx.session.state.balance * 100) / 100}`,
+        Extra.markup((m) =>
+          m.inlineKeyboard([
+            [
+              m.callbackButton(
+                "Сделать другую ставку",
+                "Сделать другую ставку"
+              ),
+              m.callbackButton(
+                "Бросить кости еще раз",
+                "Бросить кости еще раз"
+              ),
+            ],
+          ])
+        )
+      );
+    }, 4000);
   });
 
   game.on("dice", async (ctx) => {
@@ -825,20 +841,28 @@ module.exports = (game) => {
       );
     }
 
-    ctx.session.state.activeBoard = await ctx.reply(
-      `${resMsg}
-      
-Ваша общая ставка - ${amountRate}
-Ваш выигрыш - ${Math.floor(winSum * 100) / 100}
-Ваш баланс - ${Math.floor(ctx.session.state.balance * 100) / 100}`,
-      Extra.markup((m) =>
-        m.inlineKeyboard([
-          [
-            m.callbackButton("Сделать другую ставку", "Сделать другую ставку"),
-            m.callbackButton("Бросить кости еще раз", "Бросить кости еще раз"),
-          ],
-        ])
-      )
-    );
+    setTimeout(async () => {
+      ctx.session.state.activeBoard = await ctx.reply(
+        `${resMsg}
+        
+  Ваша общая ставка - ${amountRate}
+  Ваш выигрыш - ${Math.floor(winSum * 100) / 100}
+  Ваш баланс - ${Math.floor(ctx.session.state.balance * 100) / 100}`,
+        Extra.markup((m) =>
+          m.inlineKeyboard([
+            [
+              m.callbackButton(
+                "Сделать другую ставку",
+                "Сделать другую ставку"
+              ),
+              m.callbackButton(
+                "Бросить кости еще раз",
+                "Бросить кости еще раз"
+              ),
+            ],
+          ])
+        )
+      );
+    }, 4000);
   });
 };
