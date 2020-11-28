@@ -22,6 +22,7 @@ outQiwi.on("text", async (ctx) => {
     ctx.session.state = {};
     if (ctx.session.state.activeMsg) {
       await ctx.deleteMessage(ctx.session.state.activeMsg.message_id);
+      ctx.session.state.activeMsg = false;
     }
     return await ctx.scene.enter("outMoney");
   }

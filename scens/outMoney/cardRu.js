@@ -22,10 +22,11 @@ outCardRu.on("text", async (ctx) => {
   if (msg === "↪️ Вернуться назад") {
     if (ctx.session.state.activeMsg) {
       await ctx.deleteMessage(ctx.session.state.activeMsg.message_id);
+      ctx.session.state.activeMsg = false;
     }
     return await ctx.scene.enter("outMoney");
   }
-  
+
   if (ctx.session.state.payFlag) return;
 
   // Если не ввели сумму
