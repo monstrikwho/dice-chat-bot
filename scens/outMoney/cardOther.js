@@ -18,15 +18,16 @@ outCardOther.enter(async (ctx) => {
 outCardOther.on("text", async (ctx) => {
   const msg = ctx.update.message.text;
 
-  if (ctx.session.state.payFlag) return;
-
+  
   if (msg === "↪️ Вернуться назад") {
     if (ctx.session.state.activeMsg) {
       await ctx.deleteMessage(ctx.session.state.activeMsg.message_id);
     }
     return await ctx.scene.enter("outMoney");
   }
-
+  
+  if (ctx.session.state.payFlag) return;
+  
   // Если не ввели сумму для вывода
   if (!ctx.session.state.amount) {
     const amount = +msg.trim();
