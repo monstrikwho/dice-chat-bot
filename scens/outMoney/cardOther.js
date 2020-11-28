@@ -66,21 +66,18 @@ outCardOther.on("text", async (ctx) => {
   ctx.session.state = {
     ...ctx.session.state,
     userInfo: msg.trim().split(" ", 2), // max two value
+    activeMsg: await ctx.reply(
+      `Вы собираетесь вывести сумму ${
+        ctx.session.state.amount
+      }P на номер карты ${ctx.session.state.wallet}.
+    Получатель: ${msg}.
+    C вашего баланса спишется: ${ctx.session.state.amount * 1.02 + 100}
+    Нажмите "Подтвердить", чтобы произвести выплату.`,
+      Extra.markup((m) =>
+        m.inlineKeyboard([[m.callbackButton("Подтвердить", "Подтвердить")]])
+      )
+    ),
   };
-
-  ctx.session.state.activeMsg = await ctx.reply(
-    `Вы собираетесь вывести сумму ${ctx.session.state.amount}P на номер карты ${
-      ctx.session.state.wallet
-    }.
-Получатель: ${msg}.
-C вашего баланса спишется: ${ctx.session.state.amount * 1.02 + 100}
-Нажмите "Подтвердить", чтобы произвести выплату.`,
-    Extra.markup((m) =>
-      m.inlineKeyboard([[m.callbackButton("Подтвердить", "Подтвердить")]])
-    )
-  );
-
-  // const wallet = "4100116057553711"
 });
 
 outCardOther.action("Подтвердить", async (ctx) => {

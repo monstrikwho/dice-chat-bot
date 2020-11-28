@@ -55,16 +55,15 @@ outQiwi.on("text", async (ctx) => {
   ctx.session.state = {
     ...ctx.session.state,
     wallet: msg,
+    activeMsg: await ctx.reply(
+      `Вы собираетесь вывести сумму ${ctx.session.state.amount}P на номер кошелька +${msg}.
+   C вашего баланса спишеться: ${ctx.session.state.amount}
+   Нажмите "Подтвердить", чтобы произвести выплату.`,
+      Extra.markup((m) =>
+        m.inlineKeyboard([[m.callbackButton("Подтвердить", "Подтвердить")]])
+      )
+    ),
   };
-
-  ctx.session.state.activeMsg = await ctx.reply(
-    `Вы собираетесь вывести сумму ${ctx.session.state.amount}P на номер кошелька +${msg}.
-C вашего баланса спишеться: ${ctx.session.state.amount}
-Нажмите "Подтвердить", чтобы произвести выплату.`,
-    Extra.markup((m) =>
-      m.inlineKeyboard([[m.callbackButton("Подтвердить", "Подтвердить")]])
-    )
-  );
 });
 
 outQiwi.action("Подтвердить", async (ctx) => {
