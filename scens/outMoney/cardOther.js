@@ -91,6 +91,7 @@ outCardOther.action("Подтвердить", async (ctx) => {
   };
   try {
     await ctx.deleteMessage(ctx.session.state.activeMsg.message_id);
+    await ctx.scene.enter('lkMenu')
   } catch (error) {
     console.log(error.message);
   }

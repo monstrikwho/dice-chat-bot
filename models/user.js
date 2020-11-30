@@ -17,6 +17,9 @@ const schema = new Schema({
   userName: {
     type: String,
   },
+  isBlocked: {
+    type: Boolean,
+  },
 });
 
 module.exports = model("Users", schema);

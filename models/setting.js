@@ -9,6 +9,9 @@ const schema = new Schema({
   },
   slotGame: {
     type: Object
+  },
+  countBlocked: {
+    type: Number
   }
 });
 

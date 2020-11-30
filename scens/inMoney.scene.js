@@ -24,12 +24,11 @@ inMoney.hears(/(?:50₽|100₽|500₽|1000₽)/, async (ctx) => {
   const comment = ctx.from.id;
   const url = `https://qiwi.com/payment/form/99?extra%5B%27account%27%5D=${process.env.QIWI_WALLET}&amountInteger=${amount}&amountFraction=0&extra%5B%27comment%27%5D=${comment}&currency=643&blocked[0]=sum&blocked[1]=account&blocked[2]=comment`;
 
-  await ctx.reply(
-    `Вы собираетесь пополнить игровой баланс на сумму ${amount}₽.`,
-    Extra.markup(Markup.keyboard([["↪️ Вернуться в ЛК"]]).resize())
-  );
-  await ctx.reply(
-    `Пожалуйста, нажмите "Пополнить", чтобы перейти на страницу пополнения.`,
+  await ctx.scene.enter("lkMenu");
+
+  return await ctx.reply(
+    `Вы собираетесь пополнить игровой баланс на сумму ${amount}₽.
+Пожалуйста, нажмите "Пополнить", чтобы перейти на страницу пополнения.`,
     {
       reply_markup: {
         inline_keyboard: [
@@ -75,9 +74,13 @@ writeAmount.on("text", async (ctx) => {
 
   if (isNumber(amount)) {
     if (amount < process.env.IN_QIWI)
-      return await ctx.reply(`Минимальная сумма для пополнения ${process.env.IN_QIWI}₽`);
+      return await ctx.reply(
+        `Минимальная сумма для пополнения ${process.env.IN_QIWI}₽`
+      );
 
     const url = `https://qiwi.com/payment/form/99?extra%5B%27account%27%5D=${process.env.QIWI_WALLET}&amountInteger=${amount}&amountFraction=0&extra%5B%27comment%27%5D=${ctx.from.id}&currency=643&blocked[0]=sum&blocked[1]=account&blocked[2]=comment`;
+
+    await ctx.scene.enter("lkMenu");
 
     return await ctx.reply(
       `Вы собираетесь пополнить игровой баланс на сумму ${amount}₽.
