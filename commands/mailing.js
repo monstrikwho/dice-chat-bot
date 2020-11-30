@@ -2,6 +2,7 @@ const Extra = require("telegraf/extra");
 const Markup = require("telegraf/markup");
 
 const User = require("../models/user");
+const Setting = require("../models/setting");
 
 async function setupMailing(bot) {
   const users = await User.find();
@@ -19,15 +20,18 @@ async function setupMailing(bot) {
             msg,
             Extra.markup(Markup.keyboard([["/start"]]).resize())
           );
+          await User.findOne({ userId: ctx.from.id }, { isBlocked: false });
         } catch (err) {
-          console.log("Cообщение не было доставлено");
+          try {
+            await User.findOne({ userId: ctx.from.id }, { isBlocked: true });
+            await Setting.findOne({}, { $inc: { countBlocked: 1 } });
+          } catch (error) {
+            console.log("не удалось посчитать кол-во заблокирвоваших.");
+          }
         }
       }
     }
   });
-
-  // 364984576🌵
-  // 727186107
 }
 
 // Exports

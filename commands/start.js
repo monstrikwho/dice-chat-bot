@@ -1,7 +1,6 @@
 const setupScenes = require("../scens/setupScenes");
 const moment = require("moment");
 const User = require("../models/user");
-const Setting = require("../models/setting");
 
 function setupStart(bot) {
   // Setup scens
@@ -39,12 +38,6 @@ function setupStart(bot) {
     try {
       setTimeout(() => actionsUser(ctx), 0);
     } catch (err) {
-      try {
-        await User.findOne({ userId: ctx.from.id }, { isBlocked: true });
-        await Setting.findOne({}, { $inc: { countBlocked: 1 } });
-      } catch (error) {
-        console.log("не удалось посчитать кол-во заблокирвоваших.");
-      }
       console.log("Не удалось пройти регистрацию", err.message);
     }
   });
