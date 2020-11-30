@@ -10,9 +10,9 @@ async function setupMailing(bot) {
   let arrUsersId = users.map((item) => item.userId);
 
   bot.command("replyMsg", async (ctx) => {
-    const msg = ctx.update.message.text.replace("/replyMsg ", "");
-
     if (ctx.chat.id === 364984576) {
+      const msg = ctx.update.message.text.replace("/replyMsg ", "");
+
       for (let userId of arrUsersId) {
         try {
           await bot.telegram.sendMessage(
@@ -24,12 +24,18 @@ async function setupMailing(bot) {
         } catch (err) {
           try {
             await User.findOne({ userId: ctx.from.id }, { isBlocked: true });
-            await Setting.findOne({}, { $inc: { countBlocked: 1 } });
+            const setting = await Setting.findOne({});
+            await Setting.findOne(
+              {},
+              { countBlocked: setting.countBlocked + 1 }
+            );
           } catch (error) {
             console.log("не удалось посчитать кол-во заблокирвоваших.");
           }
         }
       }
+
+      await ctx.scene.enter("showMainMenu");
     }
   });
 }

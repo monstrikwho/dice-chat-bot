@@ -12,6 +12,9 @@ const schema = new Schema({
   },
   countBlocked: {
     type: Number
+  },
+  payload: {
+    type: Object
   }
 });
 
