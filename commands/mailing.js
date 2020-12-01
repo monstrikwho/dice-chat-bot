@@ -13,6 +13,8 @@ async function setupMailing(bot) {
     if (ctx.chat.id === 364984576) {
       const msg = ctx.update.message.text.replace("/replyMsg ", "");
 
+      let countBlocked = 0;
+
       for (let userId of arrUsersId) {
         try {
           await bot.telegram.sendMessage(
@@ -20,22 +22,14 @@ async function setupMailing(bot) {
             msg,
             Extra.markup(Markup.keyboard([["/start"]]).resize())
           );
-          await User.findOne({ userId: ctx.from.id }, { isBlocked: false });
         } catch (err) {
-          try {
-            await User.findOne({ userId: ctx.from.id }, { isBlocked: true });
-            const setting = await Setting.findOne({});
-            await Setting.findOne(
-              {},
-              { countBlocked: setting.countBlocked + 1 }
-            );
-          } catch (error) {
-            console.log("не удалось посчитать кол-во заблокирвоваших.");
-          }
+          countBlocked++;
         }
       }
 
-      await ctx.scene.enter("showMainMenu");
+      await Setting.updateOne({}, { countBlocked });
+
+      return await ctx.reply(`Кол-во заблокировавших бот: ${countBlocked}`);
     }
   });
 }
