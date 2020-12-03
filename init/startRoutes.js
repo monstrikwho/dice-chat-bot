@@ -1,14 +1,13 @@
 const { bot } = require("../init/startBot");
 const User = require("../models/user");
 const Order = require("../models/order");
-const getUsers = require("../routes/getUsers.route");
 
 const express = require("express");
 const app = express();
 app.use(express.json());
 
-app.get('/get_users', getUsers)
-app.get('/get_payments', getUsers)
+app.get('/get_users', require("../routes/getUsers.route"))
+app.get('/get_payments', require("../routes/getPayments.route"))
 
 app.post("/notify_pay_orders", (req, res) => {
   try {

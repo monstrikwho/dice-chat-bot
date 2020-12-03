@@ -32,11 +32,15 @@ footballGame.enter(async (ctx) => {
   ctx.session.state = initState;
 
   // Отправляем первое сообщение с пустой клавиатурой
-  await bot.telegram.sendMessage(
-    ctx.from.id,
-    "Делайте ваши ставки",
-    Extra.markup(Markup.keyboard([["🏡 Вернуться на главную"]]).resize())
-  );
+  try {
+    await bot.telegram.sendMessage(
+      ctx.from.id,
+      "Делайте ваши ставки",
+      Extra.markup(Markup.keyboard([["🏡 Вернуться на главную"]]).resize())
+    );
+  } catch (error) {
+    console.log(error.message);
+  }
 
   let message = ({ balance }) => `Ваш баланс: ${balance} ₽`;
 

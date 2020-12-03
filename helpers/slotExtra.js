@@ -20,7 +20,7 @@ module.exports = (state) => {
         inlineBtnHook(m, valueRate(1000)),
       ],
       [inlineBtnHook(m, valueRate(-1)), inlineBtnHook(m, `🗑 Очистить ставки`)],
-      [inlineBtnHook(m, `Поставить  -  💰 ${state.rate["jek"]}  [x12]`)],
+      [inlineBtnHook(m, `Поставить  -  💰 ${state.rate["jek"]}  [x13]`)],
       [inlineBtnHook(m, `Крутить барабан 🎰`)],
     ])
   );

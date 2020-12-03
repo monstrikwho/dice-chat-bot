@@ -24,6 +24,7 @@ async function setupMailing(bot) {
           );
         } catch (err) {
           countBlocked++;
+          await User.updateOne({ userId }, { isBlocked: true });
         }
       }
 

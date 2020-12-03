@@ -30,13 +30,17 @@ module.exports = (game) => {
     ctx.session.state = state; // Save in session
 
     // Чистим активный board
-    await bot.telegram.editMessageText(
-      ctx.from.id,
-      state.activeBoard.message_id,
-      null,
-      message(state),
-      extraBoard(state)
-    );
+    try {
+      await bot.telegram.editMessageText(
+        ctx.from.id,
+        state.activeBoard.message_id,
+        null,
+        message(state),
+        extraBoard(state)
+      );
+    } catch (error) {
+      console.log(error.message);
+    }
   });
 
   game.action(/Поставить/, async (ctx) => {
@@ -64,13 +68,17 @@ module.exports = (game) => {
     ctx.session.state = state; // Save in session
 
     // Изменяем активный board
-    await bot.telegram.editMessageText(
-      ctx.from.id,
-      state.activeBoard.message_id,
-      null,
-      message(state),
-      extraBoard(state)
-    );
+    try {
+      await bot.telegram.editMessageText(
+        ctx.from.id,
+        state.activeBoard.message_id,
+        null,
+        message(state),
+        extraBoard(state)
+      );
+    } catch (error) {
+      console.log(error.message);
+    }
   });
 
   game.action(/(?:10₽|50₽|100₽|500₽|1000₽)/, async (ctx) => {
@@ -88,13 +96,17 @@ module.exports = (game) => {
     ctx.session.state = state; // Save in session
 
     // Изменяем активный board
-    await bot.telegram.editMessageText(
-      ctx.from.id,
-      state.activeBoard.message_id,
-      null,
-      message(state),
-      extraBoard(state)
-    );
+    try {
+      await bot.telegram.editMessageText(
+        ctx.from.id,
+        state.activeBoard.message_id,
+        null,
+        message(state),
+        extraBoard(state)
+      );
+    } catch (error) {
+      console.log(error.message);
+    }
   });
 
   game.action(/Другая сумма/, async (ctx) => {
@@ -120,13 +132,17 @@ module.exports = (game) => {
     );
 
     // Изменяем активный board
-    await bot.telegram.editMessageText(
-      ctx.from.id,
-      state.activeBoard.message_id,
-      null,
-      message(state),
-      extraBoard(state)
-    );
+    try {
+      await bot.telegram.editMessageText(
+        ctx.from.id,
+        state.activeBoard.message_id,
+        null,
+        message(state),
+        extraBoard(state)
+      );
+    } catch (error) {
+      console.log(error.message);
+    }
   });
 
   game.on("text", async (ctx) => {
@@ -166,11 +182,15 @@ module.exports = (game) => {
     }
 
     // Изменяем активный board
-    ctx.session.state.activeBoard = await bot.telegram.sendMessage(
-      ctx.from.id,
-      message(state),
-      extraBoard(state)
-    );
+    try {
+      ctx.session.state.activeBoard = await bot.telegram.sendMessage(
+        ctx.from.id,
+        message(state),
+        extraBoard(state)
+      );
+    } catch (error) {
+      console.log(error.message);
+    }
   });
 
   game.action("Крутить барабан 🎰", async (ctx) => {
@@ -197,7 +217,7 @@ module.exports = (game) => {
       "Вы были близко! Вы были близко! Не сдавайесь, в следующий раз повезет!";
 
     if (value === 1 || value === 22 || value === 43 || value === 64) {
-      winSum += state.rate["jek"] * 12;
+      winSum += state.rate["jek"] * 13;
       resMsg = "Поздравляем! Вы выиграли 🎉";
     }
 
@@ -295,7 +315,7 @@ module.exports = (game) => {
       "Вы были близко! Вы были близко! Не сдавайесь, в следующий раз повезет!";
 
     if (value === 1 || value === 64 || value === 22 || value === 43) {
-      winSum += state.rate["jek"] * 12;
+      winSum += state.rate["jek"] * 13;
       resMsg = "Поздравляем! Вы выиграли 🎉";
     }
 
@@ -376,7 +396,7 @@ module.exports = (game) => {
       "Вы были близко! Вы были близко! Не сдавайесь, в следующий раз повезет!";
 
     if (value === 1 || value === 22 || value === 43 || value === 64) {
-      winSum += state.rate["jek"] * 12;
+      winSum += state.rate["jek"] * 13;
       resMsg = "Поздравляем! Вы выиграли 🎉";
     }
 
