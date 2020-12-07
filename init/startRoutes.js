@@ -62,9 +62,9 @@ async function processing(data) {
   }
   if (status === "SUCCESS") {
     try {
+      await bot.telegram.sendMessage('-1001131292932', `Пользователь ${comment} только что вывел выигрыш на сумму ${sum.amount} P.`)
       if (type === "IN") return inCash(sum.amount, comment);
       if (type === "OUT") return outCash(sum.amount, comment, provider);
-      await bot.telegram.sendMessage('-1001131292932', `Пользователь ${comment} только что вывел выигрыш на сумму ${sum.amount} P.`)
     } catch (error) {
       return console.log("Ошибка в платежах, success");
     }
