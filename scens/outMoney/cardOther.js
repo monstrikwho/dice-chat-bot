@@ -24,6 +24,40 @@ outCardOther.on("text", async (ctx) => {
 
   if (ctx.session.state.payFlag) return;
 
+  if (msg === "Подтвердить") {
+    if (!ctx.session.state.activeMsg) return;
+    ctx.session.state = {
+      ...ctx.session.state,
+      payFlag: true,
+    };
+    try {
+      await ctx.deleteMessage(ctx.session.state.activeMsg.message_id);
+    } catch (error) {
+      console.log(error.message);
+    }
+
+    await ctx.scene.enter("lkMenu");
+
+    const amount = ctx.session.state.amount;
+    const wallet = ctx.session.state.wallet;
+    const idProvider = ctx.session.state.idProvider;
+    const userInfo = ctx.session.state.userInfo;
+
+    // Отправляем запрос на вывод
+    return await outMoney(
+      amount,
+      `${wallet}`,
+      ctx.from.id,
+      idProvider,
+      userInfo
+    );
+  }
+
+  if (ctx.session.state.activeMsg)
+    return ctx.reply(
+      'Пожалуйста, напишите в чат слово "Подтвердить", чтобы произвести операцию.'
+    );
+
   // Если не ввели сумму для вывода
   if (!ctx.session.state.amount) {
     const amount = +msg.trim();
@@ -60,7 +94,7 @@ outCardOther.on("text", async (ctx) => {
     };
     return await ctx.reply(
       `Пожалуйста, введите "Имя Фамилия" держателя карты.
-Требуется платежной системой QIWI.`
+(Требуется платежной системой QIWI)`
     );
   }
 
@@ -74,32 +108,9 @@ outCardOther.on("text", async (ctx) => {
       }P на номер карты ${ctx.session.state.wallet}.
 Получатель: ${msg}.
 C вашего баланса спишется: ${ctx.session.state.amount * 1.02 + 100}
-Нажмите "Подтвердить", чтобы произвести выплату.`,
-      Extra.markup((m) =>
-        m.inlineKeyboard([[m.callbackButton("Подтвердить", "Подтвердить")]])
-      )
+❕ Пожалуйста, напишите в чат "Подтвердить", чтобы произвести выплату.`
     ),
   };
-});
-
-outCardOther.action("Подтвердить", async (ctx) => {
-  if (!ctx.session.state.activeMsg) return;
-  if (ctx.session.state.payFlag) return;
-  ctx.session.state = {
-    ...ctx.session.state,
-    payFlag: true,
-  };
-  try {
-    await ctx.deleteMessage(ctx.session.state.activeMsg.message_id);
-    await ctx.scene.enter('lkMenu')
-  } catch (error) {
-    console.log(error.message);
-  }
-  const amount = ctx.session.state.amount;
-  const wallet = ctx.session.state.wallet;
-  const idProvider = ctx.session.state.idProvider;
-  const userInfo = ctx.session.state.userInfo;
-  return await outMoney(amount, `${wallet}`, ctx.from.id, idProvider, userInfo);
 });
 
 module.exports = { outCardOther };

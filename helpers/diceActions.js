@@ -667,9 +667,9 @@ module.exports = (game) => {
       ctx.session.state.activeBoard = await ctx.reply(
         `${resMsg}
         
-  Ваша общая ставка - ${sumRate}
-  Ваш выигрыш - ${Math.floor(winSum * 100) / 100}
-  Ваш баланс - ${Math.floor(ctx.session.state.balance * 100) / 100}`,
+Ваша общая ставка - ${sumRate}
+Ваш выигрыш - ${Math.floor(winSum * 100) / 100}
+Ваш баланс - ${Math.floor(ctx.session.state.balance * 100) / 100}`,
         Extra.markup((m) =>
           m.inlineKeyboard([
             [

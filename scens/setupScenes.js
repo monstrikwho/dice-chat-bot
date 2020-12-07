@@ -8,6 +8,7 @@ const { slotGame } = require("./slotGame.scene");
 const { lkMenu } = require("./lkMenu.scene");
 const { infoBlock } = require("./infoBlock.scene");
 const { outMoney } = require("./outMoney.scene");
+const { sendMailing } = require("./sendMailing.scene");
 const { inMoney, writeAmount } = require("./inMoney.scene");
 const { outQiwi } = require("./outMoney/qiwi");
 const { outCardRu } = require("./outMoney/cardRu");
@@ -23,6 +24,7 @@ function setupScenes(bot) {
     infoBlock,
     outMoney,
     inMoney,
+    sendMailing,
     writeAmount,
     outQiwi,
     outCardRu,

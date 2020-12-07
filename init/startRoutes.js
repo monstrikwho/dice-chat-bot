@@ -52,7 +52,8 @@ async function processing(data) {
     try {
       return await bot.telegram.sendMessage(
         comment,
-        `Платеж находится в обработке. Пожалуйста, свяжитесь с поддержкой, для уточнения статуса операции. 
+        `Платеж находится в обработке. 
+Вы можете связаться с поддержкой, для уточнения статуса операции. 
 Поддержка: @LuckyCatGames`
       );
     } catch (error) {
@@ -63,6 +64,7 @@ async function processing(data) {
     try {
       if (type === "IN") return inCash(sum.amount, comment);
       if (type === "OUT") return outCash(sum.amount, comment, provider);
+      await bot.telegram.sendMessage('-1001131292932', `Пользователь ${comment} только что вывел выигрыш на сумму ${sum.amount} P.`)
     } catch (error) {
       return console.log("Ошибка в платежах, success");
     }

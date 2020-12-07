@@ -52,6 +52,7 @@ function setupStart(bot) {
 
   // Start command
   bot.start(async (ctx) => {
+    if (+ctx.chat.id < 0) return;
     try {
       setTimeout(() => actionsUser(ctx), 0);
     } catch (err) {

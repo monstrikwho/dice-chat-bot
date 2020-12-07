@@ -25,6 +25,33 @@ outQiwi.on("text", async (ctx) => {
 
   if (ctx.session.state.payFlag) return;
 
+  if (msg === "Подтвердить") {
+    if (!ctx.session.state.activeMsg) return;
+    ctx.session.state = {
+      ...ctx.session.state,
+      payFlag: true,
+    };
+
+    try {
+      await ctx.deleteMessage(ctx.session.state.activeMsg.message_id);
+    } catch (error) {
+      console.log(error.message);
+    }
+
+    await ctx.scene.enter("lkMenu");
+
+    const amount = ctx.session.state.amount;
+    const wallet = ctx.session.state.wallet;
+
+    // Отправляем запрос на вывод
+    return await outMoney(amount, `+${wallet}`, ctx.from.id, 99);
+  }
+
+  if (ctx.session.state.activeMsg)
+    return ctx.reply(
+      'Пожалуйста, напишите в чат слово "Подтвердить", чтобы произвести операцию.'
+    );
+
   // Если не ввели сумму
   if (!ctx.session.state.amount) {
     const amount = +msg.trim();
@@ -60,30 +87,9 @@ outQiwi.on("text", async (ctx) => {
     activeMsg: await ctx.reply(
       `Вы собираетесь вывести сумму ${ctx.session.state.amount}P на номер кошелька +${msg}.
 C вашего баланса спишеться: ${ctx.session.state.amount}
-Нажмите "Подтвердить", чтобы произвести выплату.`,
-      Extra.markup((m) =>
-        m.inlineKeyboard([[m.callbackButton("Подтвердить", "Подтвердить")]])
-      )
+❕ Пожалуйста, напишите в чат "Подтвердить", чтобы произвести выплату.`
     ),
   };
-});
-
-outQiwi.action("Подтвердить", async (ctx) => {
-  if (!ctx.session.state.activeMsg) return;
-  if (ctx.session.state.payFlag) return;
-  ctx.session.state = {
-    ...ctx.session.state,
-    payFlag: true,
-  };
-  try {
-    await ctx.deleteMessage(ctx.session.state.activeMsg.message_id);
-    await ctx.scene.enter('lkMenu')
-  } catch (error) {
-    console.log(error.message)
-  }
-  const amount = ctx.session.state.amount;
-  const wallet = ctx.session.state.wallet;
-  return await outMoney(amount, `+${wallet}`, ctx.from.id, 99);
 });
 
 module.exports = { outQiwi };

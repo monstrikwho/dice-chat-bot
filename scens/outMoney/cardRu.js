@@ -18,12 +18,39 @@ outCardRu.enter(async (ctx) => {
 outCardRu.on("text", async (ctx) => {
   const msg = ctx.update.message.text;
 
-  
   if (msg === "↪️ Вернуться назад") {
     return await ctx.scene.enter("outMoney");
   }
 
   if (ctx.session.state.payFlag) return;
+
+  if (msg === "Подтвердить") {
+    if (!ctx.session.state.activeMsg) return;
+    ctx.session.state = {
+      ...ctx.session.state,
+      payFlag: true,
+    };
+
+    try {
+      await ctx.deleteMessage(ctx.session.state.activeMsg.message_id);
+    } catch (error) {
+      console.log(error.message);
+    }
+
+    await ctx.scene.enter("lkMenu");
+
+    const amount = ctx.session.state.amount;
+    const wallet = ctx.session.state.wallet;
+    const idProvider = ctx.session.state.idProvider;
+
+    // Отправляем запрос на вывод
+    return await outMoney(amount, `${wallet}`, ctx.from.id, idProvider);
+  }
+
+  if (ctx.session.state.activeMsg)
+    return ctx.reply(
+      'Пожалуйста, напишите в чат слово "Подтвердить", чтобы произвести операцию.'
+    );
 
   // Если не ввели сумму
   if (!ctx.session.state.amount) {
@@ -61,31 +88,9 @@ outCardRu.on("text", async (ctx) => {
         ctx.session.state.amount
       }P на номер карты ${msg}.
 C вашего баланса спишется: ${ctx.session.state.amount * 1.02 + 50}
-Нажмите "Подтвердить", чтобы произвести выплату.`,
-      Extra.markup((m) =>
-        m.inlineKeyboard([[m.callbackButton("Подтвердить", "Подтвердить")]])
-      )
+❕ Пожалуйста, напишите в чат "Подтвердить", чтобы произвести выплату.`
     ),
   };
-});
-
-outCardRu.action("Подтвердить", async (ctx) => {
-  if (!ctx.session.state.activeMsg) return;
-  if (ctx.session.state.payFlag) return;
-  ctx.session.state = {
-    ...ctx.session.state,
-    payFlag: true,
-  };
-  try {
-    await ctx.deleteMessage(ctx.session.state.activeMsg.message_id);
-    await ctx.scene.enter('lkMenu')
-  } catch (error) {
-    console.log(error.message)
-  }
-  const amount = ctx.session.state.amount;
-  const wallet = ctx.session.state.wallet;
-  const idProvider = ctx.session.state.idProvider;
-  return await outMoney(amount, `${wallet}`, ctx.from.id, idProvider);
 });
 
 module.exports = { outCardRu };

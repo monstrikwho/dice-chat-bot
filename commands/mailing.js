@@ -13,6 +13,10 @@ async function setupMailing(bot) {
     if (ctx.chat.id === 364984576) {
       const msg = ctx.update.message.text.replace("/replyMsg ", "");
 
+      await ctx.reply(
+        `Рассылка началась. Пожлауйста подождите, пока она завершится. (Вам придет сообщение.)`
+      );
+
       let countBlocked = 0;
 
       for (let userId of arrUsersId) {
@@ -22,6 +26,7 @@ async function setupMailing(bot) {
             msg,
             Extra.markup(Markup.keyboard([["/start"]]).resize())
           );
+          await User.updateOne({ userId }, { isBlocked: false });
         } catch (err) {
           countBlocked++;
           await User.updateOne({ userId }, { isBlocked: true });
