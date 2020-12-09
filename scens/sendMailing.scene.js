@@ -9,7 +9,7 @@ const { bot } = require("../init/startBot");
 const sendMailing = new Scene("sendMailing");
 sendMailing.enter(async (ctx) => {
   return await ctx.reply(
-    "Введите сообщение или добавьте фото, чтобы прикрепить его к сообщению.",
+    "Введите сообщение или добавьте фото (в сжатом формате!), чтобы прикрепить его к сообщению.",
     Extra.markup(Markup.keyboard([["↪️ Вернуться назад"]]).resize())
   );
 });
@@ -20,7 +20,8 @@ sendMailing.on("photo", async (ctx) => {
     ...ctx.session.state,
     photoId,
   };
-  await ctx.reply("Вы успешно прикрепили фото.");
+  console.log(photoId)
+  await ctx.reply('Вы успешно прикрепили фото.')
 });
 
 sendMailing.on("text", async (ctx) => {
@@ -35,8 +36,7 @@ sendMailing.on("text", async (ctx) => {
   );
 
   const users = await User.find();
-  let arrUsersId = [364984576];
-
+  let arrUsersId = users.map((item) => item.userId)
   let countBlocked = 0;
 
   for (let userId of arrUsersId) {
