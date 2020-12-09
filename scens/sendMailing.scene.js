@@ -20,7 +20,6 @@ sendMailing.on("photo", async (ctx) => {
     ...ctx.session.state,
     photoId,
   };
-  console.log(photoId)
   await ctx.reply('Вы успешно прикрепили фото.')
 });
 

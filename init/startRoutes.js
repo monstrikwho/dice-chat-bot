@@ -105,7 +105,7 @@ async function outCash(amount, userId, provider) {
   );
   await bot.telegram.sendPhoto(
     "-1001131292932",
-    "AgACAgIAAxkBAAICyV_QjCMrDeXy6lDKNPoAAegMBiB5SAACR7ExG4gbiEr2aQ-NIm8qRyLPypkuAAMBAAMCAANtAANktwEAAR4E"
+    "AgACAgIAAxkBAAEBu8tf0IzTj6NdyWg56cdk3yB_k0FIDQACR7ExG4gbiEoXa9YWW7zXuiLPypkuAAMBAAMCAANtAANktwEAAR4E"
   );
   await bot.telegram.sendMessage(
     "-1001131292932",
