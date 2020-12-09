@@ -9,9 +9,18 @@ const { bot } = require("../init/startBot");
 const sendMailing = new Scene("sendMailing");
 sendMailing.enter(async (ctx) => {
   return await ctx.reply(
-    "Введите сообщение",
+    "Введите сообщение или добавьте фото, чтобы прикрепить его к сообщению.",
     Extra.markup(Markup.keyboard([["↪️ Вернуться назад"]]).resize())
   );
+});
+
+sendMailing.on("photo", async (ctx) => {
+  const photoId = ctx.update.message.photo[0].file_id;
+  ctx.session.state = {
+    ...ctx.session.state,
+    photoId,
+  };
+  await ctx.reply("Вы успешно прикрепили фото.");
 });
 
 sendMailing.on("text", async (ctx) => {
@@ -26,12 +35,16 @@ sendMailing.on("text", async (ctx) => {
   );
 
   const users = await User.find();
-  let arrUsersId = users.map((item) => item.userId);
+  let arrUsersId = [364984576];
 
   let countBlocked = 0;
 
   for (let userId of arrUsersId) {
     try {
+      if (ctx.session.state.photoId) {
+        await bot.telegram.sendPhoto(userId, ctx.session.state.photoId);
+      }
+
       await bot.telegram.sendMessage(userId, msg);
       await User.updateOne({ userId }, { isBlocked: false });
     } catch (err) {

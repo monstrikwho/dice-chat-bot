@@ -63,17 +63,7 @@ async function processing(data) {
   if (status === "SUCCESS") {
     try {
       if (type === "IN") return inCash(sum.amount, comment);
-      if (type === "OUT") {
-        await bot.telegram.sendPhoto(
-          "-1001131292932",
-          "AgACAgIAAxkBAAICdF_OgOaB0VZhVzajzMwQtp2fJQj7AAKlsTEb68F5SoCKa9Z7Qs_uWS5EmC4AAwEAAwIAA3kAA5cRBAABHgQ"
-        );
-        await bot.telegram.sendMessage(
-          "-1001131292932",
-          `Пользователь ${comment} только что вывел выигрыш на сумму ${sum.amount} P.`
-        );
-        return outCash(sum.amount, comment, provider);
-      }
+      if (type === "OUT") return outCash(sum.amount, comment, provider);
     } catch (error) {
       return console.log("Ошибка в платежах, success");
     }
@@ -112,6 +102,14 @@ async function outCash(amount, userId, provider) {
     userId,
     `С вашего баланса было списано ${amount + commission}P.
 Ваш текущий баланс: ${user.mainBalance - amount - commission}`
+  );
+  await bot.telegram.sendPhoto(
+    "-1001131292932",
+    "AgACAgIAAxkBAAICdF_OgOaB0VZhVzajzMwQtp2fJQj7AAKlsTEb68F5SoCKa9Z7Qs_uWS5EmC4AAwEAAwIAA3kAA5cRBAABHgQ"
+  );
+  await bot.telegram.sendMessage(
+    "-1001131292932",
+    `Пользователь ${userId} только что вывел выигрыш на сумму ${amount} P.`
   );
 }
 

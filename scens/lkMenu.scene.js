@@ -8,7 +8,7 @@ const lkMenu = new Scene("lkMenu");
 lkMenu.enter(async (ctx) => {
   const user = await User.findOne({ userId: ctx.from.id });
 
-  if (ctx.from.id === 1061660155) {
+  if (ctx.from.id === 1061660155 || ctx.from.id === 364984576) {
     return await ctx.reply(
       `Вы вошли в личный кабинет
 Ваш личный номер: ${ctx.from.id}
@@ -49,8 +49,9 @@ lkMenu.hears("↪️ Вернуться назад", async ({ scene }) => {
 });
 
 lkMenu.hears("Сделать рассылку", async (ctx) => {
-  if (ctx.from.id !== 1061660155) return;
-  return await ctx.scene.enter("sendMailing");
+  if (ctx.from.id === 1061660155 || ctx.from.id === 364984576){
+    return await ctx.scene.enter("sendMailing");
+  }
 });
 
 module.exports = { lkMenu };

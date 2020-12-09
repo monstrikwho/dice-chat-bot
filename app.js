@@ -6,7 +6,7 @@ const { app, startRoutes } = require("./init/startRoutes");
 const setupMongoose = require("./init/setupMongoose");
 
 // Helpers
-const fakeOrders = require("./helpers/fakeOrders");
+// const fakeOrders = require("./helpers/fakeOrders");
 
 // Commands
 const setupStart = require("./commands/start");
