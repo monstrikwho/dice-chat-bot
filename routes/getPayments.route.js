@@ -3,7 +3,7 @@ const router = Router();
 
 const Order = require("../models/order");
 
-router.post("/", async (req, res) => {
+router.get("/", async (req, res) => {
   try {
     const orders = await Order.find({
       data: { payment: { status: "SUCCESS" } },
