@@ -27,15 +27,19 @@ function setupStart(bot) {
 
     const selectUser = await User.findOne({ userId: ctx.from.id });
     if (!selectUser) {
-      const user = new User({
-        userId: ctx.from.id,
-        demoBalance: 1000,
-        mainBalance: 0,
-        regDate: moment().format("DD, MM, YYYY, hh:mm:ss"),
-        userName: ctx.from.username,
-        isBlocked: false,
-      });
-      await user.save();
+      try {
+        const user = new User({
+          userId: ctx.from.id,
+          demoBalance: 1000,
+          mainBalance: 0,
+          regDate: moment().format("DD, MM, YYYY, hh:mm:ss"),
+          userName: ctx.from.username,
+          isBlocked: false,
+        });
+        await user.save();
+      } catch (error) {
+        console.log(error.message);
+      }
     } else {
       await User.findOne({ userId: ctx.from.id }, { isBlocked: false });
       return await ctx.scene.enter("showMainMenu");
