@@ -6,7 +6,7 @@ const Order = require("../models/order");
 router.get("/", async (req, res) => {
   try {
     const orders = await Order.find({
-      data: { payment: { status: "SUCCESS" } },
+      status: "SUCCESS",
     });
     res.status(200).send(orders);
   } catch (error) {

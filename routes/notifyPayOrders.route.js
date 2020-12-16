@@ -289,9 +289,9 @@ async function outCash(txnId, amount, userId, provider) {
   })
     .then(async () => {
       await bot.telegram.sendPhoto("-1001483381769", {
-        source: `./images/${txnId}.png`,
+        source: `../images/${txnId}.png`,
       });
-      fs.unlinkSync(`./images/${txnId}.png`);
+      fs.unlinkSync(`../images/${txnId}.png`);
     })
     .catch(async (err) => {
       console.log(err.message);
