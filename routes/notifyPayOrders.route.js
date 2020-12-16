@@ -204,13 +204,13 @@ async function outCash(txnId, amount, userId, provider) {
 amount: ${amount}`)
 
   // Отправляем юзеру, что платеж был обработан
-//   await bot.telegram.sendMessage(
-//     userId,
-//     `С вашего баланса было списано ${amount + commission}₽.
-// Ваш текущий баланс: ${user.mainBalance - amount - commission}.
+  await bot.telegram.sendMessage(
+    userId,
+    `С вашего баланса было списано ${amount + commission}₽.
+Ваш текущий баланс: ${user.mainBalance - amount - commission}.
 
-// Номер платежа: ${txnId}`
-//   );
+Номер платежа: ${txnId}`
+  );
 
 //   // Отпарвляем photo ордерa в паблик
 //   await nodeHtmlToImage({
