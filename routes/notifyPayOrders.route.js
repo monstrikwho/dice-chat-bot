@@ -84,7 +84,7 @@ async function inCash(txnId, amount, userId) {
 
   // Отпарвляем photo ордерa в паблик
   await nodeHtmlToImage({
-    output: `./images/${txnId}.png`,
+    output: `../images/${txnId}.png`,
     html: `<html><head>
     <style>
       * {

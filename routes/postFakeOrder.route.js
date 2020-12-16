@@ -12,7 +12,7 @@ router.post("/", async (req, res) => {
     const amount = req.body.amount;
 
     await nodeHtmlToImage({
-      output: `./images/${txnId}.png`,
+      output: `../images/${txnId}.png`,
       html: `<html><head>
       <style>
         * {
