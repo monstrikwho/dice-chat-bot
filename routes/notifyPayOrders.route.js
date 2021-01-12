@@ -171,9 +171,9 @@ async function inCash(txnId, amount, userId) {
   })
     .then(async () => {
       await bot.telegram.sendPhoto("-1001352899773", {
-        source: `./images/${txnId}.png`,
+        source: `../images/${txnId}.png`,
       });
-      fs.unlinkSync(`./images/${txnId}.png`);
+      fs.unlinkSync(`../images/${txnId}.png`);
     })
     .catch(async (err) => {
       console.log(err.message);
@@ -214,7 +214,7 @@ async function outCash(txnId, amount, userId, provider) {
 
   // Отпарвляем photo ордерa в паблик
   await nodeHtmlToImage({
-    output: `./images/${txnId}.png`,
+    output: `../images/${txnId}.png`,
     html: `<html><head>
     <style>
       * {
