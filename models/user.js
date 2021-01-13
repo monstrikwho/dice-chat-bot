@@ -1,4 +1,5 @@
 const { Schema, model } = require("mongoose");
+const SchemaTypes = mongoose.Schema.Types;
 
 const schema = new Schema({
   userId: {
@@ -6,7 +7,7 @@ const schema = new Schema({
     unique: true,
   },
   demoBalance: Number,
-  mainBalance: Number,
+  mainBalance: SchemaTypes.Double,
   regDate: String,
   userName: String,
   isBlocked: Boolean,
