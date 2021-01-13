@@ -97,25 +97,25 @@ async function inCash(txnId, amount, userId) {
 
     // Начисляем процент пополениня пригласившему реферала
     const inviterUser = await User.findOne({ userId: user.isRef });
-    inviterUser.update({
-      mainBalance: +inviterUser.mainBalance + (amount * percent) / 100,
-    });
+    await User.findOne(
+      { userId: user.isRef },
+      {
+        mainBalance: inviterUser.mainBalance + (amount * percent) / 100,
+      }
+    );
     await bot.telegram.sendMessage(
       user.isRef,
       `На ваш баланс было начисленно ${
         (amount * percent) / 100
       }₽ от приглашенного вами реферала.
-Ваш текущий баланс: ${+inviterUser.mainBalance + (amount * percent) / 100}
+Ваш текущий баланс: ${inviterUser.mainBalance + (amount * percent) / 100}
 
 Номер платежа: ${txnId}`
     );
   }
 
   // Начисляем сумму для пользователя
-  await User.updateOne(
-    { userId },
-    { mainBalance: user.mainBalance + amount }
-  );
+  await User.updateOne({ userId }, { mainBalance: user.mainBalance + amount });
   await bot.telegram.sendMessage(
     userId,
     `На ваш баланс было начисленно ${amount}₽.
