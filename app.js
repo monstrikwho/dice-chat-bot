@@ -17,3 +17,8 @@ setupMongoose();
 // Commands
 setupStart(bot);
 mailing(bot);
+
+bot.command('bot', ctx => {
+  const f = '2342.5'
+  console.log(+f+10)
+})

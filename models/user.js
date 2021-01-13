@@ -1,17 +1,13 @@
 const mongoose = require('mongoose');
-var Float = require('mongoose-float').loadType(mongoose, 1);
+const Double = require('@mongoosejs/double');
 
 const schema = new mongoose.Schema({
   userId: {
     type: Number, 
     unique: true,
   },
-  demoBalance: {
-    type: Float
-  },
-  mainBalance: {
-    type: Float
-  },
+  demoBalance: Double,
+  mainBalance: Double,
   regDate: String,
   userName: String,
   isBlocked: Boolean,
