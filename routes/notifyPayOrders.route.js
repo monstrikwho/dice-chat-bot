@@ -80,7 +80,6 @@ async function processing(data) {
 // ************************ IN ********************************
 
 // CONSTANT
-const plankFirstBonus = 600;
 const firstPercent = 7;
 const lastPercent = 5;
 //
@@ -99,14 +98,14 @@ async function inCash(txnId, amount, userId) {
     // Начисляем процент пополениня пригласившему реферала
     const inviterUser = await User.findOne({ userId: user.isRef });
     inviterUser.update({
-      mainBalance: inviterUser.mainBalance + (amount * percent) / 100,
+      mainBalance: +inviterUser.mainBalance + (amount * percent) / 100,
     });
     await bot.telegram.sendMessage(
       user.isRef,
       `На ваш баланс было начисленно ${
         (amount * percent) / 100
       }₽ от приглашенного вами реферала.
-Ваш текущий баланс: ${inviterUser.mainBalance + (amount * percent) / 100}
+Ваш текущий баланс: ${+inviterUser.mainBalance + (amount * percent) / 100}
 
 Номер платежа: ${txnId}`
     );
@@ -115,11 +114,11 @@ async function inCash(txnId, amount, userId) {
   // Начисляем сумму для пользователя
   await User.updateOne(
     { userId },
-    { mainBalance: user.mainBalance + amount + bonus }
+    { mainBalance: user.mainBalance + amount }
   );
   await bot.telegram.sendMessage(
     userId,
-    `На ваш баланс было начисленно ${amount}₽ + бонус при первом пополнении от 600р.
+    `На ваш баланс было начисленно ${amount}₽.
 Ваш текущий баланс: ${user.mainBalance + amount}
 
 Номер платежа: ${txnId}`
