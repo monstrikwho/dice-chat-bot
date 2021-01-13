@@ -7,7 +7,7 @@ const schema = new Schema({
     unique: true,
   },
   demoBalance: Number,
-  mainBalance: SchemaTypes.Double,
+  mainBalance: SchemaTypes.Decimal128,
   regDate: String,
   userName: String,
   isBlocked: Boolean,
