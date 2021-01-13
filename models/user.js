@@ -2,24 +2,15 @@ const { Schema, model } = require("mongoose");
 
 const schema = new Schema({
   userId: {
-    type: Number,
+    type: Number, 
     unique: true,
   },
-  demoBalance: {
-    type: Number,
-  },
-  mainBalance: {
-    type: Number,
-  },
-  regDate: {
-    type: String,
-  },
-  userName: {
-    type: String,
-  },
-  isBlocked: {
-    type: Boolean,
-  },
+  demoBalance: String,
+  mainBalance: String,
+  regDate: String,
+  userName: String,
+  isBlocked: Boolean,
+  isRef: Number
 });
 
 module.exports = model("Users", schema);

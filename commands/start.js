@@ -9,27 +9,39 @@ function setupStart(bot) {
 
   // Start command
   bot.start(async (ctx) => {
-    if (+ctx.chat.id < 0) return;
+    if (+ctx.chat.id < 0) return; // Откидываем возможность запуска бота в пабликах
+
     try {
       // Сохраняем статистику рекламы
       const startPayload = ctx.startPayload;
-      if (startPayload.length > 0) {
-        const { payload } = await Setting.findOne({});
-        if (payload[startPayload]) {
-          await Setting.updateOne(
-            {},
-            {
-              payload: {
-                ...payload,
-                [startPayload]: payload[startPayload] + 1,
-              },
+
+      let isRef = 1; // number or 1
+      let isAds = null;
+      let bouns = 0;
+
+      let payloadType =
+        startPayload.indexOf("ref") !== -1
+          ? "ref"
+          : startPayload.indexOf("ads") !== -1
+          ? "ads"
+          : "other";
+
+      if (payloadType !== "other") {
+        if (payloadType === "ref") {
+          const refUserId = startPayload.replace("ref", "");
+          try {
+            const status = await User.findOne({ userId: refUserId });
+            if (status) {
+              isRef = refUserId;
+              bouns = 10000;
             }
-          );
-        } else {
-          await Setting.updateOne(
-            {},
-            { payload: { ...payload, [startPayload]: 1 } }
-          );
+          } catch (error) {
+            console.log(error.message);
+          }
+        }
+
+        if (payloadType === "ads") {
+          isAds = true;
         }
       }
 
@@ -38,11 +50,12 @@ function setupStart(bot) {
         try {
           const user = new User({
             userId: ctx.from.id,
-            demoBalance: 1000,
+            userName: ctx.from.username,
+            demoBalance: 2000 + bouns,
             mainBalance: 0,
             regDate: moment().format("DD, MM, YYYY, hh:mm:ss"),
-            userName: ctx.from.username,
             isBlocked: false,
+            isRef,
           });
           await user.save();
         } catch (error) {

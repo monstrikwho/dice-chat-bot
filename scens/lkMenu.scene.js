@@ -16,6 +16,7 @@ lkMenu.enter(async (ctx) => {
       Extra.markup(
         Markup.keyboard([
           ["Пополнить", "Вывести"],
+          ["Реферальная система"],
           ["Сделать рассылку"],
           ["↪️ Вернуться назад"],
         ]).resize()
@@ -30,6 +31,7 @@ lkMenu.enter(async (ctx) => {
     Extra.markup(
       Markup.keyboard([
         ["Пополнить", "Вывести"],
+        ["Реферальная система"],
         ["↪️ Вернуться назад"],
       ]).resize()
     )
@@ -48,8 +50,12 @@ lkMenu.hears("↪️ Вернуться назад", async ({ scene }) => {
   return await scene.enter("showMainMenu");
 });
 
+lkMenu.hears("Реферальная система", async ({ scene }) => {
+  return await scene.enter("refScene");
+});
+
 lkMenu.hears("Сделать рассылку", async (ctx) => {
-  if (ctx.from.id === 1061660155 || ctx.from.id === 364984576){
+  if (ctx.from.id === 1061660155 || ctx.from.id === 364984576) {
     return await ctx.scene.enter("sendMailing");
   }
 });

@@ -13,6 +13,7 @@ const { inMoney, writeAmount } = require("./inMoney.scene");
 const { outQiwi } = require("./outMoney/qiwi");
 const { outCardRu } = require("./outMoney/cardRu");
 const { outCardOther } = require("./outMoney/cardOther");
+const { refScene } = require("./referals.scene");
 
 function setupScenes(bot) {
   const stage = new Stage([
@@ -29,6 +30,7 @@ function setupScenes(bot) {
     outQiwi,
     outCardRu,
     outCardOther,
+    refScene,
   ]);
   bot.use(session());
   bot.use(stage.middleware());

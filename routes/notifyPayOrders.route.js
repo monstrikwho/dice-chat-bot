@@ -18,6 +18,7 @@ router.post("/", async (req, res) => {
   res.status(200).end();
 });
 
+// Обработка уведомления
 async function processing(data) {
   // const hash = data.hash;
   // const msgId = data.messageId;
@@ -31,6 +32,7 @@ async function processing(data) {
   const provider = data.payment.provider; // 'WAITING', 'SUCCESS', 'ERROR'
   const amount = data.payment.sum.amount; // number
 
+  // Сохраняем нужную о платеже в БД
   const order = new Order({
     txnId,
     type,
@@ -75,14 +77,49 @@ async function processing(data) {
   }
 }
 
+// ************************ IN ********************************
+
+// CONSTANT
+const plankFirstBonus = 600;
+const firstPercent = 7;
+const lastPercent = 5;
+//
+
 async function inCash(txnId, amount, userId) {
   const user = await User.findOne({ userId });
   if (!user) return;
 
-  await User.updateOne({ userId }, { mainBalance: user.mainBalance + amount });
+  let percent = lastPercent;
+
+  if (user.isRef !== 1) {
+    // Проверяем первый ли платеж и меняем процент, если он первый
+    const statusFirstPay = await Order.findOne({ comment: userId });
+    if (!statusFirstPay) percent = firstPercent;
+
+    // Начисляем процент пополениня пригласившему реферала
+    const inviterUser = await User.findOne({ userId: user.isRef });
+    inviterUser.update({
+      mainBalance: inviterUser.mainBalance + (amount * percent) / 100,
+    });
+    await bot.telegram.sendMessage(
+      user.isRef,
+      `На ваш баланс было начисленно ${
+        (amount * percent) / 100
+      }₽ от приглашенного вами реферала.
+Ваш текущий баланс: ${inviterUser.mainBalance + (amount * percent) / 100}
+
+Номер платежа: ${txnId}`
+    );
+  }
+
+  // Начисляем сумму для пользователя
+  await User.updateOne(
+    { userId },
+    { mainBalance: user.mainBalance + amount + bonus }
+  );
   await bot.telegram.sendMessage(
     userId,
-    `На ваш баланс было начисленно ${amount}₽.
+    `На ваш баланс было начисленно ${amount}₽ + бонус при первом пополнении от 600р.
 Ваш текущий баланс: ${user.mainBalance + amount}
 
 Номер платежа: ${txnId}`

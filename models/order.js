@@ -1,12 +1,13 @@
 const { Schema, model } = require("mongoose");
 
 const schema = new Schema({
-  orderId: {
-    type: Number,
-  },
-  data: {
-    type: Object,
-  },
+  txnId: Number,
+  type: String,
+  status: String,
+  amount: Number,
+  comment: String,
+  account: String,
+  date: String
 });
 
 module.exports = model("Orders", schema);
