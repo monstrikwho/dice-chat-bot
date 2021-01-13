@@ -1,17 +1,21 @@
-const { Schema, model } = require("mongoose");
-const SchemaTypes = Schema.Types;
+const mongoose = require('mongoose');
+var Float = require('mongoose-float').loadType(mongoose, 1);
 
-const schema = new Schema({
+const schema = new mongoose.Schema({
   userId: {
     type: Number, 
     unique: true,
   },
-  demoBalance: Number,
-  mainBalance: SchemaTypes.Decimal128,
+  demoBalance: {
+    type: Float
+  },
+  mainBalance: {
+    type: Float
+  },
   regDate: String,
   userName: String,
   isBlocked: Boolean,
   isRef: Number
 });
 
-module.exports = model("Users", schema);
+module.exports = mongoose.model("Users", schema);
