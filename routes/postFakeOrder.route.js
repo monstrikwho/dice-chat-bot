@@ -13,7 +13,7 @@ router.post("/", async (req, res) => {
   try {
     const setting = await Setting.findOne()
 
-    const txnId = +setting.lastNumberOrder + 333;
+    const txnId = setting.lastNumberOrder + 333;
     const amount = req.body.amount;
 
     await nodeHtmlToImage({

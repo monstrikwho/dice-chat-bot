@@ -1,7 +1,7 @@
 const { Schema, model } = require("mongoose");
 
 const schema = new Schema({
-  lastNumberOrder: String,
+  lastNumberOrder: Number,
   countBlocked: Number,
   payload: Object,
 });
