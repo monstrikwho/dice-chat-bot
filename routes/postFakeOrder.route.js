@@ -31,7 +31,7 @@ router.post("/", async (req, res) => {
 
       body {
         padding: 10px;
-        padding-top: 40px;
+        padding-top: 20px;
         width: 400px;
         height: 220px;
       }

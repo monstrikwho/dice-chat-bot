@@ -148,7 +148,7 @@ async function inCash(txnId, amount, userId) {
 
       body {
         padding: 10px;
-        padding-top: 40px;
+        padding-top: 20px;
         width: 400px;
         height: 220px;
       }
@@ -266,7 +266,7 @@ async function outCash(txnId, amount, userId, provider) {
 
       body {
         padding: 10px;
-        padding-top: 40px;
+        padding-top: 20px;
         width: 400px;
         height: 220px;
       }
