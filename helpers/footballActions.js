@@ -256,11 +256,11 @@ module.exports = (game) => {
     let resMsg = "Вы были близко! Не сдавайесь, в следующий раз повезет!";
 
     if (value === 3 || value === 4 || value === 5) {
-      winSum += state.rate["goal"] * 1.4;
+      winSum += state.rate["goal"] * 1.35;
     }
 
     if (value === 1 || value === 2) {
-      winSum += state.rate["out"] * 2.1;
+      winSum += state.rate["out"] * 2.05;
     }
 
     if (winSum > 0) resMsg = "Поздравляем! Вы выиграли 🎉";
@@ -359,11 +359,11 @@ module.exports = (game) => {
     let resMsg = "Вы были близко! Не сдавайесь, в следующий раз повезет!";
 
     if (value === 3 || value === 4 || value === 5) {
-      winSum += state.rate["goal"] * 1.4;
+      winSum += state.rate["goal"] * 1.35;
     }
 
     if (value === 1 || value === 2) {
-      winSum += state.rate["out"] * 2.1;
+      winSum += state.rate["out"] * 2.05;
     }
 
     if (winSum > 0) resMsg = "Поздравляем! Вы выиграли 🎉";
@@ -444,11 +444,11 @@ module.exports = (game) => {
       "Вы были близко! Вы были близко! Не сдавайесь, в следующий раз повезет!";
 
     if (value === 3 || value === 4 || value === 5) {
-      winSum += state.rate["goal"] * 1.4;
+      winSum += state.rate["goal"] * 1.35;
     }
 
     if (value === 1 || value === 2) {
-      winSum += state.rate["out"] * 2.1;
+      winSum += state.rate["out"] * 2.05;
     }
 
     if (winSum > 0) resMsg = "Поздравляем! Вы выиграли 🎉";

@@ -623,27 +623,39 @@ module.exports = (game) => {
 
     if (value === 1) {
       winSum +=
-        state.rate[1] * 5 + state.rate["1-2"] * 2.7 + state.rate["odd"] * 1.85;
+        state.rate[1] * 4.5 +
+        state.rate["1-2"] * 2.5 +
+        state.rate["odd"] * 1.75;
     }
     if (value === 2) {
       winSum +=
-        state.rate[2] * 5 + state.rate["1-2"] * 2.7 + state.rate["even"] * 1.85;
+        state.rate[2] * 4.5 +
+        state.rate["1-2"] * 2.5 +
+        state.rate["even"] * 1.75;
     }
     if (value === 3) {
       winSum +=
-        state.rate[3] * 5 + state.rate["3-4"] * 2.7 + state.rate["odd"] * 1.85;
+        state.rate[3] * 4.5 +
+        state.rate["3-4"] * 2.5 +
+        state.rate["odd"] * 1.75;
     }
     if (value === 4) {
       winSum +=
-        state.rate[4] * 5 + state.rate["3-4"] * 2.7 + state.rate["even"] * 1.85;
+        state.rate[4] * 4.5 +
+        state.rate["3-4"] * 2.5 +
+        state.rate["even"] * 1.75;
     }
     if (value === 5) {
       winSum +=
-        state.rate[5] * 5 + state.rate["5-6"] * 2.7 + state.rate["odd"] * 1.85;
+        state.rate[5] * 4.5 +
+        state.rate["5-6"] * 2.5 +
+        state.rate["odd"] * 1.75;
     }
     if (value === 6) {
       winSum +=
-        state.rate[6] * 5 + state.rate["5-6"] * 2.7 + state.rate["even"] * 1.85;
+        state.rate[6] * 4.5 +
+        state.rate["5-6"] * 2.5 +
+        state.rate["even"] * 1.75;
     }
 
     if (winSum > 0) resMsg = "Поздравляем! Вы выиграли 🎉";
@@ -767,27 +779,39 @@ module.exports = (game) => {
 
     if (value === 1) {
       winSum +=
-        state.rate[1] * 5 + state.rate["1-2"] * 2.7 + state.rate["odd"] * 1.85;
+        state.rate[1] * 4.5 +
+        state.rate["1-2"] * 2.5 +
+        state.rate["odd"] * 1.75;
     }
     if (value === 2) {
       winSum +=
-        state.rate[2] * 5 + state.rate["1-2"] * 2.7 + state.rate["even"] * 1.85;
+        state.rate[2] * 4.5 +
+        state.rate["1-2"] * 2.5 +
+        state.rate["even"] * 1.75;
     }
     if (value === 3) {
       winSum +=
-        state.rate[3] * 5 + state.rate["3-4"] * 2.7 + state.rate["odd"] * 1.85;
+        state.rate[3] * 4.5 +
+        state.rate["3-4"] * 2.5 +
+        state.rate["odd"] * 1.75;
     }
     if (value === 4) {
       winSum +=
-        state.rate[4] * 5 + state.rate["3-4"] * 2.7 + state.rate["even"] * 1.85;
+        state.rate[4] * 4.5 +
+        state.rate["3-4"] * 2.5 +
+        state.rate["even"] * 1.75;
     }
     if (value === 5) {
       winSum +=
-        state.rate[5] * 5 + state.rate["5-6"] * 2.7 + state.rate["odd"] * 1.85;
+        state.rate[5] * 4.5 +
+        state.rate["5-6"] * 2.5 +
+        state.rate["odd"] * 1.75;
     }
     if (value === 6) {
       winSum +=
-        state.rate[6] * 5 + state.rate["5-6"] * 2.7 + state.rate["even"] * 1.85;
+        state.rate[6] * 4.5 +
+        state.rate["5-6"] * 2.5 +
+        state.rate["even"] * 1.75;
     }
 
     if (winSum > 0) resMsg = "Поздравляем! Вы выиграли 🎉";
@@ -882,27 +906,39 @@ module.exports = (game) => {
 
     if (value === 1) {
       winSum +=
-        state.rate[1] * 5 + state.rate["1-2"] * 2.7 + state.rate["odd"] * 1.85;
+        state.rate[1] * 4.5 +
+        state.rate["1-2"] * 2.5 +
+        state.rate["odd"] * 1.75;
     }
     if (value === 2) {
       winSum +=
-        state.rate[2] * 5 + state.rate["1-2"] * 2.7 + state.rate["even"] * 1.85;
+        state.rate[2] * 4.5 +
+        state.rate["1-2"] * 2.5 +
+        state.rate["even"] * 1.75;
     }
     if (value === 3) {
       winSum +=
-        state.rate[3] * 5 + state.rate["3-4"] * 2.7 + state.rate["odd"] * 1.85;
+        state.rate[3] * 4.5 +
+        state.rate["3-4"] * 2.5 +
+        state.rate["odd"] * 1.75;
     }
     if (value === 4) {
       winSum +=
-        state.rate[4] * 5 + state.rate["3-4"] * 2.7 + state.rate["even"] * 1.85;
+        state.rate[4] * 4.5 +
+        state.rate["3-4"] * 2.5 +
+        state.rate["even"] * 1.75;
     }
     if (value === 5) {
       winSum +=
-        state.rate[5] * 5 + state.rate["5-6"] * 2.7 + state.rate["odd"] * 1.85;
+        state.rate[5] * 4.5 +
+        state.rate["5-6"] * 2.5 +
+        state.rate["odd"] * 1.75;
     }
     if (value === 6) {
       winSum +=
-        state.rate[6] * 5 + state.rate["5-6"] * 2.7 + state.rate["even"] * 1.85;
+        state.rate[6] * 4.5 +
+        state.rate["5-6"] * 2.5 +
+        state.rate["even"] * 1.75;
     }
 
     if (winSum > 0) resMsg = "Поздравляем! Вы выиграли 🎉";

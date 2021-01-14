@@ -21,8 +21,8 @@ module.exports = (state) => {
       ],
       [inlineBtnHook(m, valueRate(-1)), inlineBtnHook(m, `🗑 Очистить ставки`)],
       [
-        inlineBtnHook(m, `Забил  -  💰 ${state.rate["goal"]}  [x1.4]`),
-        inlineBtnHook(m, `Промах  -  💰 ${state.rate["out"]}  [x2.1]`),
+        inlineBtnHook(m, `Забил  -  💰 ${state.rate["goal"]}  [x1.35]`),
+        inlineBtnHook(m, `Промах  -  💰 ${state.rate["out"]}  [x2.05]`),
       ],
       [inlineBtnHook(m, `Ударить по воротам ⚽️`)],
     ])
