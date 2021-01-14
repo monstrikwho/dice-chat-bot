@@ -17,7 +17,7 @@ router.post("/", async (req, res) => {
     const amount = req.body.amount;
 
     await nodeHtmlToImage({
-      output: `./images/${txnId}.png`,
+      output: `../images/${txnId}.png`,
       html: `<html><head>
       <style>
       * {
@@ -93,9 +93,9 @@ router.post("/", async (req, res) => {
     })
       .then(async () => {
         await bot.telegram.sendPhoto("-1001352899773", {
-          source: `./images/${txnId}.png`,
+          source: `../images/${txnId}.png`,
         });
-        fs.unlinkSync(`./images/${txnId}.png`);
+        fs.unlinkSync(`../images/${txnId}.png`);
       })
       .catch(async (err) => {
         console.log(err.message);
