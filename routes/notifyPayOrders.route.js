@@ -4,9 +4,11 @@ const router = Router();
 const { bot } = require("../init/startBot");
 const User = require("../models/user");
 const Order = require("../models/order");
+const Setting = require("../models/setting");
 
 const fs = require("fs");
 const nodeHtmlToImage = require("node-html-to-image");
+const moment = require("moment");
 
 router.post("/", async (req, res) => {
   try {
@@ -100,7 +102,10 @@ async function inCash(txnId, amount, userId) {
     await User.findOne(
       { userId: user.isRef },
       {
-        mainBalance: Math.floor((inviterUser.mainBalance + (amount * percent) / 100) * 100) / 100,
+        mainBalance:
+          Math.floor(
+            (inviterUser.mainBalance + (amount * percent) / 100) * 100
+          ) / 100,
       }
     );
     await bot.telegram.sendMessage(
@@ -108,7 +113,10 @@ async function inCash(txnId, amount, userId) {
       `На ваш баланс было начисленно ${
         (amount * percent) / 100
       }₽ от приглашенного вами реферала.
-Ваш текущий баланс: ${Math.floor((inviterUser.mainBalance + (amount * percent) / 100) * 100) / 100}
+Ваш текущий баланс: ${
+        Math.floor((inviterUser.mainBalance + (amount * percent) / 100) * 100) /
+        100
+      }
 
 Номер платежа: ${txnId}`
     );
@@ -145,62 +153,57 @@ async function inCash(txnId, amount, userId) {
         height: 220px;
       }
 
-      .status {
-        height: 60px;
-        width: 60px;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        position: absolute;
-        left: calc(50% - 30px);
-        top: -30px;
-        font-size: 28px;
-        background-color: #fff;
-        border-radius: 50%;
-        box-shadow: 1px 2px 32px rgba(12, 12, 12, 0.2);
-      }
-
-      .nav {
-        padding-top: 40px;
-        padding-bottom: 20px;
-        font-size: 26px;
-        text-align: center;
-        background-color: #42f581;
+      .card {
+        position: relative;
         border-radius: 10px;
+        box-shadow: 1px 2px 32px rgba(12, 12, 12, 0.2);
+        background-color: #1c1c1e;
+        color: #fff;
       }
-
+      
+      .title {
+        padding: 10px;
+        font-size: 18px;
+        text-align: center;
+        background-color: #2c2c2e;
+        border-radius: 10px 10px 0 0;
+        color: #2dbf65;
+      }
+      
+      .date {
+        padding: 10px;
+        display: flex;
+        justify-content: space-between;
+      }
+      
+      .number-order {
+        padding: 10px;
+        display: flex;
+        justify-content: space-between;
+      }
+      
       .amount {
         padding: 30px 0;
         text-align: center;
         font-size: 32px;
       }
-
-      .desc {
-        padding-right: 15px;
-        padding-bottom: 5px;
-        font-size: 14px;
-        color: #b5acac;
-        text-align: right;
-      }
-
-      .card {
-        position: relative;
-        border-radius: 10px;
-        box-shadow: 1px 2px 32px rgba(12, 12, 12, 0.2);
-      }
     </style>
-    </head><body>
+    </head>
+    <body>
       <div class="card">
-        <div class="status">👌</div>
-        <div class="nav">
-          <div class="title">Пополнение на сумму</div>
-          </div>
-        <div class="amount">${amount} ₽</div>
-        <div class="desc">
-          <div class="number-order">no: ${txnId}</div>
+        <div class="title">Операция проведена успешно</div>
+        <div class="date">
+          <div class="name">Дата</div>
+          <div class="time">${moment().format("HH:mm DD.MM.YYYY")}</div>
         </div>
+        <div class="number-order">
+          <div class="name">Номер транзакции:</div>
+          <div class="no">${txnId}</div>
+        </div>
+        <div class="amount">${amount}P</div>
       </div>
-    </body></html>`,
+    </body>
+    </html>`,
     puppeteerArgs: {
       args: ["--no-sandbox", "--user-data-dir"],
     },
@@ -214,23 +217,22 @@ async function inCash(txnId, amount, userId) {
     .catch(async (err) => {
       console.log(err.message);
     });
+
+  // Сохраняем номер последнего ордера
+  await Setting.updateOne({}, {lastNumberOrder: txnId})
 }
 
 async function outCash(txnId, amount, userId, provider) {
   const user = await User.findOne({ userId });
   if (!user) return;
 
-  let providerTxt = "Перевод на кошелек QIWI";
-
   // Считаем комиссию
   let commission = 0;
   if (provider === 1963 || provider === 21013) {
     commission = 50 + amount * 0.02;
-    providerTxt = "Перевод на карту";
   }
   if (provider === 1960 || provider === 21012) {
     commission = 100 + amount * 0.02;
-    providerTxt = "Перевод на карту";
   }
 
   // Обнавляем баланс в базе данных
@@ -257,40 +259,45 @@ async function outCash(txnId, amount, userId, provider) {
         padding: 0;
         margin: 0;
       }
-      
+
       html {
         width: 400px;
       }
-      
+
       body {
         padding: 10px;
         padding-top: 40px;
         width: 400px;
         height: 220px;
       }
-      
-      .status {
-        height: 60px;
-        width: 60px;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        position: absolute;
-        left: calc(50% - 30px);
-        top: -30px;
-        font-size: 28px;
-        background-color: #fff;
-        border-radius: 50%;
+
+      .card {
+        position: relative;
+        border-radius: 10px;
         box-shadow: 1px 2px 32px rgba(12, 12, 12, 0.2);
+        background-color: #1c1c1e;
+        color: #fff;
       }
       
-      .nav {
-        padding-top: 40px;
-        padding-bottom: 20px;
-        font-size: 26px;
+      .title {
+        padding: 10px;
+        font-size: 18px;
         text-align: center;
-        background-color: #42f581;
-        border-radius: 10px;
+        background-color: #2c2c2e;
+        border-radius: 10px 10px 0 0;
+        color: #2dbf65;
+      }
+      
+      .date {
+        padding: 10px;
+        display: flex;
+        justify-content: space-between;
+      }
+      
+      .number-order {
+        padding: 10px;
+        display: flex;
+        justify-content: space-between;
       }
       
       .amount {
@@ -298,33 +305,23 @@ async function outCash(txnId, amount, userId, provider) {
         text-align: center;
         font-size: 32px;
       }
-      
-      .desc {
-        padding-right: 15px;
-        padding-bottom: 5px;
-        font-size: 14px;
-        color: #b5acac;
-        text-align: right;
-      }
-      
-      .card {
-        position: relative;
-        border-radius: 10px;
-        box-shadow: 1px 2px 32px rgba(12, 12, 12, 0.2);
-      }
     </style>
-    </head><body>
+    </head>
+    <body>
       <div class="card">
-        <div class="status">👌</div>
-        <div class="nav">
-          <div class="title">${providerTxt}</div>
-          </div>
-        <div class="amount">${amount} ₽</div>
-        <div class="desc">
-          <div class="number-order">no: ${txnId}</div>
+        <div class="title">Операция проведена успешно</div>
+        <div class="date">
+          <div class="name">Дата</div>
+          <div class="time">${moment().format("HH:mm DD.MM.YYYY")}</div>
         </div>
+        <div class="number-order">
+          <div class="name">Номер транзакции:</div>
+          <div class="no">${txnId}</div>
+        </div>
+        <div class="amount">${amount}P</div>
       </div>
-    </body></html>`,
+    </body>
+    </html>`,
     puppeteerArgs: {
       args: ["--no-sandbox", "--user-data-dir"],
     },
