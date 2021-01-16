@@ -5,6 +5,7 @@ app.use(express.json());
 app.use("/get_users", require("../routes/getUsers.route"));
 app.use("/get_payments", require("../routes/getPayments.route"));
 app.use("/post_fakeorder", require("../routes/postFakeOrder.route"));
+app.use("/get_blockedusers", require("../routes/blockedUsers.route"));
 
 // РОУТ на обработку платежей
 app.use("/notify_pay_orders", require('../routes/notifyPayOrders.route'));
