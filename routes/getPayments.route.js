@@ -14,25 +14,14 @@ router.get("/", async (req, res) => {
 
     let inAmount = 0;
     let outAmount = 0;
-    let countInAmount = 0;
-    let countOutAmount = 0;
     let balance = await getProfileBalance();
 
     for (let order of orders) {
-      if (order.type === "IN") {
-        inAmount += order.amount;
-        countInAmount++;
-      }
-
-      if (order.type === "OUT") {
-        outAmount += order.amount;
-        countOutAmount++;
-      }
+      if (order.type === "IN") inAmount += order.amount;
+      if (order.type === "OUT") outAmount += order.amount;
     }
 
-    res
-      .status(200)
-      .send({ inAmount, outAmount, countInAmount, countOutAmount, balance });
+    res.status(200).send({ inAmount, outAmount, balance });
   } catch (error) {
     res.status(500).send({ message: "Что-то пошло не так" });
   }
