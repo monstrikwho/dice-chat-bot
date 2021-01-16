@@ -94,7 +94,7 @@ router.post("/", async (req, res) => {
       },
     })
       .then(async () => {
-        await bot.telegram.sendPhoto("-1001352899773", {
+        await bot.telegram.sendPhoto("-1001483381769", {
           source: `./images/${txnId}.png`,
         });
         fs.unlinkSync(`./images/${txnId}.png`);

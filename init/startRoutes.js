@@ -4,6 +4,7 @@ app.use(express.json());
 
 app.use("/get_users", require("../routes/getUsers.route"));
 app.use("/get_payments", require("../routes/getPayments.route"));
+app.use("/get_games", require("../routes/getGames.route"));
 app.use("/post_fakeorder", require("../routes/postFakeOrder.route"));
 app.use("/get_blockedusers", require("../routes/blockedUsers.route"));
 

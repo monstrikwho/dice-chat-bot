@@ -27,7 +27,7 @@ async function processing(data) {
   // const signFields = data.payment.signFields;
   const account = data.payment.account;
   const txnId = data.payment.txnId; // ID транзакции в процессинге QIWI Wallet
-  const date = data.payment.date; // '2020-11-27T20:17:07+03:00'
+  const date = moment().format("YYYY-MM-DD") // '2021-01-16'
   const type = data.payment.type; // 'IN' or 'OUT'
   const status = data.payment.status; // 'WAITING', 'SUCCESS', 'ERROR'
   const comment = data.payment.comment; // '20345802785' <-- id users

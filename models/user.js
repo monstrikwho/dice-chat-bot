@@ -8,10 +8,9 @@ const schema = new mongoose.Schema({
   },
   demoBalance: Double,
   mainBalance: Double,
-  regDate: String,
-  userName: String,
   isBlocked: Boolean,
-  isRef: Number
+  isRef: Number,
+  regDate: String,
 });
 
 module.exports = mongoose.model("Users", schema);
