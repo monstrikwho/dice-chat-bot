@@ -99,7 +99,7 @@ async function inCash(txnId, amount, userId) {
     if (!statusFirstPay) percent = firstPercent;
 
     // Начисляем процент пополениня пригласившему реферала
-    await User.findOne(
+    await User.updateOne(
       { userId: user.isRef },
       {
         $inc: {
