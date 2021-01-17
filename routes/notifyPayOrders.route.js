@@ -248,7 +248,10 @@ async function outCash(txnId, amount, userId, provider) {
   // Обнавляем баланс в базе данных
   await User.updateOne(
     { userId },
-    { mainBalance: user.mainBalance - amount - commission }
+    {
+      mainBalance:
+        Math.floor((user.mainBalance - amount - commission) * 100) / 100,
+    }
   );
 
   // Записываем в общую статистику
@@ -267,7 +270,7 @@ async function outCash(txnId, amount, userId, provider) {
   await bot.telegram.sendMessage(
     userId,
     `С вашего баланса было списано ${amount + commission}₽.
-Ваш текущий баланс: ${user.mainBalance - amount - commission}.
+Ваш текущий баланс: ${Math.floor((user.mainBalance - amount - commission) * 100) / 100}.
 
 Номер платежа: ${txnId}`
   );
