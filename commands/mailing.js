@@ -2,22 +2,18 @@ const Extra = require("telegraf/extra");
 const Markup = require("telegraf/markup");
 
 const User = require("../models/user");
-const Setting = require("../models/setting");
 
 async function setupMailing(bot) {
-  const users = await User.find();
-
-  let arrUsersId = users.map((item) => item.userId);
-
   bot.command("replyMsg", async (ctx) => {
     if (ctx.chat.id === 364984576) {
       const msg = ctx.update.message.text.replace("/replyMsg ", "");
 
+      const users = await User.find({ isBlocked: false });
+      let arrUsersId = users.map((item) => item.userId);
+
       await ctx.reply(
         `Рассылка началась. Пожлауйста подождите, пока она завершится. (Вам придет сообщение.)`
       );
-
-      let countBlocked = 0;
 
       for (let userId of arrUsersId) {
         try {
@@ -26,16 +22,10 @@ async function setupMailing(bot) {
             msg,
             Extra.markup(Markup.keyboard([["/start"]]).resize())
           );
-          await User.updateOne({ userId }, { isBlocked: false });
-        } catch (err) {
-          countBlocked++;
-          await User.updateOne({ userId }, { isBlocked: true });
-        }
+        } catch (err) {}
       }
 
-      await Setting.updateOne({}, { countBlocked });
-
-      return await ctx.reply(`Кол-во заблокировавших бот: ${countBlocked}`);
+      return await ctx.reply(`Рассылка завершена.`);
     }
   });
 }

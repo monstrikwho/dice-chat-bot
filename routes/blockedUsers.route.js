@@ -3,6 +3,7 @@ const router = Router();
 
 const { bot } = require("../init/startBot");
 const Users = require("../models/user");
+const MainStats = require("../models/mainStats");
 
 router.get("/", async (req, res) => {
   try {
@@ -19,6 +20,8 @@ router.get("/", async (req, res) => {
         countBlocked++;
       }
     }
+
+    await MainStats.updateOne({}, { "usersStats.countUsersBlocked": txnId });
 
     res.status(200).send(countBlocked);
   } catch (error) {

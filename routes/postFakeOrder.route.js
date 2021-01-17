@@ -2,21 +2,20 @@ const { Router } = require("express");
 const router = Router();
 
 const { bot } = require("../init/startBot");
-
-const Setting = require("../models/setting");
+const MainStats = require("../models/mainStats");
 
 const fs = require("fs");
-const nodeHtmlToImage = require("node-html-to-image");
 const moment = require("moment");
+const nodeHtmlToImage = require("node-html-to-image");
 
 router.post("/", async (req, res) => {
   try {
-    const setting = await Setting.findOne()
+    const stats = await MainStats.findOne();
 
-    const txnId = setting.lastNumberOrder + 333;
+    const txnId = stats.orderStats.lastNumberOrder + 333;
     const amount = req.body.amount;
 
-    await Setting.updateOne({}, {lastNumberOrder: txnId})
+    await MainStats.updateOne({}, { "orderStats.lastNumberOrder": txnId });
 
     await nodeHtmlToImage({
       output: `./images/${txnId}.png`,

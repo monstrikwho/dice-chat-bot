@@ -3,7 +3,6 @@ const Extra = require("telegraf/extra");
 const Markup = require("telegraf/markup");
 
 const User = require("../models/user");
-const Setting = require("../models/setting");
 const { bot } = require("../init/startBot");
 
 const sendMailing = new Scene("sendMailing");
@@ -20,7 +19,7 @@ sendMailing.on("photo", async (ctx) => {
     ...ctx.session.state,
     photoId,
   };
-  await ctx.reply('Вы успешно прикрепили фото.')
+  await ctx.reply("Вы успешно прикрепили фото.");
 });
 
 sendMailing.on("text", async (ctx) => {
@@ -34,27 +33,19 @@ sendMailing.on("text", async (ctx) => {
     `Рассылка началась. Пожлауйста подождите, пока она завершится. (Вам придет сообщение.)`
   );
 
-  const users = await User.find();
-  let arrUsersId = users.map((item) => item.userId)
-  let countBlocked = 0;
+  const users = await User.find({ isBlocked: false });
+  let arrUsersId = users.map((item) => item.userId);
 
   for (let userId of arrUsersId) {
     try {
       if (ctx.session.state.photoId) {
         await bot.telegram.sendPhoto(userId, ctx.session.state.photoId);
       }
-
       await bot.telegram.sendMessage(userId, msg);
-      await User.updateOne({ userId }, { isBlocked: false });
-    } catch (err) {
-      countBlocked++;
-      await User.updateOne({ userId }, { isBlocked: true });
-    }
+    } catch (err) {}
   }
 
-  await Setting.updateOne({}, { countBlocked });
-
-  await ctx.reply(`Рассылка была завершена. countBlocked: ${countBlocked}`);
+  await ctx.reply(`Рассылка завершена.`);
   await ctx.scene.enter("showMainMenu");
 });
 

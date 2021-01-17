@@ -2,9 +2,12 @@ const { bot } = require("../init/startBot");
 const User = require("../models/user");
 const Extra = require("telegraf/extra");
 
+const moment = require("moment");
 const isNumber = require("is-number");
 
 const extraBoard = require("./slotExtra");
+const MainStats = require("../models/mainStats");
+const InfoGames = require("../models/infoGames");
 
 let message = ({ balance }) => `Делайте ваши ставки.
 Ваш баланс: ${balance} ₽`;
@@ -205,16 +208,13 @@ module.exports = (game) => {
 
     try {
       await ctx.deleteMessage(ctx.session.state.activeBoard.message_id);
-    } catch (error) {
-      console.log(error.message);
-    }
+    } catch (error) {}
 
     const diceMsg = await bot.telegram.sendDice(ctx.from.id, { emoji: "🎰" });
     const value = diceMsg.dice.value;
 
     let winSum = 0;
-    let resMsg =
-      "Вы были близко! Вы были близко! Не сдавайесь, в следующий раз повезет!";
+    let resMsg = "Вы были близко! Не сдавайесь, в следующий раз повезет!";
 
     if (value === 1 || value === 22 || value === 43 || value === 64) {
       winSum += state.rate["jek"] * 12;
@@ -223,18 +223,6 @@ module.exports = (game) => {
 
     ctx.session.state.balance += winSum;
     ctx.session.state.rateMenu = false;
-
-    if (state.activeGame === "mainGame") {
-      await User.updateOne(
-        { userId: ctx.from.id },
-        { mainBalance: Math.floor(ctx.session.state.balance * 100) / 100 }
-      );
-    } else {
-      await User.updateOne(
-        { userId: ctx.from.id },
-        { demoBalance: Math.floor(ctx.session.state.balance * 100) / 100 }
-      );
-    }
 
     setTimeout(async () => {
       ctx.session.state.activeBoard = await ctx.reply(
@@ -256,6 +244,41 @@ module.exports = (game) => {
         )
       );
     }, 1500);
+
+    if (state.activeGame === "mainGame") {
+      await User.updateOne(
+        { userId: ctx.from.id },
+        { mainBalance: Math.floor(ctx.session.state.balance * 100) / 100 }
+      );
+      await MainStats.updateOne(
+        {},
+        {
+          $inc: {
+            "games.slot.countGame": 1,
+            "games.slot.countWinGame": winSum > 0 ? 1 : 0,
+            "games.slot.countAmount": state.rate["jek"],
+          },
+        }
+      );
+    } else {
+      await User.updateOne(
+        { userId: ctx.from.id },
+        { demoBalance: Math.floor(ctx.session.state.balance * 100) / 100 }
+      );
+    }
+
+    const game = new InfoGames({
+      userId: ctx.chat.id,
+      typeGame: "slot",
+      typeBalance: state.activeGame,
+      result: winSum > 0 ? "win" : "lose",
+      rateAmount: state.rate["jek"],
+      rateWinAmount: winSum,
+      rateValue: value,
+      rate: state.rate,
+      date: moment().format("YYYY-MM-DD"),
+    });
+    await game.save();
   });
 
   game.action(/Сделать другую ставку/, async (ctx) => {
@@ -311,8 +334,7 @@ module.exports = (game) => {
     ctx.session.state.rateMenu = false;
 
     let winSum = 0;
-    let resMsg =
-      "Вы были близко! Вы были близко! Не сдавайесь, в следующий раз повезет!";
+    let resMsg = "Вы были близко! Не сдавайесь, в следующий раз повезет!";
 
     if (value === 1 || value === 64 || value === 22 || value === 43) {
       winSum += state.rate["jek"] * 12;
@@ -320,19 +342,6 @@ module.exports = (game) => {
     }
 
     ctx.session.state.balance += winSum;
-
-    if (state.activeGame === "mainGame") {
-      await User.updateOne(
-        { userId: ctx.from.id },
-        { mainBalance: Math.floor(ctx.session.state.balance * 100) / 100 }
-      );
-    }
-    if (state.activeGame === "demoGame") {
-      await User.updateOne(
-        { userId: ctx.from.id },
-        { demoBalance: Math.floor(ctx.session.state.balance * 100) / 100 }
-      );
-    }
 
     setTimeout(async () => {
       ctx.session.state.activeBoard = await ctx.reply(
@@ -354,6 +363,42 @@ module.exports = (game) => {
         )
       );
     }, 1500);
+
+    if (state.activeGame === "mainGame") {
+      await User.updateOne(
+        { userId: ctx.from.id },
+        { mainBalance: Math.floor(ctx.session.state.balance * 100) / 100 }
+      );
+      await MainStats.updateOne(
+        {},
+        {
+          $inc: {
+            "games.slot.countGame": 1,
+            "games.slot.countWinGame": winSum > 0 ? 1 : 0,
+            "games.slot.countAmount": state.rate["jek"],
+          },
+        }
+      );
+    }
+    if (state.activeGame === "demoGame") {
+      await User.updateOne(
+        { userId: ctx.from.id },
+        { demoBalance: Math.floor(ctx.session.state.balance * 100) / 100 }
+      );
+    }
+
+    const game = new InfoGames({
+      userId: ctx.chat.id,
+      typeGame: "slot",
+      typeBalance: state.activeGame,
+      result: winSum > 0 ? "win" : "lose",
+      rateAmount: state.rate["jek"],
+      rateWinAmount: winSum,
+      rateValue: value,
+      rate: state.rate,
+      date: moment().format("YYYY-MM-DD"),
+    });
+    await game.save();
   });
 
   game.on("dice", async (ctx) => {
@@ -387,13 +432,10 @@ module.exports = (game) => {
 
     try {
       await ctx.deleteMessage(ctx.session.state.activeBoard.message_id);
-    } catch (error) {
-      console.log(error.message);
-    }
+    } catch (error) {}
 
     let winSum = 0;
-    let resMsg =
-      "Вы были близко! Вы были близко! Не сдавайесь, в следующий раз повезет!";
+    let resMsg = "Вы были близко! Не сдавайесь, в следующий раз повезет!";
 
     if (value === 1 || value === 22 || value === 43 || value === 64) {
       winSum += state.rate["jek"] * 12;
@@ -401,18 +443,6 @@ module.exports = (game) => {
     }
 
     ctx.session.state.balance += winSum;
-
-    if (state.activeGame === "mainGame") {
-      await User.updateOne(
-        { userId: ctx.from.id },
-        { mainBalance: Math.floor(ctx.session.state.balance * 100) / 100 }
-      );
-    } else {
-      await User.updateOne(
-        { userId: ctx.from.id },
-        { demoBalance: Math.floor(ctx.session.state.balance * 100) / 100 }
-      );
-    }
 
     setTimeout(async () => {
       ctx.session.state.activeBoard = await ctx.reply(
@@ -434,5 +464,40 @@ module.exports = (game) => {
         )
       );
     }, 1500);
+
+    if (state.activeGame === "mainGame") {
+      await User.updateOne(
+        { userId: ctx.from.id },
+        { mainBalance: Math.floor(ctx.session.state.balance * 100) / 100 }
+      );
+      await MainStats.updateOne(
+        {},
+        {
+          $inc: {
+            "games.slot.countGame": 1,
+            "games.slot.countWinGame": winSum > 0 ? 1 : 0,
+            "games.slot.countAmount": state.rate["jek"],
+          },
+        }
+      );
+    } else {
+      await User.updateOne(
+        { userId: ctx.from.id },
+        { demoBalance: Math.floor(ctx.session.state.balance * 100) / 100 }
+      );
+    }
+
+    const game = new InfoGames({
+      userId: ctx.chat.id,
+      typeGame: "slot",
+      typeBalance: state.activeGame,
+      result: winSum > 0 ? "win" : "lose",
+      rateAmount: amountRate,
+      rateWinAmount: winSum,
+      rateValue: value,
+      rate: state.rate,
+      date: moment().format("YYYY-MM-DD"),
+    });
+    await game.save();
   });
 };

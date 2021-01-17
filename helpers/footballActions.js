@@ -2,9 +2,12 @@ const { bot } = require("../init/startBot");
 const User = require("../models/user");
 const Extra = require("telegraf/extra");
 
+const moment = require("moment");
 const isNumber = require("is-number");
 
 const extraBoard = require("./footballExtra");
+const MainStats = require("../models/mainStats");
+const InfoGames = require("../models/infoGames");
 
 let message = ({ balance }) => `Делайте ваши ставки.
 Ваш баланс: ${balance} ₽`;
@@ -234,7 +237,7 @@ module.exports = (game) => {
 
   game.action("Ударить по воротам ⚽️", async (ctx) => {
     const state = ctx.session.state;
-    const sumRate = state.rate["out"] + state.rate["goal"];
+    const amountRate = state.rate["out"] + state.rate["goal"];
 
     if (state.countRate === 0) {
       return ctx.answerCbQuery(
@@ -245,9 +248,7 @@ module.exports = (game) => {
 
     try {
       await ctx.deleteMessage(ctx.session.state.activeBoard.message_id);
-    } catch (error) {
-      console.log(error.message);
-    }
+    } catch (error) {}
 
     const diceMsg = await bot.telegram.sendDice(ctx.from.id, { emoji: "⚽️" });
     const value = diceMsg.dice.value;
@@ -268,23 +269,11 @@ module.exports = (game) => {
     ctx.session.state.balance += winSum;
     ctx.session.state.rateMenu = false;
 
-    if (state.activeGame === "mainGame") {
-      await User.updateOne(
-        { userId: ctx.from.id },
-        { mainBalance: Math.floor(ctx.session.state.balance * 100) / 100 }
-      );
-    } else {
-      await User.updateOne(
-        { userId: ctx.from.id },
-        { demoBalance: Math.floor(ctx.session.state.balance * 100) / 100 }
-      );
-    }
-
     setTimeout(async () => {
       ctx.session.state.activeBoard = await ctx.reply(
         `${resMsg}
         
-  Ваша общая ставка - ${sumRate}
+  Ваша общая ставка - ${amountRate}
   Ваш выигрыш - ${Math.floor(winSum * 100) / 100}
   Ваш баланс - ${Math.floor(ctx.session.state.balance * 100) / 100}`,
         Extra.markup((m) =>
@@ -300,6 +289,41 @@ module.exports = (game) => {
         )
       );
     }, 4000);
+
+    if (state.activeGame === "mainGame") {
+      await User.updateOne(
+        { userId: ctx.from.id },
+        { mainBalance: Math.floor(ctx.session.state.balance * 100) / 100 }
+      );
+      await MainStats.updateOne(
+        {},
+        {
+          $inc: {
+            "games.football.countGame": 1,
+            "games.football.countWinGame": winSum > 0 ? 1 : 0,
+            "games.football.countAmount": amountRate,
+          },
+        }
+      );
+    } else {
+      await User.updateOne(
+        { userId: ctx.from.id },
+        { demoBalance: Math.floor(ctx.session.state.balance * 100) / 100 }
+      );
+    }
+
+    const game = new InfoGames({
+      userId: ctx.chat.id,
+      typeGame: "football",
+      typeBalance: state.activeGame,
+      result: winSum > 0 ? "win" : "lose",
+      rateAmount: amountRate,
+      rateWinAmount: winSum,
+      rateValue: value,
+      rate: state.rate,
+      date: moment().format("YYYY-MM-DD"),
+    });
+    await game.save();
   });
 
   game.action(/Сделать другую ставку/, async (ctx) => {
@@ -308,9 +332,7 @@ module.exports = (game) => {
     // Удаляем сообщение "Сделать еще одну ставку"
     try {
       await ctx.deleteMessage(state.activeBoard.message_id);
-    } catch (error) {
-      console.log(error.message);
-    }
+    } catch (error) {}
 
     const { mainBalance, demoBalance } = await User.findOne({
       userId: ctx.from.id,
@@ -333,9 +355,9 @@ module.exports = (game) => {
 
   game.action(/Ударить еще раз/, async (ctx) => {
     let state = ctx.session.state;
-    const sumRate = state.rate["out"] + state.rate["goal"];
+    const amountRate = state.rate["out"] + state.rate["goal"];
 
-    if (state.balance - sumRate < 0) {
+    if (state.balance - amountRate < 0) {
       return ctx.answerCbQuery(
         "У вас недостаточно средств на счету. Пожалуйста, пополните баланс, либо сделайте ставку меньшим размером.",
         true
@@ -345,14 +367,12 @@ module.exports = (game) => {
     // Удаляем сообщение "Сделать еще одну ставку"
     try {
       await ctx.deleteMessage(state.activeBoard.message_id);
-    } catch (error) {
-      console.log(error.message);
-    }
+    } catch (error) {}
 
     const diceMsg = await bot.telegram.sendDice(ctx.from.id, { emoji: "⚽️" });
     const value = diceMsg.dice.value;
 
-    state.balance -= sumRate;
+    state.balance -= amountRate;
     ctx.session.state = state;
 
     let winSum = 0;
@@ -370,23 +390,11 @@ module.exports = (game) => {
 
     ctx.session.state.balance += winSum;
 
-    if (state.activeGame === "mainGame") {
-      await User.updateOne(
-        { userId: ctx.from.id },
-        { mainBalance: Math.floor(ctx.session.state.balance * 100) / 100 }
-      );
-    } else {
-      await User.updateOne(
-        { userId: ctx.from.id },
-        { demoBalance: Math.floor(ctx.session.state.balance * 100) / 100 }
-      );
-    }
-
     setTimeout(async () => {
       ctx.session.state.activeBoard = await ctx.reply(
         `${resMsg}
         
-  Ваша общая ставка - ${sumRate}
+  Ваша общая ставка - ${amountRate}
   Ваш выигрыш - ${Math.floor(winSum * 100) / 100}
   Ваш баланс - ${Math.floor(ctx.session.state.balance * 100) / 100}`,
         Extra.markup((m) =>
@@ -402,6 +410,41 @@ module.exports = (game) => {
         )
       );
     }, 4000);
+
+    if (state.activeGame === "mainGame") {
+      await User.updateOne(
+        { userId: ctx.from.id },
+        { mainBalance: Math.floor(ctx.session.state.balance * 100) / 100 }
+      );
+      await MainStats.updateOne(
+        {},
+        {
+          $inc: {
+            "games.football.countGame": 1,
+            "games.football.countWinGame": winSum > 0 ? 1 : 0,
+            "games.football.countAmount": amountRate,
+          },
+        }
+      );
+    } else {
+      await User.updateOne(
+        { userId: ctx.from.id },
+        { demoBalance: Math.floor(ctx.session.state.balance * 100) / 100 }
+      );
+    }
+
+    const game = new InfoGames({
+      userId: ctx.chat.id,
+      typeGame: "football",
+      typeBalance: state.activeGame,
+      result: winSum > 0 ? "win" : "lose",
+      rateAmount: amountRate,
+      rateWinAmount: winSum,
+      rateValue: value,
+      rate: state.rate,
+      date: moment().format("YYYY-MM-DD"),
+    });
+    await game.save();
   });
 
   game.on("dice", async (ctx) => {
@@ -435,13 +478,10 @@ module.exports = (game) => {
 
     try {
       await ctx.deleteMessage(ctx.session.state.activeBoard.message_id);
-    } catch (error) {
-      console.log(error.message);
-    }
+    } catch (error) {}
 
     let winSum = 0;
-    let resMsg =
-      "Вы были близко! Вы были близко! Не сдавайесь, в следующий раз повезет!";
+    let resMsg = "Вы были близко! Не сдавайесь, в следующий раз повезет!";
 
     if (value === 3 || value === 4 || value === 5) {
       winSum += state.rate["goal"] * 1.35;
@@ -454,18 +494,6 @@ module.exports = (game) => {
     if (winSum > 0) resMsg = "Поздравляем! Вы выиграли 🎉";
 
     ctx.session.state.balance += winSum;
-
-    if (state.activeGame === "mainGame") {
-      await User.updateOne(
-        { userId: ctx.from.id },
-        { mainBalance: Math.floor(ctx.session.state.balance * 100) / 100 }
-      );
-    } else {
-      await User.updateOne(
-        { userId: ctx.from.id },
-        { demoBalance: Math.floor(ctx.session.state.balance * 100) / 100 }
-      );
-    }
 
     setTimeout(async () => {
       ctx.session.state.activeBoard = await ctx.reply(
@@ -487,5 +515,40 @@ module.exports = (game) => {
         )
       );
     }, 4000);
+
+    if (state.activeGame === "mainGame") {
+      await User.updateOne(
+        { userId: ctx.from.id },
+        { mainBalance: Math.floor(ctx.session.state.balance * 100) / 100 }
+      );
+      await MainStats.updateOne(
+        {},
+        {
+          $inc: {
+            "games.football.countGame": 1,
+            "games.football.countWinGame": winSum > 0 ? 1 : 0,
+            "games.football.countAmount": amountRate,
+          },
+        }
+      );
+    } else {
+      await User.updateOne(
+        { userId: ctx.from.id },
+        { demoBalance: Math.floor(ctx.session.state.balance * 100) / 100 }
+      );
+    }
+
+    const game = new InfoGames({
+      userId: ctx.chat.id,
+      typeGame: "football",
+      typeBalance: state.activeGame,
+      result: winSum > 0 ? "win" : "lose",
+      rateAmount: amountRate,
+      rateWinAmount: winSum,
+      rateValue: value,
+      rate: state.rate,
+      date: moment().format("YYYY-MM-DD"),
+    });
+    await game.save();
   });
 };

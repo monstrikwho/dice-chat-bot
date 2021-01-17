@@ -4,11 +4,11 @@ const router = Router();
 const { bot } = require("../init/startBot");
 const User = require("../models/user");
 const Order = require("../models/order");
-const Setting = require("../models/setting");
+const MainStats = require("../models/mainStats");
 
 const fs = require("fs");
-const nodeHtmlToImage = require("node-html-to-image");
 const moment = require("moment");
+const nodeHtmlToImage = require("node-html-to-image");
 
 router.post("/", async (req, res) => {
   try {
@@ -16,7 +16,6 @@ router.post("/", async (req, res) => {
   } catch (error) {
     console.log("Ошибка в платежах");
   }
-
   res.status(200).end();
 });
 
@@ -27,7 +26,7 @@ async function processing(data) {
   // const signFields = data.payment.signFields;
   const account = data.payment.account;
   const txnId = data.payment.txnId; // ID транзакции в процессинге QIWI Wallet
-  const date = moment().format("YYYY-MM-DD") // '2021-01-16'
+  const date = moment().format("YYYY-MM-DD"); // '2021-01-16'
   const type = data.payment.type; // 'IN' or 'OUT'
   const status = data.payment.status; // 'WAITING', 'SUCCESS', 'ERROR'
   const comment = data.payment.comment; // '20345802785' <-- id users
@@ -79,6 +78,8 @@ async function processing(data) {
   }
 }
 
+//
+
 // ************************ IN ********************************
 
 // CONSTANT
@@ -98,32 +99,40 @@ async function inCash(txnId, amount, userId) {
     if (!statusFirstPay) percent = firstPercent;
 
     // Начисляем процент пополениня пригласившему реферала
-    const inviterUser = await User.findOne({ userId: user.isRef });
     await User.findOne(
       { userId: user.isRef },
       {
-        mainBalance:
-          Math.floor(
-            (inviterUser.mainBalance + (amount * percent) / 100) * 100
-          ) / 100,
+        $inc: {
+          mainBalance: Math.floor(((amount * percent) / 100) * 100) / 100,
+        },
       }
     );
+
+    // Отправляем сообщение пригласившему
     await bot.telegram.sendMessage(
       user.isRef,
       `На ваш баланс было начисленно ${
         (amount * percent) / 100
-      }₽ от приглашенного вами реферала.
-Ваш текущий баланс: ${
-        Math.floor((inviterUser.mainBalance + (amount * percent) / 100) * 100) /
-        100
-      }
-
+      }₽ за приглашенного вами реферала.
 Номер платежа: ${txnId}`
     );
   }
 
+  // Записываем в общую статистику
+  const { usersStats } = await MainStats.findOne();
+  await MainStats.updateOne(
+    {},
+    {
+      $inc: {
+        "orderStats.amountInMoney": amount,
+        "orderStats.countInOrder": 1,
+      },
+      "usersStats.donatedUsers": [...usersStats.donatedUsers, userId],
+    }
+  );
+
   // Начисляем сумму для пользователя
-  await User.updateOne({ userId }, { mainBalance: user.mainBalance + amount });
+  await User.updateOne({ userId }, { $inc: { mainBalance: amount } });
   await bot.telegram.sendMessage(
     userId,
     `На ваш баланс было начисленно ${amount}₽.
@@ -217,10 +226,11 @@ async function inCash(txnId, amount, userId) {
     .catch(async (err) => {
       console.log(err.message);
     });
-
-  // Сохраняем номер последнего ордера
-  await Setting.updateOne({}, {lastNumberOrder: txnId})
 }
+
+//
+
+// ***************************** OUT ***************************************
 
 async function outCash(txnId, amount, userId, provider) {
   const user = await User.findOne({ userId });
@@ -239,6 +249,18 @@ async function outCash(txnId, amount, userId, provider) {
   await User.updateOne(
     { userId },
     { mainBalance: user.mainBalance - amount - commission }
+  );
+
+  // Записываем в общую статистику
+  await MainStats.updateOne(
+    {},
+    {
+      $inc: {
+        "orderStats.amountOutMoney": amount + commission,
+        "orderStats.countOutOrder": 1,
+      },
+      lastNumberOrder: txnId,
+    }
   );
 
   // Отправляем юзеру, что платеж был обработан

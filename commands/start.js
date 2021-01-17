@@ -1,7 +1,7 @@
 const setupScenes = require("../scens/setupScenes");
 const moment = require("moment");
 const User = require("../models/user");
-const Setting = require("../models/setting");
+const MainStats = require("../models/mainStats");
 
 function setupStart(bot) {
   // Setup scens
@@ -12,13 +12,12 @@ function setupStart(bot) {
     if (+ctx.chat.id < 0) return; // Откидываем возможность запуска бота в пабликах
 
     try {
-      // Сохраняем статистику рекламы
       const startPayload = ctx.startPayload;
 
-      let isRef = 1; // number or 1
-      let isAds = null;
+      let isRef = 1; // id or 1
       let bouns = 0;
 
+      // Определяем тип ссылки
       let payloadType =
         startPayload.indexOf("ref") !== -1
           ? "ref"
@@ -26,6 +25,7 @@ function setupStart(bot) {
           ? "ads"
           : "other";
 
+      // Если переход был по реф. ссылке
       if (payloadType !== "other") {
         if (payloadType === "ref") {
           const refUserId = startPayload.replace("ref", "");
@@ -35,13 +35,30 @@ function setupStart(bot) {
               isRef = refUserId;
               bouns = 10000;
             }
-          } catch (error) {
-            console.log(error.message);
-          }
+            await MainStats.updateOne(
+              {},
+              { $inc: { "usersStats.countRefUsers": 1 } }
+            );
+          } catch (error) {}
         }
 
+        // Записываем статистику рекламы
         if (payloadType === "ads") {
-          isAds = true;
+          const { ads } = await MainStats.findOne({});
+          const adsName = startPayload.replace("ads", "");
+          if (ads[adsName]) {
+            await MainStats.updateOne(
+              {},
+              {
+                ads: {
+                  ...ads,
+                  [adsName]: ads[adsName] + 1,
+                },
+              }
+            );
+          } else {
+            await MainStats.updateOne({}, { ads: { ...ads, [adsName]: 1 } });
+          }
         }
       }
 
@@ -50,14 +67,18 @@ function setupStart(bot) {
         try {
           const user = new User({
             userId: ctx.from.id,
-            userName: ctx.from.username,
             demoBalance: 2000 + bouns,
             mainBalance: 0,
-            regDate: moment().format("DD, MM, YYYY, hh:mm:ss"),
             isBlocked: false,
             isRef,
+            regDate: moment().format("YYYY-MM-DD"),
           });
           await user.save();
+          
+          await MainStats.updateOne(
+            {},
+            { $inc: { "usersStats.countUsers": 1 } }
+          );
         } catch (error) {
           console.log(error.message);
         }
