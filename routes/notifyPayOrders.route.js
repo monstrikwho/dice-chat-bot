@@ -49,7 +49,7 @@ async function processing(data) {
     try {
       return await bot.telegram.sendMessage(
         comment,
-        `Платеж не был завершен. Пожалуйста, свяжитесь с поддержкой, для уточнения статуса операции. 
+        `Платеж №${txnId} не был завершен. Пожалуйста, свяжитесь с поддержкой, для уточнения статуса операции. 
 Поддержка: @LuckyCatGames`
       );
     } catch (error) {
@@ -61,7 +61,7 @@ async function processing(data) {
     try {
       return await bot.telegram.sendMessage(
         comment,
-        `Ваш платеж принят на обработку. Пожалуйста подождите.`
+        `Ваш платеж №${txnId} принят на обработку. Пожалуйста подождите.`
       );
     } catch (error) {
       return console.log("Ошибка в платежах, waiting");
