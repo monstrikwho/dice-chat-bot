@@ -5,9 +5,9 @@ const User = require("../models/user");
 const Order = require("../models/order");
 const moment = require("moment");
 
-router.get("/", async (req, res) => {
+router.get("/:date", async (req, res) => {
   try {
-    const users = await User.find({ regDate: moment().format("YYYY-MM-DD") });
+    const users = await User.find({ regDate: req.params.date });
 
     let newUsers = 0;
     let refUsers = 0;
@@ -19,12 +19,12 @@ router.get("/", async (req, res) => {
       newUsers++;
 
       // Записывем новых рефералов
-      if (user.isRef !== 1) allRefUsers++;
+      if (user.isRef !== 1) refUsers++;
 
       // Записываем донатеров из новых юзеров
       const orderFlag = await Order.find({ comment: user.userId });
       if (orderFlag.length !== 0) donateUsers++;
-      
+
       // Записываем активных юзеров (не заблоченых)
       if (!user.isBlocked) activeUsers++;
     }

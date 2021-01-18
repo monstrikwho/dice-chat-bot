@@ -262,7 +262,7 @@ async function outCash(txnId, amount, userId, provider) {
         "orderStats.amountOutMoney": amount + commission,
         "orderStats.countOutOrder": 1,
       },
-      lastNumberOrder: txnId,
+      'orderStats.lastNumberOrder': txnId,
     }
   );
 

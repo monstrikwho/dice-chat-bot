@@ -4,24 +4,33 @@ const router = Router();
 const Order = require("../models/order");
 const moment = require("moment");
 const { getProfileBalance } = require("../helpers/qiwiMethods");
+const { get } = require("./getUsers.route");
 
-router.get("/", async (req, res) => {
+router.get("/:date", async (req, res) => {
   try {
     const orders = await Order.find({
-      date: moment().format("YYYY-MM-DD"),
+      date: req.params.date,
       status: "SUCCESS",
     });
 
     let inAmount = 0;
     let outAmount = 0;
+    let countIn = 0;
+    let countOut = 0;
     let balance = await getProfileBalance();
 
     for (let order of orders) {
-      if (order.type === "IN") inAmount += order.amount;
-      if (order.type === "OUT") outAmount += order.amount;
+      if (order.type === "IN") {
+        inAmount += order.amount;
+        countIn++;
+      }
+      if (order.type === "OUT") {
+        outAmount += order.amount;
+        countOut++;
+      }
     }
 
-    res.status(200).send({ inAmount, outAmount, balance });
+    res.status(200).send({ inAmount, outAmount, countIn, countOut, balance });
   } catch (error) {
     res.status(500).send({ message: "Что-то пошло не так" });
   }

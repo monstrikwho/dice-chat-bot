@@ -21,7 +21,7 @@ router.get("/", async (req, res) => {
       }
     }
 
-    await MainStats.updateOne({}, { "usersStats.countUsersBlocked": txnId });
+    await MainStats.updateOne({}, { "usersStats.countUsersBlocked": countBlocked });
 
     res.status(200).send(countBlocked);
   } catch (error) {
