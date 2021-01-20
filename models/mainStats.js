@@ -26,29 +26,25 @@ module.exports = model("MainStats", schema);
 //     countUsersBlocked: Number,
 //     countRefUsers: Number,
 //     donatedUsers: Array,
-//     countMainBalanceUsers: Number,
 //   },
 //   games: {
 //     slot: {
-//       rate: Object,  -- none
-//       value: Object,  -- none
 //       countGame: Number,
 //       countWinGame: Number,
 //       countAmount: Number,
+//       countWinAmount: Number
 //     },
 //     dice: {
-//       rate: Object,  -- none
-//       value: Object  -- none
 //       countGame: Number,
 //       countWinGame: Number,
 //       countAmount: Number,
+//       countWinAmount: Number
 //     },
 //     football: {
-//       rate: Object,  -- none
-//       value: Object  -- none
 //       countGame: Number,
 //       countWinGame: Number,
 //       countAmount: Number,
+//       countWinAmount: Number
 //     }
 //   }
 // }

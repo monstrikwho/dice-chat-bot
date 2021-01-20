@@ -2,6 +2,7 @@ const { bot } = require("../init/startBot");
 const User = require("../models/user");
 const Extra = require("telegraf/extra");
 
+const axios = require("axios");
 const moment = require("moment");
 const isNumber = require("is-number");
 
@@ -295,35 +296,32 @@ module.exports = (game) => {
         { userId: ctx.from.id },
         { mainBalance: Math.floor(ctx.session.state.balance * 100) / 100 }
       );
-      await MainStats.updateOne(
-        {},
-        {
-          $inc: {
-            "games.football.countGame": 1,
-            "games.football.countWinGame": winSum > 0 ? 1 : 0,
-            "games.football.countAmount": amountRate,
-          },
-        }
-      );
-    } else {
+    }
+    if (state.activeGame === "demoGame") {
       await User.updateOne(
         { userId: ctx.from.id },
         { demoBalance: Math.floor(ctx.session.state.balance * 100) / 100 }
       );
     }
 
-    const game = new InfoGames({
-      userId: ctx.chat.id,
-      typeGame: "football",
-      typeBalance: state.activeGame,
-      result: winSum > 0 ? "win" : "lose",
-      rateAmount: amountRate,
-      rateWinAmount: winSum,
-      rateValue: value,
-      rate: state.rate,
-      date: moment().format("YYYY-MM-DD"),
-    });
-    await game.save();
+    // Send stats
+    await axios
+      .post("https://dice-bots.ru/api/post_stats", {
+        type: "games",
+        data: {
+          typeGame: "football",
+          typeBalance: state.activeGame,
+          result: winSum > 0 ? "win" : "lose",
+          rateAmount: amountRate,
+          rateWinAmount: winSum,
+          rateValue: value,
+          rate: state.rate,
+          userId: ctx.chat.id,
+          date: moment().format("YYYY-MM-DD"),
+        },
+      })
+      .then((res) => console.log(res))
+      .catch((e) => console.log(e));
   });
 
   game.action(/Сделать другую ставку/, async (ctx) => {
@@ -416,35 +414,32 @@ module.exports = (game) => {
         { userId: ctx.from.id },
         { mainBalance: Math.floor(ctx.session.state.balance * 100) / 100 }
       );
-      await MainStats.updateOne(
-        {},
-        {
-          $inc: {
-            "games.football.countGame": 1,
-            "games.football.countWinGame": winSum > 0 ? 1 : 0,
-            "games.football.countAmount": amountRate,
-          },
-        }
-      );
-    } else {
+    }
+    if (state.activeGame === "demoGame") {
       await User.updateOne(
         { userId: ctx.from.id },
         { demoBalance: Math.floor(ctx.session.state.balance * 100) / 100 }
       );
     }
 
-    const game = new InfoGames({
-      userId: ctx.chat.id,
-      typeGame: "football",
-      typeBalance: state.activeGame,
-      result: winSum > 0 ? "win" : "lose",
-      rateAmount: amountRate,
-      rateWinAmount: winSum,
-      rateValue: value,
-      rate: state.rate,
-      date: moment().format("YYYY-MM-DD"),
-    });
-    await game.save();
+    // Send stats
+    await axios
+      .post("https://dice-bots.ru/api/post_stats", {
+        type: "games",
+        data: {
+          typeGame: "football",
+          typeBalance: state.activeGame,
+          result: winSum > 0 ? "win" : "lose",
+          rateAmount: amountRate,
+          rateWinAmount: winSum,
+          rateValue: value,
+          rate: state.rate,
+          userId: ctx.chat.id,
+          date: moment().format("YYYY-MM-DD"),
+        },
+      })
+      .then((res) => console.log(res))
+      .catch((e) => console.log(e));
   });
 
   game.on("dice", async (ctx) => {
@@ -521,34 +516,31 @@ module.exports = (game) => {
         { userId: ctx.from.id },
         { mainBalance: Math.floor(ctx.session.state.balance * 100) / 100 }
       );
-      await MainStats.updateOne(
-        {},
-        {
-          $inc: {
-            "games.football.countGame": 1,
-            "games.football.countWinGame": winSum > 0 ? 1 : 0,
-            "games.football.countAmount": amountRate,
-          },
-        }
-      );
-    } else {
+    }
+    if (state.activeGame === "demoGame") {
       await User.updateOne(
         { userId: ctx.from.id },
         { demoBalance: Math.floor(ctx.session.state.balance * 100) / 100 }
       );
     }
 
-    const game = new InfoGames({
-      userId: ctx.chat.id,
-      typeGame: "football",
-      typeBalance: state.activeGame,
-      result: winSum > 0 ? "win" : "lose",
-      rateAmount: amountRate,
-      rateWinAmount: winSum,
-      rateValue: value,
-      rate: state.rate,
-      date: moment().format("YYYY-MM-DD"),
-    });
-    await game.save();
+    // Send stats
+    await axios
+      .post("https://dice-bots.ru/api/post_stats", {
+        type: "games",
+        data: {
+          typeGame: "football",
+          typeBalance: state.activeGame,
+          result: winSum > 0 ? "win" : "lose",
+          rateAmount: amountRate,
+          rateWinAmount: winSum,
+          rateValue: value,
+          rate: state.rate,
+          userId: ctx.chat.id,
+          date: moment().format("YYYY-MM-DD"),
+        },
+      })
+      .then((res) => console.log(res))
+      .catch((e) => console.log(e));
   });
 };

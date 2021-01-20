@@ -4,9 +4,9 @@ const router = Router();
 const { bot } = require("../init/startBot");
 const User = require("../models/user");
 const Order = require("../models/order");
-const MainStats = require("../models/mainStats");
 
 const fs = require("fs");
+const axios = require("axios");
 const moment = require("moment");
 const nodeHtmlToImage = require("node-html-to-image");
 
@@ -118,19 +118,6 @@ async function inCash(txnId, amount, userId) {
     );
   }
 
-  // Записываем в общую статистику
-  const { usersStats } = await MainStats.findOne();
-  await MainStats.updateOne(
-    {},
-    {
-      $inc: {
-        "orderStats.amountInMoney": amount,
-        "orderStats.countInOrder": 1,
-      },
-      "usersStats.donatedUsers": [...usersStats.donatedUsers, userId],
-    }
-  );
-
   // Начисляем сумму для пользователя
   await User.updateOne({ userId }, { $inc: { mainBalance: amount } });
   await bot.telegram.sendMessage(
@@ -140,6 +127,20 @@ async function inCash(txnId, amount, userId) {
 
 Номер платежа: ${txnId}`
   );
+
+  // Send stats
+  await axios
+    .post("https://dice-bots.ru/api/post_stats", {
+      type: "payments",
+      data: {
+        amount,
+        typeOrder: "IN",
+        txnId,
+        date: moment().format("YYYY-MM-DD"),
+      },
+    })
+    .then((res) => console.log(res))
+    .catch((e) => console.log(e));
 
   // Отпарвляем photo ордерa в паблик
   await nodeHtmlToImage({
@@ -254,26 +255,30 @@ async function outCash(txnId, amount, userId, provider) {
     }
   );
 
-  // Записываем в общую статистику
-  await MainStats.updateOne(
-    {},
-    {
-      $inc: {
-        "orderStats.amountOutMoney": amount + commission,
-        "orderStats.countOutOrder": 1,
-      },
-      'orderStats.lastNumberOrder': txnId,
-    }
-  );
-
   // Отправляем юзеру, что платеж был обработан
   await bot.telegram.sendMessage(
     userId,
     `С вашего баланса было списано ${amount + commission}₽.
-Ваш текущий баланс: ${Math.floor((user.mainBalance - amount - commission) * 100) / 100}.
+Ваш текущий баланс: ${
+      Math.floor((user.mainBalance - amount - commission) * 100) / 100
+    }.
 
 Номер платежа: ${txnId}`
   );
+
+  // Send stats
+  await axios
+    .post("https://dice-bots.ru/api/post_stats", {
+      type: "payments",
+      data: {
+        amount: amount + commission,
+        typeOrder: "OUT",
+        txnId,
+        date: moment().format("YYYY-MM-DD"),
+      },
+    })
+    .then((res) => console.log(res))
+    .catch((e) => console.log(e));
 
   // Отпарвляем photo ордерa в паблик
   await nodeHtmlToImage({

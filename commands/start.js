@@ -1,7 +1,10 @@
 const setupScenes = require("../scens/setupScenes");
+
 const moment = require("moment");
+
 const User = require("../models/user");
 const MainStats = require("../models/mainStats");
+const DayStats = require("../models/dayStats");
 
 function setupStart(bot) {
   // Setup scens
@@ -35,9 +38,15 @@ function setupStart(bot) {
               isRef = refUserId;
               bouns = 10000;
             }
+            
             await MainStats.updateOne(
               {},
               { $inc: { "usersStats.countRefUsers": 1 } }
+            );
+
+            await DayStats.updateOne(
+              { date: moment().format("YYYY-MM-DD") },
+              { $inc: { "users.refUsers": 1 } }
             );
           } catch (error) {}
         }
@@ -51,8 +60,9 @@ function setupStart(bot) {
               {},
               {
                 ads: {
-                  ...ads,
-                  [adsName]: ads[adsName] + 1,
+                  $inc: {
+                    [adsName]: 1,
+                  },
                 },
               }
             );
@@ -71,17 +81,19 @@ function setupStart(bot) {
             mainBalance: 0,
             isBlocked: false,
             isRef,
+            amountRefCash: 0,
             regDate: moment().format("YYYY-MM-DD"),
           });
           await user.save();
-          
-          await MainStats.updateOne(
-            {},
-            { $inc: { "usersStats.countUsers": 1 } }
-          );
-        } catch (error) {
-          console.log(error.message);
-        }
+
+          // Send stats
+          await axios
+            .post("https://dice-bots.ru/api/post_stats", {
+              type: "users",
+            })
+            .then((res) => console.log(res))
+            .catch((e) => console.log(e));
+        } catch (error) {}
       } else {
         await User.findOne({ userId: ctx.from.id }, { isBlocked: false });
         return await ctx.scene.enter("showMainMenu");
@@ -100,5 +112,4 @@ function setupStart(bot) {
   });
 }
 
-// Exports
 module.exports = setupStart;

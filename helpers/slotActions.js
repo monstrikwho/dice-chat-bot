@@ -2,6 +2,7 @@ const { bot } = require("../init/startBot");
 const User = require("../models/user");
 const Extra = require("telegraf/extra");
 
+const axios = require("axios");
 const moment = require("moment");
 const isNumber = require("is-number");
 
@@ -198,6 +199,7 @@ module.exports = (game) => {
 
   game.action("Крутить барабан 🎰", async (ctx) => {
     const state = ctx.session.state;
+    const amountRate = state.rate["jek"];
 
     if (state.countRate === 0) {
       return ctx.answerCbQuery(
@@ -217,7 +219,7 @@ module.exports = (game) => {
     let resMsg = "Вы были близко! Не сдавайесь, в следующий раз повезет!";
 
     if (value === 1 || value === 22 || value === 43 || value === 64) {
-      winSum += state.rate["jek"] * 12;
+      winSum += amountRate * 12;
       resMsg = "Поздравляем! Вы выиграли 🎉";
     }
 
@@ -228,7 +230,7 @@ module.exports = (game) => {
       ctx.session.state.activeBoard = await ctx.reply(
         `${resMsg}
         
-  Ваша ставка - ${state.rate["jek"]}
+  Ваша ставка - ${amountRate}
   Ваш выигрыш - ${Math.floor(winSum * 100) / 100}
   Ваш баланс - ${Math.floor(ctx.session.state.balance * 100) / 100}`,
         Extra.markup((m) =>
@@ -250,35 +252,32 @@ module.exports = (game) => {
         { userId: ctx.from.id },
         { mainBalance: Math.floor(ctx.session.state.balance * 100) / 100 }
       );
-      await MainStats.updateOne(
-        {},
-        {
-          $inc: {
-            "games.slot.countGame": 1,
-            "games.slot.countWinGame": winSum > 0 ? 1 : 0,
-            "games.slot.countAmount": state.rate["jek"],
-          },
-        }
-      );
-    } else {
+    }
+    if (state.activeGame === "demoGame") {
       await User.updateOne(
         { userId: ctx.from.id },
         { demoBalance: Math.floor(ctx.session.state.balance * 100) / 100 }
       );
     }
 
-    const game = new InfoGames({
-      userId: ctx.chat.id,
-      typeGame: "slot",
-      typeBalance: state.activeGame,
-      result: winSum > 0 ? "win" : "lose",
-      rateAmount: state.rate["jek"],
-      rateWinAmount: winSum,
-      rateValue: value,
-      rate: state.rate,
-      date: moment().format("YYYY-MM-DD"),
-    });
-    await game.save();
+    // Send stats
+    await axios
+      .post("https://dice-bots.ru/api/post_stats", {
+        type: "games",
+        data: {
+          typeGame: "slot",
+          typeBalance: state.activeGame,
+          result: winSum > 0 ? "win" : "lose",
+          rateAmount: amountRate,
+          rateWinAmount: winSum,
+          rateValue: value,
+          rate: state.rate,
+          userId: ctx.chat.id,
+          date: moment().format("YYYY-MM-DD"),
+        },
+      })
+      .then((res) => console.log(res))
+      .catch((e) => console.log(e));
   });
 
   game.action(/Сделать другую ставку/, async (ctx) => {
@@ -311,9 +310,9 @@ module.exports = (game) => {
 
   game.action(/Крутить еще раз/, async (ctx) => {
     let state = ctx.session.state;
-    const countRate = state.rate["jek"];
+    const amountRate = state.rate["jek"];
 
-    if (state.balance - countRate < 0) {
+    if (state.balance - amountRate < 0) {
       return ctx.answerCbQuery(
         "У вас недостаточно средств на счету. Пожалуйста, пополните баланс, либо сделайте ставку меньшим размером.",
         true
@@ -322,14 +321,12 @@ module.exports = (game) => {
 
     try {
       await ctx.deleteMessage(ctx.session.state.activeBoard.message_id);
-    } catch (error) {
-      console.log(error.message);
-    }
+    } catch (error) {}
 
     const diceMsg = await bot.telegram.sendDice(ctx.from.id, { emoji: "🎰" });
     const value = diceMsg.dice.value;
 
-    state.balance -= state.rate["jek"];
+    state.balance -= amountRate;
     ctx.session.state = state;
     ctx.session.state.rateMenu = false;
 
@@ -337,7 +334,7 @@ module.exports = (game) => {
     let resMsg = "Вы были близко! Не сдавайесь, в следующий раз повезет!";
 
     if (value === 1 || value === 64 || value === 22 || value === 43) {
-      winSum += state.rate["jek"] * 12;
+      winSum += amountRate * 12;
       resMsg = "Поздравляем! Вы выиграли 🎉";
     }
 
@@ -347,7 +344,7 @@ module.exports = (game) => {
       ctx.session.state.activeBoard = await ctx.reply(
         `${resMsg}
         
-  Ваша ставка - ${state.rate["jek"]}
+  Ваша ставка - ${amountRate}
   Ваш выигрыш - ${Math.floor(winSum * 100) / 100}
   Ваш баланс - ${Math.floor(ctx.session.state.balance * 100) / 100}`,
         Extra.markup((m) =>
@@ -369,16 +366,6 @@ module.exports = (game) => {
         { userId: ctx.from.id },
         { mainBalance: Math.floor(ctx.session.state.balance * 100) / 100 }
       );
-      await MainStats.updateOne(
-        {},
-        {
-          $inc: {
-            "games.slot.countGame": 1,
-            "games.slot.countWinGame": winSum > 0 ? 1 : 0,
-            "games.slot.countAmount": state.rate["jek"],
-          },
-        }
-      );
     }
     if (state.activeGame === "demoGame") {
       await User.updateOne(
@@ -387,18 +374,24 @@ module.exports = (game) => {
       );
     }
 
-    const game = new InfoGames({
-      userId: ctx.chat.id,
-      typeGame: "slot",
-      typeBalance: state.activeGame,
-      result: winSum > 0 ? "win" : "lose",
-      rateAmount: state.rate["jek"],
-      rateWinAmount: winSum,
-      rateValue: value,
-      rate: state.rate,
-      date: moment().format("YYYY-MM-DD"),
-    });
-    await game.save();
+    // Send stats
+    await axios
+      .post("https://dice-bots.ru/api/post_stats", {
+        type: "games",
+        data: {
+          typeGame: "slot",
+          typeBalance: state.activeGame,
+          result: winSum > 0 ? "win" : "lose",
+          rateAmount: amountRate,
+          rateWinAmount: winSum,
+          rateValue: value,
+          rate: state.rate,
+          userId: ctx.chat.id,
+          date: moment().format("YYYY-MM-DD"),
+        },
+      })
+      .then((res) => console.log(res))
+      .catch((e) => console.log(e));
   });
 
   game.on("dice", async (ctx) => {
@@ -470,34 +463,31 @@ module.exports = (game) => {
         { userId: ctx.from.id },
         { mainBalance: Math.floor(ctx.session.state.balance * 100) / 100 }
       );
-      await MainStats.updateOne(
-        {},
-        {
-          $inc: {
-            "games.slot.countGame": 1,
-            "games.slot.countWinGame": winSum > 0 ? 1 : 0,
-            "games.slot.countAmount": state.rate["jek"],
-          },
-        }
-      );
-    } else {
+    }
+    if (state.activeGame === "demoGame") {
       await User.updateOne(
         { userId: ctx.from.id },
         { demoBalance: Math.floor(ctx.session.state.balance * 100) / 100 }
       );
     }
 
-    const game = new InfoGames({
-      userId: ctx.chat.id,
-      typeGame: "slot",
-      typeBalance: state.activeGame,
-      result: winSum > 0 ? "win" : "lose",
-      rateAmount: amountRate,
-      rateWinAmount: winSum,
-      rateValue: value,
-      rate: state.rate,
-      date: moment().format("YYYY-MM-DD"),
-    });
-    await game.save();
+    // Send stats
+    await axios
+      .post("https://dice-bots.ru/api/post_stats", {
+        type: "games",
+        data: {
+          typeGame: "slot",
+          typeBalance: state.activeGame,
+          result: winSum > 0 ? "win" : "lose",
+          rateAmount: amountRate,
+          rateWinAmount: winSum,
+          rateValue: value,
+          rate: state.rate,
+          userId: ctx.chat.id,
+          date: moment().format("YYYY-MM-DD"),
+        },
+      })
+      .then((res) => console.log(res))
+      .catch((e) => console.log(e));
   });
 };
