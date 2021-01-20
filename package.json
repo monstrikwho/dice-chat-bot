@@ -1,6 +1,7 @@
 {
   "name": "lucky_cat_bot",
   "version": "1.0.0",
+  "proxy": "http://localhost:3000/",
   "description": "",
   "main": "app.js",
   "scripts": {
