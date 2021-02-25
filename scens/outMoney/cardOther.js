@@ -32,9 +32,7 @@ outCardOther.on("text", async (ctx) => {
     };
     try {
       await ctx.deleteMessage(ctx.session.state.activeMsg.message_id);
-    } catch (error) {
-      console.log(error.message);
-    }
+    } catch (error) {}
 
     await ctx.scene.enter("lkMenu");
 

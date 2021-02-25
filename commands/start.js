@@ -10,6 +10,32 @@ function setupStart(bot) {
   // Setup scens
   setupScenes(bot);
 
+  async function saveRefStats() {
+    await MainStats.updateOne({}, { $inc: { "usersStats.countRefUsers": 1 } });
+
+    await DayStats.updateOne(
+      { date: moment().format("YYYY-MM-DD") },
+      { $inc: { "users.refUsers": 1 } }
+    );
+  }
+
+  async function saveAdsStats(ads, adsName) {
+    if (ads[adsName]) {
+      await MainStats.updateOne(
+        {},
+        {
+          ads: {
+            $inc: {
+              [adsName]: 1,
+            },
+          },
+        }
+      );
+    } else {
+      await MainStats.updateOne({}, { ads: { ...ads, [adsName]: 1 } });
+    }
+  }
+
   // Start command
   bot.start(async (ctx) => {
     if (+ctx.chat.id < 0) return; // Откидываем возможность запуска бота в пабликах
@@ -38,16 +64,8 @@ function setupStart(bot) {
               isRef = refUserId;
               bouns = 10000;
             }
-            
-            await MainStats.updateOne(
-              {},
-              { $inc: { "usersStats.countRefUsers": 1 } }
-            );
-
-            await DayStats.updateOne(
-              { date: moment().format("YYYY-MM-DD") },
-              { $inc: { "users.refUsers": 1 } }
-            );
+            // Save ref stats
+            saveRefStats();
           } catch (error) {}
         }
 
@@ -55,20 +73,8 @@ function setupStart(bot) {
         if (payloadType === "ads") {
           const { ads } = await MainStats.findOne({});
           const adsName = startPayload.replace("ads", "");
-          if (ads[adsName]) {
-            await MainStats.updateOne(
-              {},
-              {
-                ads: {
-                  $inc: {
-                    [adsName]: 1,
-                  },
-                },
-              }
-            );
-          } else {
-            await MainStats.updateOne({}, { ads: { ...ads, [adsName]: 1 } });
-          }
+          // Save ads stats
+          saveAdsStats(ads, adsName);
         }
       }
 
@@ -90,8 +96,10 @@ function setupStart(bot) {
           await axios
             .post("https://dice-bots.ru/api/post_stats", {
               type: "users",
+              data: {
+                date: moment().format("YYYY-MM-DD"),
+              },
             })
-            .then((res) => console.log(res))
             .catch((e) => console.log(e));
         } catch (error) {}
       } else {
