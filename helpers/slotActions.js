@@ -2,13 +2,9 @@ const { bot } = require("../init/startBot");
 const User = require("../models/user");
 const Extra = require("telegraf/extra");
 
-const axios = require("axios");
-const moment = require("moment");
 const isNumber = require("is-number");
 
 const extraBoard = require("./slotExtra");
-const MainStats = require("../models/mainStats");
-const InfoGames = require("../models/infoGames");
 
 let message = ({ balance }) => `Делайте ваши ставки.
 Ваш баланс: ${balance} ₽`;
@@ -42,9 +38,7 @@ module.exports = (game) => {
         message(state),
         extraBoard(state)
       );
-    } catch (error) {
-      console.log(error.message);
-    }
+    } catch (error) {}
   });
 
   game.action(/Поставить/, async (ctx) => {
@@ -80,9 +74,7 @@ module.exports = (game) => {
         message(state),
         extraBoard(state)
       );
-    } catch (error) {
-      console.log(error.message);
-    }
+    } catch (error) {}
   });
 
   game.action(/(?:10₽|50₽|100₽|500₽|1000₽)/, async (ctx) => {
@@ -108,9 +100,7 @@ module.exports = (game) => {
         message(state),
         extraBoard(state)
       );
-    } catch (error) {
-      console.log(error.message);
-    }
+    } catch (error) {}
   });
 
   game.action(/Другая сумма/, async (ctx) => {
@@ -144,9 +134,7 @@ module.exports = (game) => {
         message(state),
         extraBoard(state)
       );
-    } catch (error) {
-      console.log(error.message);
-    }
+    } catch (error) {}
   });
 
   game.on("text", async (ctx) => {
@@ -192,9 +180,7 @@ module.exports = (game) => {
         message(state),
         extraBoard(state)
       );
-    } catch (error) {
-      console.log(error.message);
-    }
+    } catch (error) {}
   });
 
   game.action("Крутить барабан 🎰", async (ctx) => {
@@ -259,25 +245,6 @@ module.exports = (game) => {
         { demoBalance: Math.floor(ctx.session.state.balance * 100) / 100 }
       );
     }
-
-    // Send stats
-    await axios
-      .post("https://dice-bots.ru/api/post_stats", {
-        type: "games",
-        data: {
-          typeGame: "slot",
-          typeBalance: state.activeGame,
-          result: winSum > 0 ? "win" : "lose",
-          rateAmount: amountRate,
-          rateWinAmount: winSum,
-          rateValue: value,
-          rate: state.rate,
-          userId: ctx.chat.id,
-          date: moment().format("YYYY-MM-DD"),
-        },
-      })
-      .then((res) => console.log(res))
-      .catch((e) => console.log(e));
   });
 
   game.action(/Сделать другую ставку/, async (ctx) => {
@@ -373,25 +340,6 @@ module.exports = (game) => {
         { demoBalance: Math.floor(ctx.session.state.balance * 100) / 100 }
       );
     }
-
-    // Send stats
-    await axios
-      .post("https://dice-bots.ru/api/post_stats", {
-        type: "games",
-        data: {
-          typeGame: "slot",
-          typeBalance: state.activeGame,
-          result: winSum > 0 ? "win" : "lose",
-          rateAmount: amountRate,
-          rateWinAmount: winSum,
-          rateValue: value,
-          rate: state.rate,
-          userId: ctx.chat.id,
-          date: moment().format("YYYY-MM-DD"),
-        },
-      })
-      .then((res) => console.log(res))
-      .catch((e) => console.log(e));
   });
 
   game.on("dice", async (ctx) => {
@@ -470,24 +418,5 @@ module.exports = (game) => {
         { demoBalance: Math.floor(ctx.session.state.balance * 100) / 100 }
       );
     }
-
-    // Send stats
-    await axios
-      .post("https://dice-bots.ru/api/post_stats", {
-        type: "games",
-        data: {
-          typeGame: "slot",
-          typeBalance: state.activeGame,
-          result: winSum > 0 ? "win" : "lose",
-          rateAmount: amountRate,
-          rateWinAmount: winSum,
-          rateValue: value,
-          rate: state.rate,
-          userId: ctx.chat.id,
-          date: moment().format("YYYY-MM-DD"),
-        },
-      })
-      .then((res) => console.log(res))
-      .catch((e) => console.log(e));
   });
 };

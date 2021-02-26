@@ -2,17 +2,8 @@ const express = require("express");
 const app = express();
 app.use(express.json());
 
-app.use("/get_users", require("../routes/getUsers.route"));
-app.use("/get_games", require("../routes/getGames.route"));
-app.use("/get_payments", require("../routes/getPayments.route"));
-app.use("/get_blockedusers", require("../routes/blockedUsers.route"));
-
-app.use("/post_stats", require("../routes/postStats.route"));
-app.use("/post_fakeorder", require("../routes/postFakeOrder.route"));
-
 // РОУТ на обработку платежей
-app.use("/notify_pay_orders", require('../routes/notifyPayOrders.route'));
-
+app.use("/notify_pay_orders", require("../routes/notifyPayOrders.route"));
 
 async function startRoutes() {
   try {

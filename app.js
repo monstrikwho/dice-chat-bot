@@ -17,3 +17,22 @@ setupMongoose();
 // Commands
 setupStart(bot);
 mailing(bot);
+
+const User = require("./models/user");
+
+bot.command("a", async (ctx) => {
+  const users = await User.find();
+  for (let { userId } of users) {
+    await User.updateOne(
+      { userId },
+      {
+        demoBalance: 10000,
+        mainBalance: 0,
+        status: "user",
+        $unset: {
+          isRef: 1,
+        },
+      }
+    );
+  }
+});

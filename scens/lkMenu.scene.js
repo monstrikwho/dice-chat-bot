@@ -8,7 +8,7 @@ const lkMenu = new Scene("lkMenu");
 lkMenu.enter(async (ctx) => {
   const user = await User.findOne({ userId: ctx.from.id });
 
-  if (ctx.from.id === 1061660155 || ctx.from.id === 364984576) {
+  if (user.status === "admin") {
     return await ctx.reply(
       `Вы вошли в личный кабинет
 Ваш личный номер: ${ctx.from.id}
@@ -16,7 +16,6 @@ lkMenu.enter(async (ctx) => {
       Extra.markup(
         Markup.keyboard([
           ["Пополнить", "Вывести"],
-          ["Реферальная система"],
           ["Сделать рассылку"],
           ["↪️ Вернуться назад"],
         ]).resize()
@@ -31,7 +30,6 @@ lkMenu.enter(async (ctx) => {
     Extra.markup(
       Markup.keyboard([
         ["Пополнить", "Вывести"],
-        ["Реферальная система"],
         ["↪️ Вернуться назад"],
       ]).resize()
     )
@@ -50,12 +48,10 @@ lkMenu.hears("↪️ Вернуться назад", async ({ scene }) => {
   return await scene.enter("showMainMenu");
 });
 
-lkMenu.hears("Реферальная система", async ({ scene }) => {
-  return await scene.enter("refScene");
-});
-
 lkMenu.hears("Сделать рассылку", async (ctx) => {
-  if (ctx.from.id === 1061660155 || ctx.from.id === 364984576) {
+  const user = await User.findOne({ userId: ctx.from.id });
+
+  if (user.status === "admin") {
     return await ctx.scene.enter("sendMailing");
   }
 });
