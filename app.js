@@ -34,5 +34,5 @@ bot.command("checkusers", async (ctx) => {
     }
   }
 
-  await ctx.reply("Count blocked: ", count);
+  await ctx.reply(`Count blocked: ${count}`);
 });
