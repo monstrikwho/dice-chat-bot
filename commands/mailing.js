@@ -5,27 +5,28 @@ const User = require("../models/user");
 
 async function setupMailing(bot) {
   bot.command("replyMsg", async (ctx) => {
-    if (ctx.chat.id !== 364984576) return;
+    if (ctx.chat.id === 364984576) {
+      const msg = ctx.update.message.text.replace("/replyMsg ", "");
 
-    const msg = ctx.update.message.text.replace("/replyMsg ", "");
+      const users = await User.find({ isBlocked: false });
+      let arrUsersId = users.map((item) => item.userId);
 
-    const users = await User.find({ isBlocked: false });
+      await ctx.reply(
+        `Рассылка началась. Пожлауйста подождите, пока она завершится. (Вам придет сообщение.)`
+      );
 
-    await ctx.reply(
-      `Рассылка началась. Пожлауйста подождите, пока она завершится. (Вам придет сообщение.)`
-    );
+      for (let userId of arrUsersId) {
+        try {
+          await bot.telegram.sendMessage(
+            userId,
+            msg,
+            Extra.markup(Markup.keyboard([["/start"]]).resize())
+          );
+        } catch (err) {}
+      }
 
-    for (let { userId } of users) {
-      try {
-        await bot.telegram.sendMessage(
-          userId,
-          msg,
-          Extra.markup(Markup.keyboard([["/start"]]).resize())
-        );
-      } catch (err) {}
+      return await ctx.reply(`Рассылка завершена.`);
     }
-
-    return await ctx.reply(`Рассылка завершена.`);
   });
 }
 

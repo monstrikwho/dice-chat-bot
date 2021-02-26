@@ -1,17 +1,17 @@
-const mongoose = require("mongoose");
-const Double = require("@mongoosejs/double");
+const mongoose = require('mongoose');
+const Double = require('@mongoosejs/double');
 
 const schema = new mongoose.Schema({
   userId: {
-    type: Number,
+    type: Number, 
     unique: true,
   },
   demoBalance: Double,
   mainBalance: Double,
+  amountRefCash: Double,
   isBlocked: Boolean,
+  isRef: Number,
   regDate: String,
-  status: String,
-  isRef: Number
 });
 
 module.exports = mongoose.model("Users", schema);

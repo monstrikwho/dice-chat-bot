@@ -34,8 +34,9 @@ sendMailing.on("text", async (ctx) => {
   );
 
   const users = await User.find({ isBlocked: false });
+  let arrUsersId = users.map((item) => item.userId);
 
-  for (let { userId } of users) {
+  for (let userId of arrUsersId) {
     try {
       if (ctx.session.state.photoId) {
         await bot.telegram.sendPhoto(userId, ctx.session.state.photoId);
