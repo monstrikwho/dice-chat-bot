@@ -18,21 +18,21 @@ setupMongoose();
 setupStart(bot);
 mailing(bot);
 
-const User = require("./models/user");
+const Users = require("./models/user");
+bot.command("checkusers", async (ctx) => {
+  let count = 0;
 
-bot.command("a", async (ctx) => {
-  const users = await User.find();
+  await ctx.reply("Checking..");
+
+  const users = await Users.find();
   for (let { userId } of users) {
-    await User.updateOne(
-      { userId },
-      {
-        demoBalance: 10000,
-        mainBalance: 0,
-        status: "user",
-        $unset: {
-          isRef: 1,
-        },
-      }
-    );
+    try {
+      await bot.telegram.sendChatAction(userId, "typing");
+    } catch (error) {
+      count++;
+      await User.findOne({ userId }, { isBlocked: true });
+    }
   }
+
+  await ctx.reply("Count blocked: ", count);
 });
