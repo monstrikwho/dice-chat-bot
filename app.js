@@ -30,7 +30,7 @@ bot.command("checkusers", async (ctx) => {
       await bot.telegram.sendChatAction(userId, "typing");
     } catch (error) {
       count++;
-      await User.findOne({ userId }, { isBlocked: true });
+      await Users.findOne({ userId }, { isBlocked: true });
     }
   }
 
