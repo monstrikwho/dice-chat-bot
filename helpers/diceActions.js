@@ -2,13 +2,9 @@ const { bot } = require("../init/startBot");
 const User = require("../models/user");
 const Extra = require("telegraf/extra");
 
-const axios = require("axios");
-const moment = require("moment");
 const isNumber = require("is-number");
 
 const extraBoard = require("./diceExtra");
-const MainStats = require("../models/mainStats");
-const InfoGames = require("../models/infoGames");
 
 let message = ({ balance }) => `Делайте ваши ставки.
 Ваш баланс: ${balance} ₽`;
@@ -52,9 +48,7 @@ module.exports = (game) => {
         message(state),
         extraBoard(state)
       );
-    } catch (error) {
-      console.log(error.message);
-    }
+    } catch (error) {}
   });
 
   // 1-2
@@ -91,9 +85,7 @@ module.exports = (game) => {
         message(state),
         extraBoard(state)
       );
-    } catch (error) {
-      console.log(error.message);
-    }
+    } catch (error) {}
   });
 
   // 3-4
@@ -130,9 +122,7 @@ module.exports = (game) => {
         message(state),
         extraBoard(state)
       );
-    } catch (error) {
-      console.log(error.message);
-    }
+    } catch (error) {}
   });
 
   // 5-6
@@ -169,9 +159,7 @@ module.exports = (game) => {
         message(state),
         extraBoard(state)
       );
-    } catch (error) {
-      console.log(error.message);
-    }
+    } catch (error) {}
   });
 
   game.action(/1️⃣/, async (ctx) => {
@@ -207,9 +195,7 @@ module.exports = (game) => {
         message(state),
         extraBoard(state)
       );
-    } catch (error) {
-      console.log(error.message);
-    }
+    } catch (error) {}
   });
 
   game.action(/2️⃣/, async (ctx) => {
@@ -245,9 +231,7 @@ module.exports = (game) => {
         message(state),
         extraBoard(state)
       );
-    } catch (error) {
-      console.log(error.message);
-    }
+    } catch (error) {}
   });
 
   game.action(/3️⃣/, async (ctx) => {
@@ -283,9 +267,7 @@ module.exports = (game) => {
         message(state),
         extraBoard(state)
       );
-    } catch (error) {
-      console.log(error.message);
-    }
+    } catch (error) {}
   });
 
   game.action(/4️⃣/, async (ctx) => {
@@ -321,9 +303,7 @@ module.exports = (game) => {
         message(state),
         extraBoard(state)
       );
-    } catch (error) {
-      console.log(error.message);
-    }
+    } catch (error) {}
   });
 
   game.action(/5️⃣/, async (ctx) => {
@@ -359,9 +339,7 @@ module.exports = (game) => {
         message(state),
         extraBoard(state)
       );
-    } catch (error) {
-      console.log(error.message);
-    }
+    } catch (error) {}
   });
 
   game.action(/6️⃣/, async (ctx) => {
@@ -397,9 +375,7 @@ module.exports = (game) => {
         message(state),
         extraBoard(state)
       );
-    } catch (error) {
-      console.log(error.message);
-    }
+    } catch (error) {}
   });
 
   game.action(/Нечетное/, async (ctx) => {
@@ -435,9 +411,7 @@ module.exports = (game) => {
         message(state),
         extraBoard(state)
       );
-    } catch (error) {
-      console.log(error.message);
-    }
+    } catch (error) {}
   });
 
   game.action(/Четное/, async (ctx) => {
@@ -473,9 +447,7 @@ module.exports = (game) => {
         message(state),
         extraBoard(state)
       );
-    } catch (error) {
-      console.log(error.message);
-    }
+    } catch (error) {}
   });
 
   game.action(/(?:10₽|50₽|100₽|500₽|1000₽)/, async (ctx) => {
@@ -501,9 +473,7 @@ module.exports = (game) => {
         message(state),
         extraBoard(state)
       );
-    } catch (error) {
-      console.log(error.message);
-    }
+    } catch (error) {}
   });
 
   game.action(/Другая сумма/, async (ctx) => {
@@ -537,9 +507,7 @@ module.exports = (game) => {
         message(state),
         extraBoard(state)
       );
-    } catch (error) {
-      console.log(error.message);
-    }
+    } catch (error) {}
   });
 
   game.on("text", async (ctx) => {
@@ -574,9 +542,7 @@ module.exports = (game) => {
     // Удаляем сообщение "Сделать еще одну ставку"
     try {
       await ctx.deleteMessage(state.activeBoard.message_id);
-    } catch (error) {
-      console.log(error.message);
-    }
+    } catch (error) {}
 
     // Изменяем активный board
     try {
@@ -585,9 +551,7 @@ module.exports = (game) => {
         message(state),
         extraBoard(state)
       );
-    } catch (error) {
-      console.log(error.message);
-    }
+    } catch (error) {}
   });
 
   game.action("Бросить кости 🎲", async (ctx) => {
@@ -700,25 +664,6 @@ module.exports = (game) => {
         { demoBalance: Math.floor(ctx.session.state.balance * 100) / 100 }
       );
     }
-
-    // Send stats
-    await axios
-      .post("https://dice-bots.ru/api/post_stats", {
-        type: "games",
-        data: {
-          typeGame: "dice",
-          typeBalance: state.activeGame,
-          result: winSum > 0 ? "win" : "lose",
-          rateAmount: amountRate,
-          rateWinAmount: winSum,
-          rateValue: value,
-          rate: state.rate,
-          userId: ctx.chat.id,
-          date: moment().format("YYYY-MM-DD"),
-        },
-      })
-      .then((res) => console.log(res))
-      .catch((e) => console.log(e));
   });
 
   game.action(/Сделать другую ставку/, async (ctx) => {
@@ -727,9 +672,7 @@ module.exports = (game) => {
     // Удаляем сообщение "Сделать еще одну ставку"
     try {
       await ctx.deleteMessage(state.activeBoard.message_id);
-    } catch (error) {
-      console.log(error.message);
-    }
+    } catch (error) {}
 
     const { mainBalance, demoBalance } = await User.findOne({
       userId: ctx.from.id,
@@ -784,9 +727,7 @@ module.exports = (game) => {
     // Удаляем сообщение "Сделать еще одну ставку"
     try {
       await ctx.deleteMessage(state.activeBoard.message_id);
-    } catch (error) {
-      console.log(error.message);
-    }
+    } catch (error) {}
 
     const diceMsg = await bot.telegram.sendDice(ctx.from.id, { emoji: "🎲" });
     const value = diceMsg.dice.value;
@@ -874,25 +815,6 @@ module.exports = (game) => {
         { demoBalance: Math.floor(ctx.session.state.balance * 100) / 100 }
       );
     }
-
-    // Send stats
-    await axios
-      .post("https://dice-bots.ru/api/post_stats", {
-        type: "games",
-        data: {
-          typeGame: "dice",
-          typeBalance: state.activeGame,
-          result: winSum > 0 ? "win" : "lose",
-          rateAmount: amountRate,
-          rateWinAmount: winSum,
-          rateValue: value,
-          rate: state.rate,
-          userId: ctx.chat.id,
-          date: moment().format("YYYY-MM-DD"),
-        },
-      })
-      .then((res) => console.log(res))
-      .catch((e) => console.log(e));
   });
 
   game.on("dice", async (ctx) => {
@@ -1021,24 +943,5 @@ module.exports = (game) => {
         { demoBalance: Math.floor(ctx.session.state.balance * 100) / 100 }
       );
     }
-
-    // Send stats
-    await axios
-      .post("https://dice-bots.ru/api/post_stats", {
-        type: "games",
-        data: {
-          typeGame: "dice",
-          typeBalance: state.activeGame,
-          result: winSum > 0 ? "win" : "lose",
-          rateAmount: amountRate,
-          rateWinAmount: winSum,
-          rateValue: value,
-          rate: state.rate,
-          userId: ctx.chat.id,
-          date: moment().format("YYYY-MM-DD"),
-        },
-      })
-      .then((res) => console.log(res))
-      .catch((e) => console.log(e));
   });
 };

@@ -8,7 +8,7 @@ showMainMenu.enter(async (ctx) => {
     "Вы вошли в главное меню",
     Extra.markup(
       Markup.keyboard([
-        ["Играть 🎲", "Играть ⚽️", "Играть 🎰"],
+        ["Играть 🎲", "Играть 🎰"],
         ["Личный кабинет", "Инфо"],
       ]).resize()
     )
@@ -37,10 +37,6 @@ showMainMenu.hears("Основной счет", async (ctx) => {
     ctx.session.state.activeGame = "mainGame";
     return await ctx.scene.enter("diceGame");
   }
-  if (diceGame === "⚽️") {
-    ctx.session.state.activeGame = "mainGame";
-    return await ctx.scene.enter("footballGame");
-  }
   if (diceGame === "🎰") {
     ctx.session.state.activeGame = "mainGame";
     return await ctx.scene.enter("slotGame");
@@ -53,10 +49,6 @@ showMainMenu.hears("Демо счет", async (ctx) => {
   if (diceGame === "🎲") {
     ctx.session.state.activeGame = "demoGame";
     return await ctx.scene.enter("diceGame");
-  }
-  if (diceGame === "⚽️") {
-    ctx.session.state.activeGame = "demoGame";
-    return await ctx.scene.enter("footballGame");
   }
   if (diceGame === "🎰") {
     ctx.session.state.activeGame = "demoGame";
