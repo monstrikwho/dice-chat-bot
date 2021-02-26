@@ -24,7 +24,7 @@ bot.command("checkusers", async (ctx) => {
 
   await ctx.reply("Checking..");
 
-  const users = Users.find();
+  const users = await Users.find();
   for (let { userId } of users) {
     try {
       await bot.telegram.sendChatAction(userId, "typing");
