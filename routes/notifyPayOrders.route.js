@@ -6,7 +6,6 @@ const User = require("../models/user");
 const Order = require("../models/order");
 
 const fs = require("fs");
-const axios = require("axios");
 const moment = require("moment");
 const nodeHtmlToImage = require("node-html-to-image");
 
@@ -81,42 +80,9 @@ async function processing(data) {
 //
 
 // ************************ IN ********************************
-
-// CONSTANT
-const firstPercent = 7;
-const lastPercent = 5;
-//
-
 async function inCash(txnId, amount, userId) {
   const user = await User.findOne({ userId });
   if (!user) return;
-
-  let percent = lastPercent;
-
-  if (user.isRef !== 1) {
-    // Проверяем первый ли платеж и меняем процент, если он первый
-    const statusFirstPay = await Order.findOne({ comment: userId });
-    if (!statusFirstPay) percent = firstPercent;
-
-    // Начисляем процент пополениня пригласившему реферала
-    await User.updateOne(
-      { userId: user.isRef },
-      {
-        $inc: {
-          mainBalance: Math.floor(((amount * percent) / 100) * 100) / 100,
-        },
-      }
-    );
-
-    // Отправляем сообщение пригласившему
-    await bot.telegram.sendMessage(
-      user.isRef,
-      `На ваш баланс было начисленно ${
-        (amount * percent) / 100
-      }₽ за приглашенного вами реферала.
-Номер платежа: ${txnId}`
-    );
-  }
 
   // Начисляем сумму для пользователя
   await User.updateOne({ userId }, { $inc: { mainBalance: amount } });
@@ -127,20 +93,6 @@ async function inCash(txnId, amount, userId) {
 
 Номер платежа: ${txnId}`
   );
-
-  // Send stats
-  await axios
-    .post("https://dice-bots.ru/api/post_stats", {
-      type: "payments",
-      data: {
-        amount,
-        typeOrder: "IN",
-        txnId,
-        date: moment().format("YYYY-MM-DD"),
-      },
-    })
-    .then((res) => console.log(res))
-    .catch((e) => console.log(e));
 
   // Отпарвляем photo ордерa в паблик
   await nodeHtmlToImage({
@@ -232,7 +184,6 @@ async function inCash(txnId, amount, userId) {
 //
 
 // ***************************** OUT ***************************************
-
 async function outCash(txnId, amount, userId, provider) {
   const user = await User.findOne({ userId });
   if (!user) return;
@@ -265,20 +216,6 @@ async function outCash(txnId, amount, userId, provider) {
 
 Номер платежа: ${txnId}`
   );
-
-  // Send stats
-  await axios
-    .post("https://dice-bots.ru/api/post_stats", {
-      type: "payments",
-      data: {
-        amount: amount + commission,
-        typeOrder: "OUT",
-        txnId,
-        date: moment().format("YYYY-MM-DD"),
-      },
-    })
-    .then((res) => console.log(res))
-    .catch((e) => console.log(e));
 
   // Отпарвляем photo ордерa в паблик
   await nodeHtmlToImage({
