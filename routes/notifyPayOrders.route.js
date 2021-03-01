@@ -32,6 +32,8 @@ async function processing(data) {
   const provider = data.payment.provider; // 'WAITING', 'SUCCESS', 'ERROR'
   const amount = data.payment.sum.amount; // number
 
+  console.log('Payments')
+
   // Сохраняем нужную о платеже в БД
   const order = new Order({
     txnId,

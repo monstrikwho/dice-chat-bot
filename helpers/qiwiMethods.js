@@ -13,7 +13,7 @@ module.exports.getProfileInfo = async () => {
   await axios
     .get(`https://edge.qiwi.com/person-profile/v1/profile/current`)
     .then((res) => console.log(res.data))
-    .catch((err) => console.log(err));
+    .catch((err) => console.log(err.message));
 };
 
 module.exports.getProfileBalance = async () => {
