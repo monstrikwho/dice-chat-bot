@@ -21,7 +21,7 @@ export default function App({ authStatus, authSetStatus }) {
       return setStatusCheckToken(true);
     }
     await axios
-      .get(`https://dice-bots.ru/api/get_auth_status`, {
+      .get(`${process.env.REACT_APP_URL}/get_auth_status`, {
         params: { token },
       })
       .then((res) => {

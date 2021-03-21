@@ -10,7 +10,7 @@ export default function GamesPage() {
 
   const getData = async () => {
     await axios
-      .get(`https://dice-bots.ru/api/get_games_data`)
+      .get(`${process.env.REACT_APP_URL}/get_games_data`)
       .then(({ data }) => {
         setRowsData(data.games);
         setLoading(false);
@@ -50,6 +50,11 @@ export default function GamesPage() {
     },
     {
       id: "6",
+      field: "userId",
+      label: "userId",
+    },
+    {
+      id: "7",
       field: "date",
       label: "date",
     },

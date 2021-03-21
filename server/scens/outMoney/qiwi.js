@@ -4,12 +4,15 @@ const Markup = require("telegraf/markup");
 
 const isNumber = require("is-number");
 const { outMoney } = require("../../helpers/qiwiMethods");
+const MainStats = require("../../models/mainstats");
 
 const outQiwi = new Scene("outQiwi");
 outQiwi.enter(async (ctx) => {
+  const { minOut, outPercent } = await MainStats.findOne({});
+
   return await ctx.reply(
-    `Минимальная сумма вывода: ${process.env.OUT_QIWI}p
-Коммиссия: 0%. 
+    `Минимальная сумма вывода: ${minOut.qiwi}p
+Коммиссия: ${outPercent}%. 
 Пожалуйста, введите сумму.`,
     Extra.markup(Markup.keyboard([["↪️ Вернуться назад"]]).resize())
   );
@@ -22,6 +25,8 @@ outQiwi.on("text", async (ctx) => {
     ctx.session.state = {};
     return await ctx.scene.enter("outMoney");
   }
+
+  const { minOut, outPercent } = await MainStats.findOne({});
 
   if (ctx.session.state.payFlag) return;
 
@@ -45,28 +50,33 @@ outQiwi.on("text", async (ctx) => {
     return await outMoney(amount, `+${wallet}`, ctx.from.id, 99);
   }
 
-  if (ctx.session.state.activeMsg)
+  if (ctx.session.state.activeMsg) {
     return ctx.reply(
       'Пожалуйста, напишите в чат слово "Подтвердить", чтобы произвести операцию.'
     );
+  }
 
   // Если не ввели сумму
   if (!ctx.session.state.amount) {
     const amount = +msg.trim();
     const balance = ctx.session.state.mainBalance;
     const prizeFound = ctx.session.state.prizeFound;
-    if (!isNumber(amount))
+    if (!isNumber(amount)) {
       return await ctx.reply("Пожалуйста, введите только цифры.");
-    if (amount < process.env.OUT_QIWI)
+    }
+    if (amount < minOut.qiwi) {
       return await ctx.reply(
-        `Минимальная сумма вывода ${process.env.OUT_QIWI}р. Пожалуйста, введите другую сумму.`
+        `Минимальная сумма вывода ${minOut.qiwi}р. Пожалуйста, введите другую сумму.`
       );
-    if (amount > balance)
+    }
+    if (amount * (1 + outPercent / 100) > balance) {
       return await ctx.reply("У вас недостаточно средств на балансе.");
-    if (amount > prizeFound)
+    }
+    if (amount > prizeFound) {
       return await ctx.reply(
         "На данный момент мы столкнулись с проблемой автоматического вывода. Пожалуйста, напишите в поддержку для вывода в ручном режиме. @LuckyCatGames"
       );
+    }
 
     ctx.session.state = {
       ...ctx.session.state,
@@ -76,15 +86,18 @@ outQiwi.on("text", async (ctx) => {
   }
 
   // Если не ввели номер кошелька
-  if (!isNumber(+msg.trim()))
+  if (!isNumber(+msg.trim())) {
     return await ctx.reply("Пожалуйста, введите только цифры.");
+  }
 
   ctx.session.state = {
     ...ctx.session.state,
     wallet: msg,
     activeMsg: await ctx.reply(
-      `Вы собираетесь вывести сумму ${ctx.session.state.amount}P на номер кошелька +${msg}.
-C вашего баланса спишеться: ${ctx.session.state.amount}
+      `Вы собираетесь вывести сумму ${
+        ctx.session.state.amount
+      }P на номер кошелька +${msg}.
+C вашего баланса спишеться: ${ctx.session.state.amount * (1 + outPercent / 100)}
 ❕ Пожалуйста, напишите в чат "Подтвердить", чтобы произвести выплату.`
     ),
   };

@@ -56,7 +56,7 @@ export default function LoginPage({
       return;
     }
     await axios
-      .get(`https://dice-bots.ru/api/get_login`, { params: { login } })
+      .get(`${process.env.REACT_APP_URL}/get_login`, { params: { login } })
       .then(({ data }) => {
         if (!data.status) {
           return setShowToast("This user does not exist.");
@@ -71,7 +71,7 @@ export default function LoginPage({
       setShowToast(statusValidation);
     }
     await axios
-      .get(`https://dice-bots.ru/api/get_pass`, {
+      .get(`${process.env.REACT_APP_URL}/get_pass`, {
         params: { login, pass },
       })
       .then(({ data }) => {

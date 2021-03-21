@@ -1,8 +1,6 @@
 const { Router } = require("express");
 const router = Router();
 
-const Extra = require("telegraf/extra");
-const Markup = require("telegraf/markup");
 const { bot } = require("../init/startBot");
 const Users = require("../models/user");
 
@@ -24,7 +22,9 @@ router.post("/", async (req, res) => {
     try {
       await bot.telegram.sendMessage(
         userId,
-        `На ваш ДЕМО счет было зачислено: ${demoBalance - countUserDemoBalance}P`
+        `На ваш ДЕМО счет было зачислено: ${
+          demoBalance - countUserDemoBalance
+        }P`
       );
     } catch (error) {}
   }
@@ -32,13 +32,19 @@ router.post("/", async (req, res) => {
     try {
       await bot.telegram.sendMessage(
         userId,
-        `На ваш ОСНОВНОЙ счет было зачислено: ${mainBalance - countUserMainBalance}P`
+        `На ваш ОСНОВНОЙ счет было зачислено: ${
+          mainBalance - countUserMainBalance
+        }P`
       );
     } catch (error) {}
   }
   if (userRights === "admin" && countUserRights !== "admin") {
     try {
-      await bot.telegram.sendMessage(userId, `Ваш дали права администратора.`);
+      await bot.telegram.sendMessage(
+        userId,
+        `Ваш дали права администратора.
+Ваш логин для входа: ${userId}`
+      );
     } catch (error) {}
   }
 

@@ -1,9 +1,10 @@
 const { Router } = require("express");
 const router = Router();
-
 const { bot } = require("../init/startBot");
+
 const User = require("../models/user");
 const Order = require("../models/order");
+const MainStats = require("../models/mainstats");
 
 const fs = require("fs");
 const moment = require("moment");
@@ -34,25 +35,27 @@ async function processing(data) {
 
   if (status === "ERROR") {
     try {
-      return await bot.telegram.sendMessage(
+      await bot.telegram.sendMessage(
         comment,
         `Платеж №${txnId} не был завершен. Пожалуйста, свяжитесь с поддержкой, для уточнения статуса операции. 
 Поддержка: @LuckyCatGames`
       );
     } catch (error) {
-      return console.log("Ошибка в платеже, error");
+      console.log("Ошибка в платеже, error");
     }
+    return;
   }
 
   if (status === "WAITING") {
     try {
-      return await bot.telegram.sendMessage(
+      await bot.telegram.sendMessage(
         comment,
         `Ваш платеж №${txnId} принят на обработку. Пожалуйста подождите.`
       );
     } catch (error) {
-      return console.log("Ошибка в платежах, waiting");
+      console.log("Ошибка в платежах, waiting");
     }
+    return;
   }
 
   if (status === "SUCCESS") {
@@ -70,7 +73,7 @@ async function processing(data) {
       if (type === "IN") return inCash(txnId, amount, comment);
       if (type === "OUT") return outCash(txnId, amount, comment, provider);
     } catch (error) {
-      return console.log("Ошибка в платежах, success");
+      console.log("Ошибка в платежах, success");
     }
   }
 }
@@ -82,15 +85,41 @@ async function inCash(txnId, amount, userId) {
   const user = await User.findOne({ userId });
   if (!user) return;
 
+  const { toRefPercent } = await MainStats.findOne({});
+
+  if (user.isRef !== 0) {
+    // Начисляем процент пополениня пригласившему реферала
+    await User.updateOne(
+      { userId: user.isRef },
+      {
+        $inc: {
+          mainBalance: Math.floor(((amount * toRefPercent) / 100) * 100) / 100,
+        },
+      }
+    );
+    // Отправляем сообщение пригласившему
+    try {
+      await bot.telegram.sendMessage(
+        user.isRef,
+        `На ваш ОСНОВНОЙ счет было зачисленно ${
+          Math.floor(((amount * toRefPercent) / 100) * 100) / 100
+        }₽ за приглашенного вами реферала.
+    Номер платежа: ${txnId}`
+      );
+    } catch (error) {}
+  }
+
   // Начисляем сумму для пользователя
   await User.updateOne({ userId }, { $inc: { mainBalance: amount } });
-  await bot.telegram.sendMessage(
-    userId,
-    `На ваш баланс было начисленно ${amount}₽.
-Ваш текущий баланс: ${user.mainBalance + amount}
-
-Номер платежа: ${txnId}`
-  );
+  try {
+    await bot.telegram.sendMessage(
+      userId,
+      `На ваш баланс было зачисленно ${amount}₽.
+  Ваш текущий баланс: ${user.mainBalance + amount}
+  
+  Номер платежа: ${txnId}`
+    );
+  } catch (error) {}
 
   // Отпарвляем photo ордерa в паблик
   await nodeHtmlToImage({
@@ -186,13 +215,15 @@ async function outCash(txnId, amount, userId, provider) {
   const user = await User.findOne({ userId });
   if (!user) return;
 
+  const { outPercent } = await MainStats.findOne({});
+
   // Считаем комиссию
   let commission = 0;
   if (provider === 1963 || provider === 21013) {
-    commission = 50 + amount * 0.02;
+    commission = 50 + amount * (0.02 + outPercent / 100);
   }
   if (provider === 1960 || provider === 21012) {
-    commission = 100 + amount * 0.02;
+    commission = 100 + amount * (0.02 + outPercent / 100);
   }
 
   // Обнавляем баланс в базе данных

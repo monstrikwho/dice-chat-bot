@@ -3,12 +3,15 @@ const Extra = require("telegraf/extra");
 const Markup = require("telegraf/markup");
 
 const isNumber = require("is-number");
+const MainStats = require("../models/mainstats");
 
 const inMoney = new Scene("inMoney");
 inMoney.enter(async (ctx) => {
+  const { minIn } = await MainStats.findOne({});
+
   return await ctx.reply(
     `Выберите сумму для пополнения.
-Минимальная сумма для пополнения: ${process.env.IN_QIWI}₽`,
+Минимальная сумма для пополнения: ${minIn}₽`,
     Extra.markup(
       Markup.keyboard([
         ["50₽", "100₽", "500₽", "1000₽"],
@@ -70,13 +73,14 @@ writeAmount.on("text", async (ctx) => {
     return await ctx.scene.enter("inMoney");
   }
 
+  const { minIn } = await MainStats.findOne({});
+
   const amount = +ctx.update.message.text.replace(/\D+/, "").trim();
 
   if (isNumber(amount)) {
-    if (amount < process.env.IN_QIWI)
-      return await ctx.reply(
-        `Минимальная сумма для пополнения ${process.env.IN_QIWI}₽`
-      );
+    if (amount < minIn) {
+      return await ctx.reply(`Минимальная сумма для пополнения ${minIn}₽`);
+    }
 
     const url = `https://qiwi.com/payment/form/99?extra%5B%27account%27%5D=${process.env.QIWI_WALLET}&amountInteger=${amount}&amountFraction=0&extra%5B%27comment%27%5D=${ctx.from.id}&currency=643&blocked[0]=sum&blocked[1]=account&blocked[2]=comment`;
 

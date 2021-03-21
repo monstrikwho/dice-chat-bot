@@ -10,7 +10,7 @@ export default function OrdersPage() {
 
   const getData = async () => {
     await axios
-      .get(`https://dice-bots.ru/api/get_orders_data`)
+      .get(`${process.env.REACT_APP_URL}/get_orders_data`)
       .then(({ data }) => {
         setRowsData(data.orders);
         setLoading(false);

@@ -14,7 +14,10 @@ export default function MailingPage() {
     setModalShow(true);
     setLoading(true);
     await axios
-      .post(`https://dice-bots.ru/api/post_mailing`, { textArea, btnStart })
+      .post(`${process.env.REACT_APP_URL}/post_mailing`, {
+        textArea,
+        btnStart,
+      })
       .then(({ data }) => {
         if (data.status) {
           setLoading(false);

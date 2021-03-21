@@ -43,7 +43,7 @@ export default class HomePage extends React.Component {
 
   getData = async () => {
     await axios
-      .get(`https://dice-bots.ru/api/get_stats`)
+      .get(`${process.env.REACT_APP_URL}/get_stats`)
       .then(({ data }) => {
         const stats = data.stats;
         delete stats.orderStats.lastNumberOrder;

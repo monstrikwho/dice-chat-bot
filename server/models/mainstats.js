@@ -4,7 +4,12 @@ const schema = new Schema({
   ads: Object,
   orderStats: Object,
   usersStats: Object,
-  games: Object,
+  gamesStats: Object,
+  constRef: Number,
+  minIn: Number,
+  minOut: Object,
+  outPercent: Number,
+  toRefPercent: Number,
 });
 
 module.exports = model("MainStats", schema);

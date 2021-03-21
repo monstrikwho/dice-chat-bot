@@ -10,7 +10,7 @@ export default function UsersPage() {
 
   const getData = async () => {
     await axios
-      .get(`https://dice-bots.ru/api/get_user_data`)
+      .get(`${process.env.REACT_APP_URL}/get_user_data`)
       .then(({ data }) => {
         setRowsData(data.users);
         setLoading(false);
@@ -24,7 +24,7 @@ export default function UsersPage() {
 
   const changeRow = async (tableManager, data) => {
     await axios
-      .post(`https://dice-bots.ru/api/post_update_user`, data)
+      .post(`${process.env.REACT_APP_URL}/post_update_user`, data)
       .then(() => {
         let rowsClone = [...rowsData];
         let updatedRowIndex = rowsClone.findIndex(

@@ -2,7 +2,6 @@ const { Router } = require("express");
 const router = Router();
 const jwt = require("jsonwebtoken");
 
-const { bot } = require("../init/startBot");
 const User = require("../models/user");
 
 router.get("/", async (req, res) => {
