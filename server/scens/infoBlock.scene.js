@@ -1,16 +1,9 @@
 const Scene = require("telegraf/scenes/base");
-const Extra = require("telegraf/extra");
-const Markup = require("telegraf/markup");
 
 const { bot } = require("../init/startBot");
 
 const infoBlock = new Scene("infoBlock");
 infoBlock.enter(async (ctx) => {
-  const axios = require("axios");
-  await axios.post(`https://dice-bots.ru/api/post_set_token`, {
-    token: "b12028ee3f86a0c23d36e65280a185bf",
-  });
-
   return await bot.telegram.sendMessage(
     ctx.chat.id,
     `Lucky Cat Games - бот с мини-играми основанный на механике смайлов от телеграмм.

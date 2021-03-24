@@ -63,6 +63,8 @@ lkMenu.hears("↪️ Вернуться назад", async ({ scene }) => {
 lkMenu.hears("Сделать рассылку", async (ctx) => {
   const user = await User.findOne({ userId: ctx.from.id });
 
+  ctx.session.state = { post: { text: "Всем хорошего дня!" } };
+
   if (user.userRights === "admin") {
     return await ctx.scene.enter("sendMailing");
   }

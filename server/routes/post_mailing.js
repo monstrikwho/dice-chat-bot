@@ -1,8 +1,8 @@
 const { Router } = require("express");
 const router = Router();
-
 const Extra = require("telegraf/extra");
 const Markup = require("telegraf/markup");
+
 const { bot } = require("../init/startBot");
 const Users = require("../models/user");
 
@@ -10,6 +10,9 @@ const sending = async (users, message, btnStart) => {
   for (let { userId } of users) {
     try {
       await bot.telegram.sendMessage(userId, message, btnStart);
+      if (btnStart) {
+        await Users.updateOne({ userId }, { btnStart: false });
+      }
     } catch (error) {}
   }
 };

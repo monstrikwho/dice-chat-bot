@@ -15,11 +15,4 @@ setupMongoose();
 
 // Commands
 setupStart(bot);
-setupStats(bot)
-
-// const Order = require("./models/user");
-// bot.command("ss", async (ctx) => {
-//   console.log("start");
-//   const order = await Order.updateMany({}, { countRef: 0 });
-//   console.log("end");
-// });
+setupStats(bot);
