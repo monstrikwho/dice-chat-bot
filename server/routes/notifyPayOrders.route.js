@@ -85,7 +85,7 @@ async function inCash(txnId, amount, userId) {
   const user = await User.findOne({ userId });
   if (!user) return;
 
-  const { bonusRefPercent } = await MainStats.findOne({});
+  const { bonusRefPercent, usersStats } = await MainStats.findOne({});
 
   await MainStats.updateOne(
     {},
@@ -94,6 +94,7 @@ async function inCash(txnId, amount, userId) {
         "orderStats.amountInMoney": amount,
         "orderStats.countInOrder": 1,
       },
+      "usersStats.": [...usersStats, userId],
     }
   );
 

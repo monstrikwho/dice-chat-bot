@@ -20,7 +20,7 @@ export default class HomePage extends React.Component {
         countUsers: 0,
         countBtnStart: 0,
         countUsersBlocked: 0,
-        donatedUsers: 0,
+        donaters: 0,
       },
       games: {
         demoGame: {
@@ -108,7 +108,7 @@ export default class HomePage extends React.Component {
               <Card.Text>CountUsers: {users.countUsers}</Card.Text>
               <Card.Text>BtnStart: {users.countBtnStart}</Card.Text>
               <Card.Text>CountBlocked: {users.countUsersBlocked}</Card.Text>
-              <Card.Text>Donaters: {users.donatedUsers.length}</Card.Text>
+              <Card.Text>Donaters: {users.donaters.length}</Card.Text>
             </Card.Body>
           </Card>
           <Card bg={"light"} className="mb-2">
