@@ -2,14 +2,18 @@ const axios = require("axios");
 const querystring = require("querystring");
 const { bot } = require("../init/startBot");
 
+const MainStats = require("../models/mainstats");
+
 axios.defaults.headers.common["Content-Type"] = "application/json";
 axios.defaults.headers.common["Accept"] = "application/json";
-axios.defaults.headers.common[
-  "Authorization"
-] = `Bearer ${process.env.QIWI_TOKEN}`;
-axios.defaults.headers.post["User-Agent"] = "Android v3.2.0 MKT";
 
 module.exports.getProfileInfo = async () => {
+  const { webhook } = await MainStats.findOne({});
+
+  axios.defaults.headers.common[
+    "Authorization"
+  ] = `Bearer ${webhook.qiwiToken}`;
+
   await axios
     .get(`https://edge.qiwi.com/person-profile/v1/profile/current`)
     .then((res) => console.log(res.data))
@@ -17,6 +21,12 @@ module.exports.getProfileInfo = async () => {
 };
 
 module.exports.getProfileBalance = async () => {
+  const { webhook } = await MainStats.findOne({});
+
+  axios.defaults.headers.common[
+    "Authorization"
+  ] = `Bearer ${webhook.qiwiToken}`;
+
   return await axios
     .get(
       `https://edge.qiwi.com/funding-sources/v2/persons/${process.env.QIWI_WALLET}/accounts`
@@ -101,6 +111,12 @@ module.exports.outMoney = async (
   idProvider,
   userInfo
 ) => {
+  const { webhook } = await MainStats.findOne({});
+
+  axios.defaults.headers.common[
+    "Authorization"
+  ] = `Bearer ${webhook.qiwiToken}`;
+
   // Перевод на кошелек киви
   const obj = {
     id: Math.round(new Date().getTime() / 1000).toString(), // макс длина 20 цифр. идшник должен быть разным
@@ -134,7 +150,7 @@ module.exports.outMoney = async (
       `https://edge.qiwi.com/sinap/api/v2/terms/${idProvider}/payments`,
       obj
     )
-    // .then((res) => console.log(res.data))
+    .then((res) => res.data)
     .catch(async (err) => {
       console.log(err.message);
       return await bot.telegram.sendMessage(

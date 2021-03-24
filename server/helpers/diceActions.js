@@ -4,6 +4,7 @@ const isNumber = require("is-number");
 const moment = require("moment");
 
 const User = require("../models/user");
+const MainStats = require("../models/mainstats");
 
 const extraBoard = require("./diceExtra");
 const { saveGames } = require("./saveData");
@@ -16,8 +17,9 @@ module.exports = (game) => {
     let state = ctx.session.state;
 
     // Если ставок не было сделано, выбрасываем уведомление
-    if (state.countRate === 0)
+    if (state.countRate === 0) {
       return await ctx.answerCbQuery("Ставко не было", true);
+    }
 
     const { mainBalance, demoBalance } = await User.findOne({
       userId: ctx.from.id,
@@ -39,7 +41,9 @@ module.exports = (game) => {
     };
     state.countRate = 0;
     state.balance = state.activeGame === "mainGame" ? mainBalance : demoBalance;
-    ctx.session.state = state; // Save in session
+    ctx.session.state = state;
+
+    const extra = await extraBoard(state);
 
     // Чистим активный board
     try {
@@ -48,12 +52,11 @@ module.exports = (game) => {
         state.activeBoard.message_id,
         null,
         message(state),
-        extraBoard(state)
+        extra
       );
     } catch (error) {}
   });
 
-  // 1-2
   game.action(/1️⃣.*2️⃣|2️⃣.*1️⃣/, async (ctx) => {
     let state = ctx.session.state;
 
@@ -61,7 +64,6 @@ module.exports = (game) => {
       ? +state.otherRate
       : +state.valueRate;
 
-    // Изеняем стейт
     if (state.balance - amountRate < 0) {
       return await ctx.answerCbQuery(
         "У вас недостаточно средств на балансе",
@@ -76,7 +78,9 @@ module.exports = (game) => {
     state.balance = Math.floor((state.balance - amountRate) * 100) / 100;
     state.rate["1-2"] += amountRate;
     state.countRate += 1;
-    ctx.session.state = state; // Save in session
+    ctx.session.state = state;
+
+    const extra = await extraBoard(state);
 
     // Изменяем активный board
     try {
@@ -85,12 +89,11 @@ module.exports = (game) => {
         state.activeBoard.message_id,
         null,
         message(state),
-        extraBoard(state)
+        extra
       );
     } catch (error) {}
   });
 
-  // 3-4
   game.action(/3️⃣.*4️⃣|4️⃣.*3️⃣/, async (ctx) => {
     let state = ctx.session.state;
 
@@ -98,7 +101,6 @@ module.exports = (game) => {
       ? +state.otherRate
       : +state.valueRate;
 
-    // Изеняем стейт
     if (state.balance - amountRate < 0) {
       return await ctx.answerCbQuery(
         "У вас недостаточно средств на балансе",
@@ -113,7 +115,9 @@ module.exports = (game) => {
     state.balance = Math.floor((state.balance - amountRate) * 100) / 100;
     state.rate["3-4"] += amountRate;
     state.countRate += 1;
-    ctx.session.state = state; // Save in session
+    ctx.session.state = state;
+
+    const extra = await extraBoard(state);
 
     // Изменяем активный board
     try {
@@ -122,12 +126,11 @@ module.exports = (game) => {
         state.activeBoard.message_id,
         null,
         message(state),
-        extraBoard(state)
+        extra
       );
     } catch (error) {}
   });
 
-  // 5-6
   game.action(/5️⃣.*6️⃣|6️⃣.*5️⃣/, async (ctx) => {
     let state = ctx.session.state;
 
@@ -135,7 +138,6 @@ module.exports = (game) => {
       ? +state.otherRate
       : +state.valueRate;
 
-    // Изеняем стейт
     if (state.balance - amountRate < 0) {
       return await ctx.answerCbQuery(
         "У вас недостаточно средств на балансе",
@@ -150,7 +152,9 @@ module.exports = (game) => {
     state.balance = Math.floor((state.balance - amountRate) * 100) / 100;
     state.rate["5-6"] += amountRate;
     state.countRate += 1;
-    ctx.session.state = state; // Save in session
+    ctx.session.state = state;
+
+    const extra = await extraBoard(state);
 
     // Изменяем активный board
     try {
@@ -159,7 +163,7 @@ module.exports = (game) => {
         state.activeBoard.message_id,
         null,
         message(state),
-        extraBoard(state)
+        extra
       );
     } catch (error) {}
   });
@@ -171,7 +175,6 @@ module.exports = (game) => {
       ? +state.otherRate
       : +state.valueRate;
 
-    // Изеняем стейт
     if (state.balance - amountRate < 0) {
       return await ctx.answerCbQuery(
         "У вас недостаточно средств на балансе",
@@ -186,7 +189,9 @@ module.exports = (game) => {
     state.balance = Math.floor((state.balance - amountRate) * 100) / 100;
     state.rate[1] += amountRate;
     state.countRate += 1;
-    ctx.session.state = state; // Save in session
+    ctx.session.state = state;
+
+    const extra = await extraBoard(state);
 
     // Изменяем активный board
     try {
@@ -195,7 +200,7 @@ module.exports = (game) => {
         state.activeBoard.message_id,
         null,
         message(state),
-        extraBoard(state)
+        extra
       );
     } catch (error) {}
   });
@@ -207,7 +212,6 @@ module.exports = (game) => {
       ? +state.otherRate
       : +state.valueRate;
 
-    // Изеняем стейт
     if (state.balance - amountRate < 0) {
       return await ctx.answerCbQuery(
         "У вас недостаточно средств на балансе",
@@ -222,7 +226,9 @@ module.exports = (game) => {
     state.balance = Math.floor((state.balance - amountRate) * 100) / 100;
     state.rate[2] += amountRate;
     state.countRate += 1;
-    ctx.session.state = state; // Save in session
+    ctx.session.state = state;
+
+    const extra = await extraBoard(state);
 
     // Изменяем активный board
     try {
@@ -231,7 +237,7 @@ module.exports = (game) => {
         state.activeBoard.message_id,
         null,
         message(state),
-        extraBoard(state)
+        extra
       );
     } catch (error) {}
   });
@@ -243,7 +249,6 @@ module.exports = (game) => {
       ? +state.otherRate
       : +state.valueRate;
 
-    // Изеняем стейт
     if (state.balance - amountRate < 0) {
       return await ctx.answerCbQuery(
         "У вас недостаточно средств на балансе",
@@ -258,7 +263,9 @@ module.exports = (game) => {
     state.balance = Math.floor((state.balance - amountRate) * 100) / 100;
     state.rate[3] += amountRate;
     state.countRate += 1;
-    ctx.session.state = state; // Save in session
+    ctx.session.state = state;
+
+    const extra = await extraBoard(state);
 
     // Изменяем активный board
     try {
@@ -267,7 +274,7 @@ module.exports = (game) => {
         state.activeBoard.message_id,
         null,
         message(state),
-        extraBoard(state)
+        extra
       );
     } catch (error) {}
   });
@@ -279,7 +286,6 @@ module.exports = (game) => {
       ? +state.otherRate
       : +state.valueRate;
 
-    // Изеняем стейт
     if (state.balance - amountRate < 0) {
       return await ctx.answerCbQuery(
         "У вас недостаточно средств на балансе",
@@ -294,7 +300,9 @@ module.exports = (game) => {
     state.balance = Math.floor((state.balance - amountRate) * 100) / 100;
     state.rate[4] += amountRate;
     state.countRate += 1;
-    ctx.session.state = state; // Save in session
+    ctx.session.state = state;
+
+    const extra = await extraBoard(state);
 
     // Изменяем активный board
     try {
@@ -303,7 +311,7 @@ module.exports = (game) => {
         state.activeBoard.message_id,
         null,
         message(state),
-        extraBoard(state)
+        extra
       );
     } catch (error) {}
   });
@@ -315,8 +323,7 @@ module.exports = (game) => {
       ? +state.otherRate
       : +state.valueRate;
 
-    // Изеняем стейт
-    if (state.balance - amountRate < 0) {
+    if (state.balaFnce - amountRate < 0) {
       return await ctx.answerCbQuery(
         "У вас недостаточно средств на балансе",
         true
@@ -330,7 +337,9 @@ module.exports = (game) => {
     state.balance = Math.floor((state.balance - amountRate) * 100) / 100;
     state.rate[5] += amountRate;
     state.countRate += 1;
-    ctx.session.state = state; // Save in session
+    ctx.session.state = state;
+
+    const extra = await extraBoard(state);
 
     // Изменяем активный board
     try {
@@ -339,7 +348,7 @@ module.exports = (game) => {
         state.activeBoard.message_id,
         null,
         message(state),
-        extraBoard(state)
+        extra
       );
     } catch (error) {}
   });
@@ -351,7 +360,6 @@ module.exports = (game) => {
       ? +state.otherRate
       : +state.valueRate;
 
-    // Изеняем стейт
     if (state.balance - amountRate < 0) {
       return await ctx.answerCbQuery(
         "У вас недостаточно средств на балансе",
@@ -366,7 +374,9 @@ module.exports = (game) => {
     state.balance = Math.floor((state.balance - amountRate) * 100) / 100;
     state.rate[6] += amountRate;
     state.countRate += 1;
-    ctx.session.state = state; // Save in session
+    ctx.session.state = state;
+
+    const extra = await extraBoard(state);
 
     // Изменяем активный board
     try {
@@ -375,7 +385,7 @@ module.exports = (game) => {
         state.activeBoard.message_id,
         null,
         message(state),
-        extraBoard(state)
+        extra
       );
     } catch (error) {}
   });
@@ -387,7 +397,6 @@ module.exports = (game) => {
       ? +state.otherRate
       : +state.valueRate;
 
-    // Изеняем стейт
     if (state.balance - amountRate < 0) {
       return await ctx.answerCbQuery(
         "У вас недостаточно средств на балансе",
@@ -402,7 +411,9 @@ module.exports = (game) => {
     state.balance = Math.floor((state.balance - amountRate) * 100) / 100;
     state.rate["odd"] += amountRate;
     state.countRate += 1;
-    ctx.session.state = state; // Save in session
+    ctx.session.state = state;
+
+    const extra = await extraBoard(state);
 
     // Изменяем активный board
     try {
@@ -411,7 +422,7 @@ module.exports = (game) => {
         state.activeBoard.message_id,
         null,
         message(state),
-        extraBoard(state)
+        extra
       );
     } catch (error) {}
   });
@@ -423,7 +434,6 @@ module.exports = (game) => {
       ? +state.otherRate
       : +state.valueRate;
 
-    // Изеняем стейт
     if (state.balance - amountRate < 0) {
       return await ctx.answerCbQuery(
         "У вас недостаточно средств на балансе",
@@ -438,7 +448,9 @@ module.exports = (game) => {
     state.balance = Math.floor((state.balance - amountRate) * 100) / 100;
     state.rate["even"] += amountRate;
     state.countRate += 1;
-    ctx.session.state = state; // Save in session
+    ctx.session.state = state;
+
+    const extra = await extraBoard(state);
 
     // Изменяем активный board
     try {
@@ -447,7 +459,7 @@ module.exports = (game) => {
         state.activeBoard.message_id,
         null,
         message(state),
-        extraBoard(state)
+        extra
       );
     } catch (error) {}
   });
@@ -458,13 +470,15 @@ module.exports = (game) => {
       .replace("₽", "");
     let state = ctx.session.state;
 
-    if (state.valueRate === +value)
+    if (state.valueRate === +value) {
       return await ctx.answerCbQuery("Размер ставки уже выбран", true);
+    }
 
-    // Изеняем стейт
     state.valueRate = +value;
     state.otherRateActive = false;
-    ctx.session.state = state; // Save in session
+    ctx.session.state = state;
+
+    const extra = await extraBoard(state);
 
     // Изменяем активный board
     try {
@@ -473,7 +487,7 @@ module.exports = (game) => {
         state.activeBoard.message_id,
         null,
         message(state),
-        extraBoard(state)
+        extra
       );
     } catch (error) {}
   });
@@ -500,6 +514,8 @@ module.exports = (game) => {
       true
     );
 
+    const extra = await extraBoard(state);
+
     // Изменяем активный board
     try {
       await bot.telegram.editMessageText(
@@ -507,7 +523,7 @@ module.exports = (game) => {
         state.activeBoard.message_id,
         null,
         message(state),
-        extraBoard(state)
+        extra
       );
     } catch (error) {}
   });
@@ -517,27 +533,45 @@ module.exports = (game) => {
 
     if (!ctx.session.state.otherRateActive) return;
 
-    if (!isNumber(msg))
+    if (!isNumber(msg)) {
       return await ctx.reply("Пожалуйста, введите только положительные цифры.");
+    }
 
-    if (ctx.session.state.balance < msg)
+    const rate = Math.floor(+msg * 100) / 100;
+
+    if (
+      rate === 10 ||
+      rate === 50 ||
+      rate === 100 ||
+      rate === 500 ||
+      rate === 1000
+    ) {
+      return await ctx.reply(
+        "Вы не можете выбрать сумму из уже имеющихся в борде."
+      );
+    }
+
+    if (ctx.session.state.balance < rate) {
       return await ctx.reply(
         "Вы не можете выбрать размер ставки превышающий ваш игровой баланс."
       );
+    }
 
-    if (+msg < +process.env.MIN_RATE) {
+    const { minGameRate } = await MainStats.findOne();
+
+    if (rate < minGameRate) {
       return await ctx.reply(
-        `Минимальная сумма ставки составляет ${process.env.MIN_RATE}₽`
+        `Минимальная сумма ставки составляет ${minGameRate}₽`
       );
     }
 
     ctx.session.state = {
       ...ctx.session.state,
-      otherRate: msg,
       valueRate: 0,
+      otherRate: rate,
     };
 
-    await ctx.reply(`Вы успешно выбрали размер ставки: ${msg}₽`);
+    await ctx.reply(`Вы успешно выбрали размер ставки: ${rate}₽`);
 
     const state = ctx.session.state;
 
@@ -546,12 +580,14 @@ module.exports = (game) => {
       await ctx.deleteMessage(state.activeBoard.message_id);
     } catch (error) {}
 
+    const extra = await extraBoard(state);
+
     // Изменяем активный board
     try {
       ctx.session.state.activeBoard = await bot.telegram.sendMessage(
         ctx.from.id,
         message(state),
-        extraBoard(state)
+        extra
       );
     } catch (error) {}
   });
@@ -578,6 +614,8 @@ module.exports = (game) => {
       );
     }
 
+    const { diceCoef } = await MainStats.findOne();
+
     try {
       await ctx.deleteMessage(ctx.session.state.activeBoard.message_id);
     } catch (error) {}
@@ -590,77 +628,56 @@ module.exports = (game) => {
 
     if (value === 1) {
       winSum +=
-        state.rate[1] * 4.5 +
-        state.rate["1-2"] * 2.5 +
-        state.rate["odd"] * 1.75;
+        Math.floor(state.rate[1] * diceCoef.one * 100) / 100 +
+        Math.floor(state.rate["1-2"] * diceCoef.two * 100) / 100 +
+        Math.floor(state.rate["odd"] * diceCoef.evenodd * 100) / 100;
     }
     if (value === 2) {
       winSum +=
-        state.rate[2] * 4.5 +
-        state.rate["1-2"] * 2.5 +
-        state.rate["even"] * 1.75;
+        Math.floor(state.rate[2] * diceCoef.one * 100) / 100 +
+        Math.floor(state.rate["1-2"] * diceCoef.two * 100) / 100 +
+        Math.floor(state.rate["even"] * diceCoef.evenodd * 100) / 100;
     }
     if (value === 3) {
       winSum +=
-        state.rate[3] * 4.5 +
-        state.rate["3-4"] * 2.5 +
-        state.rate["odd"] * 1.75;
+        Math.floor(state.rate[3] * diceCoef.one * 100) / 100 +
+        Math.floor(state.rate["3-4"] * diceCoef.two * 100) / 100 +
+        Math.floor(state.rate["odd"] * diceCoef.evenodd * 100) / 100;
     }
     if (value === 4) {
       winSum +=
-        state.rate[4] * 4.5 +
-        state.rate["3-4"] * 2.5 +
-        state.rate["even"] * 1.75;
+        Math.floor(state.rate[4] * diceCoef.one * 100) / 100 +
+        Math.floor(state.rate["3-4"] * diceCoef.two * 100) / 100 +
+        Math.floor(state.rate["even"] * diceCoef.evenodd * 100) / 100;
     }
     if (value === 5) {
       winSum +=
-        state.rate[5] * 4.5 +
-        state.rate["5-6"] * 2.5 +
-        state.rate["odd"] * 1.75;
+        Math.floor(state.rate[5] * diceCoef.one * 100) / 100 +
+        Math.floor(state.rate["5-6"] * diceCoef.two * 100) / 100 +
+        Math.floor(state.rate["odd"] * diceCoef.evenodd * 100) / 100;
     }
     if (value === 6) {
       winSum +=
-        state.rate[6] * 4.5 +
-        state.rate["5-6"] * 2.5 +
-        state.rate["even"] * 1.75;
+        Math.floor(state.rate[6] * diceCoef.one * 100) / 100 +
+        Math.floor(state.rate["5-6"] * diceCoef.two * 100) / 100 +
+        Math.floor(state.rate["even"] * diceCoef.evenodd * 100) / 100;
     }
 
-    if (winSum > 0) resMsg = "Поздравляем! Вы выиграли 🎉";
-
-    ctx.session.state.balance += winSum;
-    ctx.session.state.rateMenu = false;
-
-    if (state.activeGame === "mainGame") {
-      await User.updateOne(
-        { userId: ctx.from.id },
-        { mainBalance: Math.floor(ctx.session.state.balance * 100) / 100 }
-      );
+    if (winSum > 0) {
+      resMsg = "Поздравляем! Вы выиграли 🎉";
     }
-    if (state.activeGame === "demoGame") {
-      await User.updateOne(
-        { userId: ctx.from.id },
-        { demoBalance: Math.floor(ctx.session.state.balance * 100) / 100 }
-      );
-    }
-    saveGames({
-      typeGame: "dice",
-      typeBalance: state.activeGame,
-      result: winSum > 0 ? "win" : "lose",
-      rateAmount: amountRate,
-      rateWinAmount: winSum,
-      rateValue: value,
-      rate: state.rate,
-      userId: ctx.from.id,
-      date: moment().format("YYYY-MM-DD"),
-    });
+
+    state.rateMenu = false;
+    state.balance += winSum;
+    ctx.session.state = state;
 
     setTimeout(async () => {
       ctx.session.state.activeBoard = await ctx.reply(
         `${resMsg}
         
 Ваша общая ставка - ${amountRate}
-Ваш выигрыш - ${Math.floor(winSum * 100) / 100}
-Ваш баланс - ${Math.floor(ctx.session.state.balance * 100) / 100}`,
+Ваш выигрыш - ${winSum}
+Ваш баланс - ${state.balance}`,
         Extra.markup((m) =>
           m.inlineKeyboard([
             [
@@ -677,12 +694,35 @@ module.exports = (game) => {
         )
       );
     }, 4000);
+
+    if (state.activeGame === "mainGame") {
+      await User.updateOne(
+        { userId: ctx.from.id },
+        { mainBalance: state.balance }
+      );
+    }
+    if (state.activeGame === "demoGame") {
+      await User.updateOne(
+        { userId: ctx.from.id },
+        { demoBalance: state.balance }
+      );
+    }
+    saveGames({
+      typeGame: "dice",
+      typeBalance: state.activeGame,
+      result: winSum > 0 ? "win" : "lose",
+      rateAmount: amountRate,
+      rateWinAmount: winSum,
+      rateValue: value,
+      rate: state.rate,
+      userId: ctx.from.id,
+      date: moment().format("YYYY-MM-DD"),
+    });
   });
 
   game.action(/Сделать другую ставку/, async (ctx) => {
     let state = ctx.session.state;
 
-    // Удаляем сообщение "Сделать еще одну ставку"
     try {
       await ctx.deleteMessage(state.activeBoard.message_id);
     } catch (error) {}
@@ -709,10 +749,9 @@ module.exports = (game) => {
     ctx.session.state = state;
     ctx.session.state.rateMenu = true;
 
-    ctx.session.state.activeBoard = await ctx.reply(
-      message(state),
-      extraBoard(state)
-    );
+    const extra = await extraBoard(state);
+
+    ctx.session.state.activeBoard = await ctx.reply(message(state), extra);
   });
 
   game.action(/Бросить кости еще раз/, async (ctx) => {
@@ -737,7 +776,8 @@ module.exports = (game) => {
       );
     }
 
-    // Удаляем сообщение "Сделать еще одну ставку"
+    const { diceCoef } = await MainStats.findOne();
+
     try {
       await ctx.deleteMessage(state.activeBoard.message_id);
     } catch (error) {}
@@ -745,84 +785,62 @@ module.exports = (game) => {
     const diceMsg = await bot.telegram.sendDice(ctx.from.id, { emoji: "🎲" });
     const value = diceMsg.dice.value;
 
-    ctx.session.state.balance -= amountRate;
-    ctx.session.state = state;
-
     let winSum = 0;
     let resMsg = "Вы были близко! Не сдавайесь, в следующий раз повезет!";
 
     if (value === 1) {
       winSum +=
-        state.rate[1] * 4.5 +
-        state.rate["1-2"] * 2.5 +
-        state.rate["odd"] * 1.75;
+        Math.floor(state.rate[1] * diceCoef.one * 100) / 100 +
+        Math.floor(state.rate["1-2"] * diceCoef.two * 100) / 100 +
+        Math.floor(state.rate["odd"] * diceCoef.evenodd * 100) / 100;
     }
     if (value === 2) {
       winSum +=
-        state.rate[2] * 4.5 +
-        state.rate["1-2"] * 2.5 +
-        state.rate["even"] * 1.75;
+        Math.floor(state.rate[2] * diceCoef.one * 100) / 100 +
+        Math.floor(state.rate["1-2"] * diceCoef.two * 100) / 100 +
+        Math.floor(state.rate["even"] * diceCoef.evenodd * 100) / 100;
     }
     if (value === 3) {
       winSum +=
-        state.rate[3] * 4.5 +
-        state.rate["3-4"] * 2.5 +
-        state.rate["odd"] * 1.75;
+        Math.floor(state.rate[3] * diceCoef.one * 100) / 100 +
+        Math.floor(state.rate["3-4"] * diceCoef.two * 100) / 100 +
+        Math.floor(state.rate["odd"] * diceCoef.evenodd * 100) / 100;
     }
     if (value === 4) {
       winSum +=
-        state.rate[4] * 4.5 +
-        state.rate["3-4"] * 2.5 +
-        state.rate["even"] * 1.75;
+        Math.floor(state.rate[4] * diceCoef.one * 100) / 100 +
+        Math.floor(state.rate["3-4"] * diceCoef.two * 100) / 100 +
+        Math.floor(state.rate["even"] * diceCoef.evenodd * 100) / 100;
     }
     if (value === 5) {
       winSum +=
-        state.rate[5] * 4.5 +
-        state.rate["5-6"] * 2.5 +
-        state.rate["odd"] * 1.75;
+        Math.floor(state.rate[5] * diceCoef.one * 100) / 100 +
+        Math.floor(state.rate["5-6"] * diceCoef.two * 100) / 100 +
+        Math.floor(state.rate["odd"] * diceCoef.evenodd * 100) / 100;
     }
     if (value === 6) {
       winSum +=
-        state.rate[6] * 4.5 +
-        state.rate["5-6"] * 2.5 +
-        state.rate["even"] * 1.75;
+        Math.floor(state.rate[6] * diceCoef.one * 100) / 100 +
+        Math.floor(state.rate["5-6"] * diceCoef.two * 100) / 100 +
+        Math.floor(state.rate["even"] * diceCoef.evenodd * 100) / 100;
     }
 
-    if (winSum > 0) resMsg = "Поздравляем! Вы выиграли 🎉";
-
-    ctx.session.state.balance += winSum;
-
-    if (state.activeGame === "mainGame") {
-      await User.updateOne(
-        { userId: ctx.from.id },
-        { mainBalance: Math.floor(ctx.session.state.balance * 100) / 100 }
-      );
+    if (winSum > 0) {
+      resMsg = "Поздравляем! Вы выиграли 🎉";
     }
-    if (state.activeGame === "demoGame") {
-      await User.updateOne(
-        { userId: ctx.from.id },
-        { demoBalance: Math.floor(ctx.session.state.balance * 100) / 100 }
-      );
-    }
-    saveGames({
-      typeGame: "dice",
-      typeBalance: state.activeGame,
-      result: winSum > 0 ? "win" : "lose",
-      rateAmount: amountRate,
-      rateWinAmount: winSum,
-      rateValue: value,
-      rate: state.rate,
-      userId: ctx.from.id,
-      date: moment().format("YYYY-MM-DD"),
-    });
+
+    state.rateMenu = false;
+    state.balance =
+      Math.floor((state.balance - amountRate + winSum) * 100) / 100;
+    ctx.session.state = state;
 
     setTimeout(async () => {
       ctx.session.state.activeBoard = await ctx.reply(
         `${resMsg}
         
-  Ваша общая ставка - ${amountRate}
-  Ваш выигрыш - ${Math.floor(winSum * 100) / 100}
-  Ваш баланс - ${Math.floor(ctx.session.state.balance * 100) / 100}`,
+Ваша общая ставка - ${amountRate}
+Ваш выигрыш - ${winSum}
+Ваш баланс - ${state.balance}`,
         Extra.markup((m) =>
           m.inlineKeyboard([
             [
@@ -839,6 +857,30 @@ module.exports = (game) => {
         )
       );
     }, 4000);
+
+    if (state.activeGame === "mainGame") {
+      await User.updateOne(
+        { userId: ctx.from.id },
+        { mainBalance: state.balance }
+      );
+    }
+    if (state.activeGame === "demoGame") {
+      await User.updateOne(
+        { userId: ctx.from.id },
+        { demoBalance: state.balance }
+      );
+    }
+    saveGames({
+      typeGame: "dice",
+      typeBalance: state.activeGame,
+      result: winSum > 0 ? "win" : "lose",
+      rateAmount: amountRate,
+      rateWinAmount: winSum,
+      rateValue: value,
+      rate: state.rate,
+      userId: ctx.from.id,
+      date: moment().format("YYYY-MM-DD"),
+    });
   });
 
   game.on("dice", async (ctx) => {
@@ -869,7 +911,7 @@ module.exports = (game) => {
           "Вы не сделали ставку. Пожалуйста сделайте ставку, чтобы бросить кости."
         );
       }
-      ctx.session.state.rateMenu = false;
+      state.rateMenu = false;
     } else {
       // Если хотим бросить еще раз с той же ставкой
       if (state.balance - amountRate < 0) {
@@ -877,11 +919,13 @@ module.exports = (game) => {
           "У вас недостаточно средств на счету. Пожалуйста, пополните баланс, либо сделайте ставку меньшим размером."
         );
       }
-      ctx.session.state.balance -= amountRate;
+      state.balance = Math.floor((state.balance - amountRate) * 100) / 100;
     }
 
+    const { diceCoef } = await MainStats.findOne();
+
     try {
-      await ctx.deleteMessage(ctx.session.state.activeBoard.message_id);
+      await ctx.deleteMessage(state.activeBoard.message_id);
     } catch (error) {}
 
     let winSum = 0;
@@ -889,76 +933,55 @@ module.exports = (game) => {
 
     if (value === 1) {
       winSum +=
-        state.rate[1] * 4.5 +
-        state.rate["1-2"] * 2.5 +
-        state.rate["odd"] * 1.75;
+        Math.floor(state.rate[1] * diceCoef.one * 100) / 100 +
+        Math.floor(state.rate["1-2"] * diceCoef.two * 100) / 100 +
+        Math.floor(state.rate["odd"] * diceCoef.evenodd * 100) / 100;
     }
     if (value === 2) {
       winSum +=
-        state.rate[2] * 4.5 +
-        state.rate["1-2"] * 2.5 +
-        state.rate["even"] * 1.75;
+        Math.floor(state.rate[2] * diceCoef.one * 100) / 100 +
+        Math.floor(state.rate["1-2"] * diceCoef.two * 100) / 100 +
+        Math.floor(state.rate["even"] * diceCoef.evenodd * 100) / 100;
     }
     if (value === 3) {
       winSum +=
-        state.rate[3] * 4.5 +
-        state.rate["3-4"] * 2.5 +
-        state.rate["odd"] * 1.75;
+        Math.floor(state.rate[3] * diceCoef.one * 100) / 100 +
+        Math.floor(state.rate["3-4"] * diceCoef.two * 100) / 100 +
+        Math.floor(state.rate["odd"] * diceCoef.evenodd * 100) / 100;
     }
     if (value === 4) {
       winSum +=
-        state.rate[4] * 4.5 +
-        state.rate["3-4"] * 2.5 +
-        state.rate["even"] * 1.75;
+        Math.floor(state.rate[4] * diceCoef.one * 100) / 100 +
+        Math.floor(state.rate["3-4"] * diceCoef.two * 100) / 100 +
+        Math.floor(state.rate["even"] * diceCoef.evenodd * 100) / 100;
     }
     if (value === 5) {
       winSum +=
-        state.rate[5] * 4.5 +
-        state.rate["5-6"] * 2.5 +
-        state.rate["odd"] * 1.75;
+        Math.floor(state.rate[5] * diceCoef.one * 100) / 100 +
+        Math.floor(state.rate["5-6"] * diceCoef.two * 100) / 100 +
+        Math.floor(state.rate["odd"] * diceCoef.evenodd * 100) / 100;
     }
     if (value === 6) {
       winSum +=
-        state.rate[6] * 4.5 +
-        state.rate["5-6"] * 2.5 +
-        state.rate["even"] * 1.75;
+        Math.floor(state.rate[6] * diceCoef.one * 100) / 100 +
+        Math.floor(state.rate["5-6"] * diceCoef.two * 100) / 100 +
+        Math.floor(state.rate["even"] * diceCoef.evenodd * 100) / 100;
     }
 
-    if (winSum > 0) resMsg = "Поздравляем! Вы выиграли 🎉";
-
-    ctx.session.state.balance += winSum;
-
-    if (state.activeGame === "mainGame") {
-      await User.updateOne(
-        { userId: ctx.from.id },
-        { mainBalance: Math.floor(ctx.session.state.balance * 100) / 100 }
-      );
+    if (winSum > 0) {
+      resMsg = "Поздравляем! Вы выиграли 🎉";
     }
-    if (state.activeGame === "demoGame") {
-      await User.updateOne(
-        { userId: ctx.from.id },
-        { demoBalance: Math.floor(ctx.session.state.balance * 100) / 100 }
-      );
-    }
-    saveGames({
-      typeGame: "dice",
-      typeBalance: state.activeGame,
-      result: winSum > 0 ? "win" : "lose",
-      rateAmount: amountRate,
-      rateWinAmount: winSum,
-      rateValue: value,
-      rate: state.rate,
-      userId: ctx.from.id,
-      date: moment().format("YYYY-MM-DD"),
-    });
+
+    state.balance += winSum;
+    ctx.session.state = state;
 
     setTimeout(async () => {
       ctx.session.state.activeBoard = await ctx.reply(
         `${resMsg}
         
-  Ваша общая ставка - ${amountRate}
-  Ваш выигрыш - ${Math.floor(winSum * 100) / 100}
-  Ваш баланс - ${Math.floor(ctx.session.state.balance * 100) / 100}`,
+Ваша общая ставка - ${amountRate}
+Ваш выигрыш - ${winSum}
+Ваш баланс - ${state.balance}`,
         Extra.markup((m) =>
           m.inlineKeyboard([
             [
@@ -975,5 +998,29 @@ module.exports = (game) => {
         )
       );
     }, 4000);
+
+    if (state.activeGame === "mainGame") {
+      await User.updateOne(
+        { userId: ctx.from.id },
+        { mainBalance: state.balance }
+      );
+    }
+    if (state.activeGame === "demoGame") {
+      await User.updateOne(
+        { userId: ctx.from.id },
+        { demoBalance: state.balance }
+      );
+    }
+    saveGames({
+      typeGame: "dice",
+      typeBalance: state.activeGame,
+      result: winSum > 0 ? "win" : "lose",
+      rateAmount: amountRate,
+      rateWinAmount: winSum,
+      rateValue: value,
+      rate: state.rate,
+      userId: ctx.from.id,
+      date: moment().format("YYYY-MM-DD"),
+    });
   });
 };

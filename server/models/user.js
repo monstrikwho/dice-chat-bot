@@ -9,6 +9,7 @@ const schema = new mongoose.Schema({
   demoBalance: Double,
   mainBalance: Double,
   isBlocked: Boolean,
+  btnStart: Boolean,
   isRef: Number,
   refCash: Number,
   countRef: Number,

@@ -1,6 +1,8 @@
 const Extra = require("telegraf/extra");
+const MainStats = require("../models/mainstats");
 
-module.exports = (state) => {
+module.exports = async (state) => {
+  const { slotCoef } = await MainStats.findOne();
   const inlineBtnHook = (m, name) => m.callbackButton(name, name);
   const valueRate = (count) => {
     if (count === -1 && state.otherRateActive)
@@ -20,7 +22,7 @@ module.exports = (state) => {
         inlineBtnHook(m, valueRate(1000)),
       ],
       [inlineBtnHook(m, valueRate(-1)), inlineBtnHook(m, `🗑 Очистить ставки`)],
-      [inlineBtnHook(m, `Поставить  -  💰 ${state.rate["jek"]}  [x12]`)],
+      [inlineBtnHook(m, `Поставить  -  💰 ${state.rate["jek"]}  [x${slotCoef}]`)],
       [inlineBtnHook(m, `Крутить барабан 🎰`)],
     ])
   );

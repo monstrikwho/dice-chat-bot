@@ -85,7 +85,7 @@ async function inCash(txnId, amount, userId) {
   const user = await User.findOne({ userId });
   if (!user) return;
 
-  const { toRefPercent } = await MainStats.findOne({});
+  const { bonusRefPercent } = await MainStats.findOne({});
 
   if (user.isRef !== 0) {
     // Начисляем процент пополениня пригласившему реферала
@@ -93,7 +93,8 @@ async function inCash(txnId, amount, userId) {
       { userId: user.isRef },
       {
         $inc: {
-          mainBalance: Math.floor(((amount * toRefPercent) / 100) * 100) / 100,
+          mainBalance:
+            Math.floor(((amount * bonusRefPercent) / 100) * 100) / 100,
         },
       }
     );
@@ -102,9 +103,9 @@ async function inCash(txnId, amount, userId) {
       await bot.telegram.sendMessage(
         user.isRef,
         `На ваш ОСНОВНОЙ счет было зачисленно ${
-          Math.floor(((amount * toRefPercent) / 100) * 100) / 100
+          Math.floor(((amount * bonusRefPercent) / 100) * 100) / 100
         }₽ за приглашенного вами реферала.
-    Номер платежа: ${txnId}`
+Номер платежа: ${txnId}`
       );
     } catch (error) {}
   }
@@ -115,9 +116,9 @@ async function inCash(txnId, amount, userId) {
     await bot.telegram.sendMessage(
       userId,
       `На ваш баланс было зачисленно ${amount}₽.
-  Ваш текущий баланс: ${user.mainBalance + amount}
-  
-  Номер платежа: ${txnId}`
+Ваш текущий баланс: ${user.mainBalance + amount}
+
+Номер платежа: ${txnId}`
     );
   } catch (error) {}
 
@@ -216,6 +217,7 @@ async function outCash(txnId, amount, userId, provider) {
   if (!user) return;
 
   const { outPercent } = await MainStats.findOne({});
+  await MainStats.updateOne({}, { "orderStats.lastNumberOrder": txnId });
 
   // Считаем комиссию
   let commission = 0;

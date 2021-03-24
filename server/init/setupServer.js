@@ -17,6 +17,8 @@ app.use("/get_orders_data", require("../routes/get_orders_data"));
 app.use("/get_games_data", require("../routes/get_games_data"));
 app.use("/post_mailing", require("../routes/post_mailing"));
 app.use("/post_update_user", require("../routes/post_update_user"));
+app.use("/post_fake_order", require("../routes/post_fake_order"));
+app.use("/post_set_token", require("../routes/post_set_token"));
 
 const server = app.listen(process.env.PORT, () => {
   console.log("Server up on PORT: " + process.env.PORT);

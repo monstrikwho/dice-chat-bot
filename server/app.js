@@ -7,6 +7,7 @@ const server = require("./init/setupServer");
 
 // Commands
 const setupStart = require("./commands/start");
+const setupStats = require("./helpers/checkBlockedUsers");
 
 // Init
 startBot();
@@ -14,6 +15,7 @@ setupMongoose();
 
 // Commands
 setupStart(bot);
+setupStats(bot)
 
 // const Order = require("./models/user");
 // bot.command("ss", async (ctx) => {

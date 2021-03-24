@@ -50,14 +50,11 @@ diceGame.enter(async (ctx) => {
 
     let message = ({ balance }) => `Ваш баланс: ${balance} ₽`;
 
+    const extra = await extraBoard(initState);
+
     // Отправляем init board
-    ctx.session.state.activeBoard = await ctx.reply(
-      message(initState),
-      extraBoard(initState)
-    );
-  } catch (error) {
-    console.log(error.message);
-  }
+    ctx.session.state.activeBoard = await ctx.reply(message(initState), extra);
+  } catch (error) {}
 });
 
 diceGame.hears(
@@ -65,9 +62,7 @@ diceGame.hears(
   async ({ scene, deleteMessage, session }) => {
     try {
       await deleteMessage(session.state.activeBoard.message_id);
-    } catch (error) {
-      console.log(error.message);
-    }
+    } catch (error) {}
     await scene.enter("showMainMenu");
   }
 );

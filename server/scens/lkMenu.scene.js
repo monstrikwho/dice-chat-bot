@@ -3,10 +3,16 @@ const Extra = require("telegraf/extra");
 const Markup = require("telegraf/markup");
 
 const User = require("../models/user");
+const MainStats = require("../models/mainstats");
 
 const lkMenu = new Scene("lkMenu");
 lkMenu.enter(async (ctx) => {
   const user = await User.findOne({ userId: ctx.from.id });
+  const {
+    bonusRefDaughter,
+    bonusRefFather,
+    bonusRefPercent,
+  } = await MainStats.findOne({});
 
   const extra =
     user.userRights === "admin"
@@ -28,15 +34,15 @@ lkMenu.enter(async (ctx) => {
     `Ваш личный номер: ${ctx.from.id}
 
 Ваш ОСНОВНОЙ счет: ${user.mainBalance}₽
-Ваш ДЕМО счет: ${user.demoBalance}₽
+Ваш ДЕМО-счет: ${user.demoBalance}₽
 
 Кол-во рефералов: ${user.countRef}
 Кеш с рефералов: ${user.refCash}
 
 Условия реферльной программы:
-1) 5% от пополнения рефералом начисляем вам на счет;
-2) +5к демо-баланаса на Ваш счет;
-3) +10к демо-баланаса на счет реферала.
+1) ${bonusRefPercent}% от пополнения рефералом начисляем вам на счет;
+2) +${bonusRefFather} демо-баланаса на Ваш счет;
+3) +${bonusRefDaughter} демо-баланаса на счет реферала.
 Ваша реферальная ссылка: t.me/luckycat_bot?start=ref${ctx.from.id}`,
     extra
   );

@@ -37,16 +37,14 @@ slotGame.enter(async (ctx) => {
       "Делайте ваши ставки",
       Extra.markup(Markup.keyboard([["🏡 Вернуться на главную"]]).resize())
     );
+
     let message = ({ balance }) => `Ваш баланс: ${balance} ₽`;
 
+    const extra = await extraBoard(initState);
+
     // Отправляем init board
-    ctx.session.state.activeBoard = await ctx.reply(
-      message(initState),
-      extraBoard(initState)
-    );
-  } catch (error) {
-    console.log(error.message);
-  }
+    ctx.session.state.activeBoard = await ctx.reply(message(initState), extra);
+  } catch (error) {}
 });
 
 slotGame.hears(
@@ -54,9 +52,7 @@ slotGame.hears(
   async ({ scene, deleteMessage, session }) => {
     try {
       await deleteMessage(session.state.activeBoard.message_id);
-    } catch (error) {
-      console.log(error.message);
-    }
+    } catch (error) {}
     await scene.enter("showMainMenu");
   }
 );

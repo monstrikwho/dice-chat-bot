@@ -1,5 +1,6 @@
 const setupScenes = require("../scens/setupScenes");
 const moment = require("moment");
+
 const User = require("../models/user");
 const MainStats = require("../models/mainstats");
 
@@ -16,6 +17,61 @@ function setupStart(bot) {
     }
   }
 
+  async function updateRefUsers(isRef, bonusRefFather) {
+    // Записываем рефералу счетчик +1 к рефералам
+    await User.updateOne(
+      { userId: isRef },
+      { $inc: { countRef: 1, demoBalance: bonusRefFather } }
+    );
+    await bot.telegram.sendMessage(
+      isRef,
+      `По вашей реферальной ссылке зарегистрировался пользователь.
+На Ваш ДЕМО-счет было зачислено ${bonusRefFather}P`
+    );
+  }
+
+  async function updateUser(ctx, user) {
+    await User.updateOne(
+      { userId: ctx.from.id },
+      { isBlocked: false, btnStart: true }
+    );
+    await MainStats.updateOne(
+      {},
+      {
+        $inc: {
+          "usersStats.countUsersBlocked": user.isBlocked ? 1 : 0,
+          "usersStats.countBtnStart": !user.btnStart ? 1 : 0,
+        },
+      }
+    );
+  }
+
+  async function saveUser(ctx, startDemoBalance, bouns, isRef, constRef) {
+    const user = new User({
+      userId: ctx.from.id,
+      demoBalance: startDemoBalance + bouns,
+      mainBalance: 0,
+      userRights: "user",
+      isRef,
+      refCash: 0,
+      countRef: 0,
+      isBlocked: false,
+      btnStart: true,
+      regDate: moment().format("YYYY-MM-DD"),
+    });
+    await user.save();
+    await MainStats.updateOne(
+      {},
+      {
+        $inc: {
+          "usersStats.countUsers": 1,
+          "usersStats.countBtnStart": 1,
+          "usersStats.countRefUsers": isRef !== constRef ? 1 : 0,
+        },
+      }
+    );
+  }
+
   // Start command
   bot.start(async (ctx) => {
     // Откидываем возможность запуска бота в пабликах
@@ -23,7 +79,12 @@ function setupStart(bot) {
 
     const startPayload = ctx.startPayload;
 
-    const { constRef } = await MainStats.findOne({});
+    const {
+      constRef,
+      bonusRefDaughter,
+      bonusRefFather,
+      startDemoBalance,
+    } = await MainStats.findOne({});
 
     let isRef = constRef;
     let bouns = 0;
@@ -44,7 +105,8 @@ function setupStart(bot) {
         const status = await User.findOne({ userId: refUserId });
         if (status) {
           isRef = refUserId;
-          bouns = 10000;
+          bouns = bonusRefDaughter;
+          updateRefUsers(isRef, bonusRefFather);
         }
       }
 
@@ -60,25 +122,9 @@ function setupStart(bot) {
     try {
       const selectUser = await User.findOne({ userId: ctx.from.id });
       if (!selectUser) {
-        const user = new User({
-          userId: ctx.from.id,
-          demoBalance: 2000 + bouns,
-          mainBalance: 0,
-          isBlocked: false,
-          regDate: moment().format("YYYY-MM-DD"),
-          userRights: "user",
-          isRef,
-          refCash: 0,
-          countRef: 0,
-        });
-        await user.save();
-        await User.updateOne({ userId: isRef }, { $inc: { countRef: 1 } });
-        await bot.telegram.sendMessage(
-          isRef,
-          "По вашей реферальной ссылке зарегистрировался пользователь."
-        );
+        saveUser(ctx, startDemoBalance, bouns, isRef, constRef);
       } else {
-        await User.findOne({ userId: ctx.from.id }, { isBlocked: false });
+        updateUser(ctx, selectUser);
         return await ctx.scene.enter("showMainMenu");
       }
 
@@ -91,7 +137,7 @@ function setupStart(bot) {
 
       if (isRef !== constRef) {
         await ctx.reply(`Вы зарегистрировались по пригласительной ссылке. 
-Ваш бонус: +10к на ДЕМО счет.`);
+Ваш бонус: +${bonusRefDaughter} на ДЕМО-счет.`);
       }
 
       return await ctx.scene.enter("showMainMenu");

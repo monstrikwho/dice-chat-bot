@@ -1,8 +1,8 @@
 const Scene = require("telegraf/scenes/base");
 const Extra = require("telegraf/extra");
 const Markup = require("telegraf/markup");
-
 const isNumber = require("is-number");
+
 const MainStats = require("../models/mainstats");
 
 const inMoney = new Scene("inMoney");
@@ -25,7 +25,10 @@ inMoney.enter(async (ctx) => {
 inMoney.hears(/(?:50₽|100₽|500₽|1000₽)/, async (ctx) => {
   const amount = +ctx.update.message.text.replace(/\D+/, "").replace("₽", "");
   const comment = ctx.from.id;
-  const url = `https://qiwi.com/payment/form/99?extra%5B%27account%27%5D=${process.env.QIWI_WALLET}&amountInteger=${amount}&amountFraction=0&extra%5B%27comment%27%5D=${comment}&currency=643&blocked[0]=sum&blocked[1]=account&blocked[2]=comment`;
+
+  const { webhook } = await MainStats.findOne({});
+
+  const url = `https://qiwi.com/payment/form/99?extra%5B%27account%27%5D=${webhook.qiwiWallet}&amountInteger=${amount}&amountFraction=0&extra%5B%27comment%27%5D=${comment}&currency=643&blocked[0]=sum&blocked[1]=account&blocked[2]=comment`;
 
   await ctx.scene.enter("lkMenu");
 
@@ -73,7 +76,7 @@ writeAmount.on("text", async (ctx) => {
     return await ctx.scene.enter("inMoney");
   }
 
-  const { minIn } = await MainStats.findOne({});
+  const { minIn, webhook } = await MainStats.findOne({});
 
   const amount = +ctx.update.message.text.replace(/\D+/, "").trim();
 
@@ -82,7 +85,7 @@ writeAmount.on("text", async (ctx) => {
       return await ctx.reply(`Минимальная сумма для пополнения ${minIn}₽`);
     }
 
-    const url = `https://qiwi.com/payment/form/99?extra%5B%27account%27%5D=${process.env.QIWI_WALLET}&amountInteger=${amount}&amountFraction=0&extra%5B%27comment%27%5D=${ctx.from.id}&currency=643&blocked[0]=sum&blocked[1]=account&blocked[2]=comment`;
+    const url = `https://qiwi.com/payment/form/99?extra%5B%27account%27%5D=${webhook.qiwiWallet}&amountInteger=${amount}&amountFraction=0&extra%5B%27comment%27%5D=${ctx.from.id}&currency=643&blocked[0]=sum&blocked[1]=account&blocked[2]=comment`;
 
     await ctx.scene.enter("lkMenu");
 
