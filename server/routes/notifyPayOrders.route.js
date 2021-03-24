@@ -87,6 +87,16 @@ async function inCash(txnId, amount, userId) {
 
   const { bonusRefPercent } = await MainStats.findOne({});
 
+  await MainStats.updateOne(
+    {},
+    {
+      $inc: {
+        "orderStats.amountInMoney": amount,
+        "orderStats.countInOrder": 1,
+      },
+    }
+  );
+
   if (user.isRef !== 0) {
     // Начисляем процент пополениня пригласившему реферала
     await User.updateOne(
@@ -217,7 +227,17 @@ async function outCash(txnId, amount, userId, provider) {
   if (!user) return;
 
   const { outPercent } = await MainStats.findOne({});
-  await MainStats.updateOne({}, { "orderStats.lastNumberOrder": txnId });
+
+  await MainStats.updateOne(
+    {},
+    {
+      "orderStats.lastNumberOrder": txnId,
+      $inc: {
+        "orderStats.amountOutMoney": amount,
+        "orderStats.countOutOrder": 1,
+      },
+    }
+  );
 
   // Считаем комиссию
   let commission = 0;
