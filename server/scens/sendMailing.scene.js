@@ -195,7 +195,7 @@ sendMailing.action("💵 Отправить пост", async (ctx) => {
 
   await deletePostMsg(ctx);
 
-  let users = await User.find({ btnStart: false });
+  let users = await User.find({ isBlocked: false });
 
   let seconds = 0;
   const statsTime = await ctx.reply(`Начинаем рассылку...
@@ -263,7 +263,7 @@ sendMailing.action("💵 Отправить пост", async (ctx) => {
 
   removeInterval();
   await ctx.reply(`Рассылка завершена.`);
-  await ctx.scene.enter("mainMenu");
+  await ctx.scene.enter("showMainMenu");
 });
 
 //
