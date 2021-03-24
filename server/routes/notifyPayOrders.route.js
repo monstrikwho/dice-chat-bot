@@ -95,7 +95,9 @@ async function inCash(txnId, amount, userId) {
         "orderStats.countInOrder": 1,
       },
       "usersStats.":
-        usersStats.indexOf(userId) !== 1 ? [...usersStats, userId] : usersStats,
+        usersStats.donaters.indexOf(userId) !== 1
+          ? [...usersStats.donaters, userId]
+          : usersStats.donaters,
     }
   );
 
