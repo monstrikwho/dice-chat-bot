@@ -3,6 +3,7 @@ const Extra = require("telegraf/extra");
 const Markup = require("telegraf/markup");
 
 const User = require("../models/user");
+const MainStats = require("../models/mainstats");
 const { bot } = require("../init/startBot");
 
 const sendMailing = new Scene("sendMailing");
@@ -259,6 +260,10 @@ sendMailing.action("💵 Отправить пост", async (ctx) => {
       } catch (error) {}
       await User.updateOne({ userId }, { btnStart: false });
     }
+  }
+
+  if (post.btnStart) {
+    await MainStats.updateOne({}, { "usersStats.countBtnStart": 0 });
   }
 
   removeInterval();

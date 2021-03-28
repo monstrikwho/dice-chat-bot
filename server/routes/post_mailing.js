@@ -5,6 +5,7 @@ const Markup = require("telegraf/markup");
 
 const { bot } = require("../init/startBot");
 const Users = require("../models/user");
+const MainStats = require("../models/mainstats");
 
 const sending = async (users, message, btnStart) => {
   for (let { userId } of users) {
@@ -14,6 +15,10 @@ const sending = async (users, message, btnStart) => {
         await Users.updateOne({ userId }, { btnStart: false });
       }
     } catch (error) {}
+  }
+
+  if (btnStart) {
+    await MainStats.updateOne({}, { "usersStats.countBtnStart": 0 });
   }
 };
 
