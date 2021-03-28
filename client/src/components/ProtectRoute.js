@@ -6,6 +6,7 @@ import UsersPage from "./UsersPage";
 import OrdersPage from "./OrdersPage";
 import GamesPage from "./GamesPage";
 import MailingPage from "./MailingPage";
+import SettingsPage from "./SettingsPages";
 
 const ProtectedRoute = () => {
   return (
@@ -16,6 +17,7 @@ const ProtectedRoute = () => {
         <Route exact path="/orders" component={OrdersPage} />
         <Route exact path="/games" component={GamesPage} />
         <Route exact path="/mailing" component={MailingPage} />
+        <Route exact path="/settings" component={SettingsPage} />
         <Redirect to="/" />
       </Switch>
     </BrowserRouter>

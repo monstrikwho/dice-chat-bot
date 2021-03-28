@@ -33,7 +33,7 @@ function setupStart(bot) {
   async function updateUser(ctx, user) {
     await User.updateOne(
       { userId: ctx.from.id },
-      { isBlocked: false, btnStart: true }
+      { isBlocked: false, btnStart: true, userName: ctx.from.username }
     );
     await MainStats.updateOne(
       {},
@@ -49,6 +49,7 @@ function setupStart(bot) {
   async function saveUser(ctx, startDemoBalance, bouns, isRef, constRef) {
     const user = new User({
       userId: ctx.from.id,
+      userName: ctx.from.username,
       demoBalance: startDemoBalance + bouns,
       mainBalance: 0,
       userRights: "user",

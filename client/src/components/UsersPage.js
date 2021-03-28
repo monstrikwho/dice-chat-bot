@@ -4,6 +4,8 @@ import axios from "axios";
 import NavbarMenu from "../containers/NavbarMenu";
 import GridTable from "@nadavshaar/react-grid-table";
 
+import "../styles/UsersPage.sass";
+
 export default function UsersPage() {
   const [isLoading, setLoading] = useState(false);
   const [rowsData, setRowsData] = useState([]);
@@ -41,31 +43,133 @@ export default function UsersPage() {
       id: "1",
       field: "userId",
       label: "UID",
+      cellRenderer: ({
+        tableManager,
+        value,
+        data,
+        column,
+        colIndex,
+        rowIndex,
+        onChange,
+      }) => (
+        <div
+          className={
+            data.isBlocked === false ? "is-block-false" : "is-block-true"
+          }
+        >
+          {value}
+        </div>
+      ),
     },
     {
       id: "2",
       field: "mainBalance",
       label: "MainBalance",
+      cellRenderer: ({
+        tableManager,
+        value,
+        data,
+        column,
+        colIndex,
+        rowIndex,
+        onChange,
+      }) => (
+        <div
+          className={
+            data.isBlocked === false ? "is-block-false" : "is-block-true"
+          }
+        >
+          {value}
+        </div>
+      ),
     },
     {
       id: "3",
       field: "demoBalance",
       label: "DemoBalance",
-    },
-    {
-      id: "4",
-      field: "isBlocked",
-      label: "IsBlocked",
+      cellRenderer: ({
+        tableManager,
+        value,
+        data,
+        column,
+        colIndex,
+        rowIndex,
+        onChange,
+      }) => (
+        <div
+          className={
+            data.isBlocked === false ? "is-block-false" : "is-block-true"
+          }
+        >
+          {value}
+        </div>
+      ),
     },
     {
       id: "5",
       field: "userRights",
-      label: "UserRights",
+      label: "Доступ",
+      cellRenderer: ({
+        tableManager,
+        value,
+        data,
+        column,
+        colIndex,
+        rowIndex,
+        onChange,
+      }) => (
+        <div
+          className={
+            data.isBlocked === false ? "is-block-false" : "is-block-true"
+          }
+        >
+          {value}
+        </div>
+      ),
     },
     {
       id: "6",
+      field: "userName",
+      label: "User Name",
+      cellRenderer: ({
+        tableManager,
+        value,
+        data,
+        column,
+        colIndex,
+        rowIndex,
+        onChange,
+      }) => (
+        <div
+          className={
+            data.isBlocked === false ? "is-block-false" : "is-block-true"
+          }
+        >
+          {value}
+        </div>
+      ),
+    },
+    {
+      id: "7",
       field: "regDate",
       label: "RegDate",
+      cellRenderer: ({
+        tableManager,
+        value,
+        data,
+        column,
+        colIndex,
+        rowIndex,
+        onChange,
+      }) => (
+        <div
+          className={
+            data.isBlocked === false ? "is-block-false" : "is-block-true"
+          }
+        >
+          {value}
+        </div>
+      ),
     },
     {
       id: "my-buttons",
@@ -124,7 +228,7 @@ export default function UsersPage() {
   };
 
   return (
-    <div id="userspage">
+    <div id="users-page">
       <NavbarMenu />
       <GridTable
         rowIdField={"userId"}

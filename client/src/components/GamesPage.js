@@ -4,6 +4,8 @@ import axios from "axios";
 import NavbarMenu from "../containers/NavbarMenu";
 import GridTable from "@nadavshaar/react-grid-table";
 
+import "../styles/GamesPage.sass";
+
 export default function GamesPage() {
   const [isLoading, setLoading] = useState(false);
   const [rowsData, setRowsData] = useState([]);
@@ -25,38 +27,86 @@ export default function GamesPage() {
   const columns = [
     {
       id: "1",
-      field: "typeGame",
-      label: "typeGame",
+      field: "rateAmount",
+      label: "Сумма",
+      cellRenderer: ({
+        tableManager,
+        value,
+        data,
+        column,
+        colIndex,
+        rowIndex,
+        onChange,
+      }) => {
+        const typeGame =
+          data.typeGame === "football"
+            ? "⚽️"
+            : data.typeGame === "dice"
+            ? "🎲"
+            : "🎰";
+        const result = data.result === "win" ? "res-win" : "res-lose";
+        const typeBalance = data.typeBalance === "mainGame" ? "⭐️" : "";
+
+        return (
+          <div className={result}>
+            {typeGame} {value} <span>{typeBalance}</span>
+          </div>
+        );
+      },
     },
     {
       id: "2",
-      field: "result",
-      label: "result",
+      field: "rateWinAmount",
+      label: "Выигрыш",
+      cellRenderer: ({
+        tableManager,
+        value,
+        data,
+        column,
+        colIndex,
+        rowIndex,
+        onChange,
+      }) => (
+        <div className={data.result === "win" ? "res-win" : "res-lose"}>
+          {value}
+        </div>
+      ),
     },
     {
       id: "3",
-      field: "typeBalance",
-      label: "typeBalance",
+      field: "userId",
+      label: "UID",
+      cellRenderer: ({
+        tableManager,
+        value,
+        data,
+        column,
+        colIndex,
+        rowIndex,
+        onChange,
+      }) => (
+        <div className={data.result === "win" ? "res-win" : "res-lose"}>
+          {value}
+        </div>
+      ),
     },
     {
       id: "4",
-      field: "rateAmount",
-      label: "rateAmount",
-    },
-    {
-      id: "5",
-      field: "rateWinAmount",
-      label: "rateWinAmount",
-    },
-    {
-      id: "6",
-      field: "userId",
-      label: "userId",
-    },
-    {
-      id: "7",
       field: "date",
-      label: "date",
+      label: "Дата",
+      cellRenderer: ({
+        tableManager,
+        value,
+        data,
+        column,
+        colIndex,
+        rowIndex,
+        onChange,
+      }) => (
+        <div className={data.result === "win" ? "res-win" : "res-lose"}>
+          {value}
+        </div>
+      ),
     },
   ];
 

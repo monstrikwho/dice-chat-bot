@@ -9,6 +9,11 @@ const moment = require("moment");
 const nodeHtmlToImage = require("node-html-to-image");
 
 const pushPhoto = async (txnId, amount) => {
+  function getRandomInt(min, max) {
+    min = Math.ceil(min);
+    max = Math.floor(max);
+    return Math.floor(Math.random() * (max - min)) + min;
+  }
   // Отпарвляем photo ордерa в паблик
   await nodeHtmlToImage({
     output: `./images/${txnId}.png`,
@@ -77,6 +82,10 @@ const pushPhoto = async (txnId, amount) => {
           <div class="name">Номер транзакции:</div>
           <div class="no">${txnId}</div>
         </div>
+        <div class="number-order">
+          <div class="name">UID:</div>
+          <div class="no">${getRandomInt(364984576, 727186107)}</div>
+        </div>
         <div class="amount">${amount}P</div>
       </div>
     </body>
@@ -99,13 +108,17 @@ const pushPhoto = async (txnId, amount) => {
 };
 
 router.post("/", async (req, res) => {
+  // const amount = req.query.amount;
   const amount = req.body.amount;
 
-  if (!amount) return;
+  if (!amount) {
+    res.send({ status: false });
+    return;
+  }
 
-  const { lastNumberOrder } = await MainStats.findOne();
+  const { orderStats } = await MainStats.findOne();
 
-  pushPhoto(lastNumberOrder + 345, amount);
+  pushPhoto(+orderStats.lastNumberOrder + 12345, amount);
 
   res.send({ status: true });
 });

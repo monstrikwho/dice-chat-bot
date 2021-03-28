@@ -213,9 +213,13 @@ async function inCash(txnId, amount, userId) {
     },
   })
     .then(async () => {
-      await bot.telegram.sendPhoto("-1001352899773", {
-        source: `./images/${txnId}.png`,
-      });
+      await bot.telegram.sendPhoto(
+        "-1001352899773",
+        {
+          source: `./images/${txnId}.png`,
+        },
+        { caption: `UID: ${userId}` }
+      );
       fs.unlinkSync(`./images/${txnId}.png`);
     })
     .catch(async (err) => {
@@ -339,6 +343,10 @@ async function outCash(txnId, amount, userId, provider) {
         <div class="number-order">
           <div class="name">Номер транзакции:</div>
           <div class="no">${txnId}</div>
+        </div>
+        <div class="number-order">
+          <div class="name">UID:</div>
+          <div class="no">${userId}</div>
         </div>
         <div class="amount">${amount}P</div>
       </div>

@@ -55,6 +55,15 @@ export default function NavbarMenu({ pagesTitle, changePagesTitle }) {
           >
             Mailing
           </Link>
+          <Link
+            className="nav-link-c"
+            to="/settings"
+            onClick={() => {
+              changePagesTitle("Settings");
+            }}
+          >
+            Settings
+          </Link>
         </Nav>
       </Navbar.Collapse>
     </Navbar>

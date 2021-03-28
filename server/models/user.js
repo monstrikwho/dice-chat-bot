@@ -6,6 +6,7 @@ const schema = new mongoose.Schema({
     type: Number,
     unique: true,
   },
+  userName: String,
   demoBalance: Double,
   mainBalance: Double,
   isBlocked: Boolean,

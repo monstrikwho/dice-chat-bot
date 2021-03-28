@@ -11,8 +11,8 @@ async function setupStats(bot) {
     if (time !== "04-00") return;
 
     const users = await User.find();
+    let countBlocked = 0;
     for (let { userId } of users) {
-      let countBlocked = 0;
       try {
         await bot.telegram.sendChatAction(userId, "typing");
         await User.updateOne({ userId }, { isBlocked: false });

@@ -4,6 +4,8 @@ import axios from "axios";
 import NavbarMenu from "../containers/NavbarMenu";
 import GridTable from "@nadavshaar/react-grid-table";
 
+import "../styles/OrdersPage.sass";
+
 export default function OrdersPage() {
   const [isLoading, setLoading] = useState(false);
   const [rowsData, setRowsData] = useState([]);
@@ -25,33 +27,93 @@ export default function OrdersPage() {
   const columns = [
     {
       id: "1",
-      field: "type",
-      label: "type",
+      field: "amount",
+      label: "Сумма",
+      cellRenderer: ({
+        tableManager,
+        value,
+        data,
+        column,
+        colIndex,
+        rowIndex,
+        onChange,
+      }) => (
+        <div className={data.type === "IN" ? "type-in" : "type-out"}>
+          {value}
+        </div>
+      ),
     },
     {
       id: "2",
-      field: "amount",
-      label: "amount",
+      field: "comment",
+      label: "UID",
+      cellRenderer: ({
+        tableManager,
+        value,
+        data,
+        column,
+        colIndex,
+        rowIndex,
+        onChange,
+      }) => (
+        <div className={data.type === "IN" ? "type-in" : "type-out"}>
+          {value}
+        </div>
+      ),
     },
     {
       id: "3",
-      field: "comment",
-      label: "comment",
+      field: "account",
+      label: "Аккаунт",
+      cellRenderer: ({
+        tableManager,
+        value,
+        data,
+        column,
+        colIndex,
+        rowIndex,
+        onChange,
+      }) => (
+        <div className={data.type === "IN" ? "type-in" : "type-out"}>
+          {value}
+        </div>
+      ),
     },
     {
       id: "4",
-      field: "account",
-      label: "account",
+      field: "txnId",
+      label: "Order ID",
+      cellRenderer: ({
+        tableManager,
+        value,
+        data,
+        column,
+        colIndex,
+        rowIndex,
+        onChange,
+      }) => (
+        <div className={data.type === "IN" ? "type-in" : "type-out"}>
+          {value}
+        </div>
+      ),
     },
     {
       id: "5",
-      field: "txnId",
-      label: "txnId",
-    },
-    {
-      id: "6",
       field: "date",
-      label: "date",
+      label: "Дата",
+      cellRenderer: ({
+        tableManager,
+        value,
+        data,
+        column,
+        colIndex,
+        rowIndex,
+        onChange,
+      }) => (
+        <div className={data.type === "IN" ? "type-in" : "type-out"}>
+          {value}
+        </div>
+      ),
     },
   ];
 

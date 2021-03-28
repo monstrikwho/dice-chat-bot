@@ -4,10 +4,6 @@ const axios = require("axios");
 
 const MainStats = require("../models/mainstats");
 
-// await axios.post(`http://localhost:5000/post_set_token`, {
-//   token: "b12028ee3f86a0c23d36e65280a185bf",
-// });
-
 const setWebHook = async (hookUrl) => {
   // Установить вебхук
   return await axios

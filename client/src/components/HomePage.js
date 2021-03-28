@@ -1,7 +1,7 @@
 import React from "react";
 import axios from "axios";
 
-import { Card, Container } from "react-bootstrap";
+import { Card, Container, Table } from "react-bootstrap";
 import NavbarMenu from "../containers/NavbarMenu";
 
 import "../styles/HomePage.sass";
@@ -114,48 +114,104 @@ export default class HomePage extends React.Component {
           <Card bg={"light"} className="mb-2">
             <Card.Header>Статистика по играм</Card.Header>
             <Card.Body>
-              <Card.Text>
-                Кости
-                <br />- countGame: {games.mainGame.dice.countGame} -{" "}
-                {games.demoGame.dice.countGame}
-                <br />- countWinGame: {games.mainGame.dice.countWinGame} -{" "}
-                {games.demoGame.dice.countWinGame}
-                <br />- countAmount: {games.mainGame.dice.countAmount} -{" "}
-                {games.demoGame.dice.countAmount}
-                <br />- countWinAmount: {
-                  games.mainGame.dice.countWinAmount
-                } - {games.demoGame.dice.countWinAmount}
-                <br />
-              </Card.Text>
-              <Card.Text>
-                Слоты
-                <br />- countGame: {games.mainGame.slot.countGame} -{" "}
-                {games.demoGame.slot.countGame}
-                <br />- countWinGame: {games.mainGame.slot.countWinGame} -{" "}
-                {games.demoGame.slot.countWinGame}
-                <br />- countAmount: {games.mainGame.slot.countAmount} -{" "}
-                {games.demoGame.slot.countAmount}
-                <br />- countWinAmount: {
-                  games.mainGame.slot.countWinAmount
-                } - {games.demoGame.slot.countWinAmount}
-                <br />
-              </Card.Text>
-              <Card.Text>
-                Футбол
-                <br />- countGame: {games.mainGame.football.countGame} -{" "}
-                {games.demoGame.football.countGame}
-                <br />- countWinGame: {
-                  games.mainGame.football.countWinGame
-                } - {games.demoGame.football.countWinGame}
-                <br />- countAmount: {
-                  games.mainGame.football.countAmount
-                } - {games.demoGame.football.countAmount}
-                <br />- countWinAmount: {
-                  games.mainGame.football.countWinAmount
-                }{" "}
-                - {games.demoGame.football.countWinAmount}
-                <br />
-              </Card.Text>
+              <h6>Кости</h6>
+              <Table striped bordered hover style={{ fontSize: "14px" }}>
+                <thead>
+                  <tr>
+                    <th></th>
+                    <th>Основной счет</th>
+                    <th>ДЕМО-счет</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>Кол-во игр</td>
+                    <td>{games.mainGame.dice.countGame}</td>
+                    <td>{games.demoGame.dice.countGame}</td>
+                  </tr>
+                  <tr>
+                    <td>Кол-во выигранных</td>
+                    <td>{games.mainGame.dice.countWinGame}</td>
+                    <td>{games.demoGame.dice.countWinGame}</td>
+                  </tr>
+                  <tr>
+                    <td>Общая сумма ставок</td>
+                    <td>{games.mainGame.dice.countAmount}</td>
+                    <td>{games.demoGame.dice.countAmount}</td>
+                  </tr>
+                  <tr>
+                    <td>Общая сумма выигрыша</td>
+                    <td>{games.mainGame.dice.countWinAmount}</td>
+                    <td>{games.demoGame.dice.countWinAmount}</td>
+                  </tr>
+                </tbody>
+              </Table>
+              
+              <h6>Слоты</h6>
+              <Table striped bordered hover style={{ fontSize: "14px" }}>
+                <thead>
+                  <tr>
+                    <th></th>
+                    <th>Основной счет</th>
+                    <th>ДЕМО-счет</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>Кол-во игр</td>
+                    <td>{games.mainGame.slot.countGame}</td>
+                    <td>{games.demoGame.slot.countGame}</td>
+                  </tr>
+                  <tr>
+                    <td>Кол-во выигранных</td>
+                    <td>{games.mainGame.slot.countWinGame}</td>
+                    <td>{games.demoGame.slot.countWinGame}</td>
+                  </tr>
+                  <tr>
+                    <td>Общая сумма ставок</td>
+                    <td>{games.mainGame.slot.countAmount}</td>
+                    <td>{games.demoGame.slot.countAmount}</td>
+                  </tr>
+                  <tr>
+                    <td>Общая сумма выигрыша</td>
+                    <td>{games.mainGame.slot.countWinAmount}</td>
+                    <td>{games.demoGame.slot.countWinAmount}</td>
+                  </tr>
+                </tbody>
+              </Table>
+
+              <h6>Футбол</h6>
+              <Table striped bordered hover style={{ fontSize: "14px" }}>
+                <thead>
+                  <tr>
+                    <th></th>
+                    <th>Основной счет</th>
+                    <th>ДЕМО-счет</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>Кол-во игр</td>
+                    <td>{games.mainGame.football.countGame}</td>
+                    <td>{games.demoGame.football.countGame}</td>
+                  </tr>
+                  <tr>
+                    <td>Кол-во выигранных</td>
+                    <td>{games.mainGame.football.countWinGame}</td>
+                    <td>{games.demoGame.football.countWinGame}</td>
+                  </tr>
+                  <tr>
+                    <td>Общая сумма ставок</td>
+                    <td>{games.mainGame.football.countAmount}</td>
+                    <td>{games.demoGame.football.countAmount}</td>
+                  </tr>
+                  <tr>
+                    <td>Общая сумма выигрыша</td>
+                    <td>{games.mainGame.football.countWinAmount}</td>
+                    <td>{games.demoGame.football.countWinAmount}</td>
+                  </tr>
+                </tbody>
+              </Table>
             </Card.Body>
           </Card>
         </Container>
