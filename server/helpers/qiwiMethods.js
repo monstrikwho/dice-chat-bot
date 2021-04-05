@@ -3,6 +3,7 @@ const querystring = require("querystring");
 const { bot } = require("../init/startBot");
 
 const MainStats = require("../models/mainstats");
+const Users = require("../models/user");
 
 axios.defaults.headers.common["Content-Type"] = "application/json";
 axios.defaults.headers.common["Accept"] = "application/json";
@@ -111,11 +112,29 @@ module.exports.outMoney = async (
   idProvider,
   userInfo
 ) => {
-  const { webhook } = await MainStats.findOne({});
+  const { webhook, outPercent } = await MainStats.findOne({});
 
   axios.defaults.headers.common[
     "Authorization"
   ] = `Bearer ${webhook.qiwiToken}`;
+
+  // Считаем комиссию
+  let commission = 0;
+  if (idProvider === 1963 || idProvider === 21013) {
+    commission = 50 + amount * (0.02 + outPercent / 100);
+  }
+  if (idProvider === 1960 || idProvider === 21012) {
+    commission = 100 + amount * (0.02 + outPercent / 100);
+  }
+
+  await Users.updateOne(
+    { userId },
+    { $inc: { mainBalance: -(amount + commission) } }
+  );
+  await bot.telegram.sendMessage(
+    userId,
+    `С вашего баланса была удержана сумма: ${amount}P`
+  );
 
   // Перевод на кошелек киви
   const obj = {
@@ -152,7 +171,12 @@ module.exports.outMoney = async (
     )
     .then((res) => res.data)
     .catch(async (err) => {
-      console.log(err.message);
+      await Users.updateOne({ userId }, { $inc: { mainBalance: amount } });
+      await bot.telegram.sendMessage(
+        userId,
+        `Возврат удержанной суммы: ${amount}P`
+      );
+
       return await bot.telegram.sendMessage(
         userId,
         `Проверьте правильность введенных данных или напишите в поддержку для разъяснения ситуации.

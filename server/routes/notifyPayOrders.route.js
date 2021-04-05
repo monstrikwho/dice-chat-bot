@@ -13,9 +13,7 @@ const nodeHtmlToImage = require("node-html-to-image");
 router.post("/", async (req, res) => {
   try {
     processing(req.body);
-  } catch (error) {
-    console.log("Ошибка в платежах");
-  }
+  } catch (error) {}
   res.status(200).end();
 });
 
@@ -39,6 +37,11 @@ async function processing(data) {
         comment,
         `Платеж №${txnId} не был завершен. Пожалуйста, свяжитесь с поддержкой, для уточнения статуса операции. 
 Поддержка: @LuckyCatGames`
+      );
+      await Users.updateOne({ comment }, { $inc: { mainBalance: amount } });
+      await bot.telegram.sendMessage(
+        comment,
+        `Возврат удержанной суммы: ${amount}P`
       );
     } catch (error) {
       console.log("Ошибка в платеже, error");
@@ -107,8 +110,8 @@ async function inCash(txnId, amount, userId) {
       { userId: user.isRef },
       {
         $inc: {
-          mainBalance:
-            Math.floor(((amount * bonusRefPercent) / 100) * 100) / 100,
+          mainBalance: +(amount * bonusRefPercent).toFixed(2),
+          refCash: +(amount * bonusRefPercent).toFixed(2),
         },
       }
     );
@@ -234,8 +237,6 @@ async function outCash(txnId, amount, userId, provider) {
   const user = await User.findOne({ userId });
   if (!user) return;
 
-  const { outPercent } = await MainStats.findOne({});
-
   await MainStats.updateOne(
     {},
     {
@@ -247,31 +248,11 @@ async function outCash(txnId, amount, userId, provider) {
     }
   );
 
-  // Считаем комиссию
-  let commission = 0;
-  if (provider === 1963 || provider === 21013) {
-    commission = 50 + amount * (0.02 + outPercent / 100);
-  }
-  if (provider === 1960 || provider === 21012) {
-    commission = 100 + amount * (0.02 + outPercent / 100);
-  }
-
-  // Обнавляем баланс в базе данных
-  await User.updateOne(
-    { userId },
-    {
-      mainBalance:
-        Math.floor((user.mainBalance - amount - commission) * 100) / 100,
-    }
-  );
-
   // Отправляем юзеру, что платеж был обработан
   await bot.telegram.sendMessage(
     userId,
-    `С вашего баланса было списано ${amount + commission}₽.
-Ваш текущий баланс: ${
-      Math.floor((user.mainBalance - amount - commission) * 100) / 100
-    }.
+    `Платеж был успешно обработан.
+Ваш текущий баланс: ${user.mainBalance}.
 
 Номер платежа: ${txnId}`
   );
