@@ -14,6 +14,8 @@ module.exports.saveGames = async (data) => {
     date,
   } = data;
 
+  const stats = await MainStats.findOne({});
+
   const game = new Games(data);
   await game.save();
 
@@ -21,15 +23,19 @@ module.exports.saveGames = async (data) => {
   const countWinGame = `gamesStats.${typeBalance}.${typeGame}.countWinGame`;
   const countAmount = `gamesStats.${typeBalance}.${typeGame}.countAmount`;
   const countWinAmount = `gamesStats.${typeBalance}.${typeGame}.countWinAmount`;
+
+  const countGameValue = stats.gamesStats[typeBalance][typeGame].countGame;
+  const countWinGameValue = stats.gamesStats[typeBalance][typeGame].countWinGame;
+  const countAmountValue = stats.gamesStats[typeBalance][typeGame].countAmount;
+  const countWinAmountValue = stats.gamesStats[typeBalance][typeGame].countWinAmount;
+
   await MainStats.updateOne(
     {},
     {
-      $inc: {
-        [countGame]: 1,
-        [countWinGame]: result === "win" ? 1 : 0,
-        [countAmount]: rateAmount,
-        [countWinAmount]: rateWinAmount,
-      },
+      [countGame]: countGameValue + 1,
+      [countWinGame]: countWinGameValue + (result === "win" ? 1 : 0),
+      [countAmount]: +(countAmountValue + rateAmount).toFixed(2),
+      [countWinAmount]: +(countWinAmountValue + rateWinAmount).toFixed(2),
     }
   );
 };

@@ -66,8 +66,8 @@ module.exports = (game) => {
       return await ctx.answerCbQuery("Вы не можете поставить ставку 0₽", true);
     }
 
-    state.balance = Math.floor((state.balance - amountRate) * 100) / 100;
-    state.rate["goal"] += amountRate;
+    state.balance = +(state.balance - amountRate).toFixed(2);
+    state.rate["goal"] = +(state.rate["goal"] + amountRate).toFixed(2);
     state.countRate += 1;
     ctx.session.state = state;
 
@@ -102,8 +102,8 @@ module.exports = (game) => {
       return await ctx.answerCbQuery("Вы не можете поставить ставку 0₽", true);
     }
 
-    state.balance = Math.floor((state.balance - amountRate) * 100) / 100;
-    state.rate["out"] += amountRate;
+    state.balance = +(state.balance - amountRate).toFixed(2);
+    state.rate["out"] = +(state.rate["out"] + amountRate).toFixed(2);
     state.countRate += 1;
     ctx.session.state = state;
 
@@ -194,7 +194,7 @@ module.exports = (game) => {
       return await ctx.reply("Пожалуйста, введите только положительные цифры.");
     }
 
-    const rate = Math.floor(+msg * 100) / 100;
+    const rate = +(+msg).toFixed(2);
 
     if (
       rate === 10 ||
@@ -251,7 +251,7 @@ module.exports = (game) => {
 
   game.action("Ударить по воротам ⚽️", async (ctx) => {
     const state = ctx.session.state;
-    const amountRate = state.rate["out"] + state.rate["goal"];
+    const amountRate = +(state.rate["out"] + state.rate["goal"]).toFixed(2);
 
     if (state.countRate === 0) {
       return ctx.answerCbQuery(
@@ -273,19 +273,21 @@ module.exports = (game) => {
     let resMsg = "Вы были близко! Не сдавайесь, в следующий раз повезет!";
 
     if (value === 3 || value === 4 || value === 5) {
-      winSum += Math.floor(state.rate["goal"] * footballCoef.goal * 100) / 100;
+      winSum += state.rate["goal"] * footballCoef.goal;
     }
 
     if (value === 1 || value === 2) {
-      winSum += Math.floor(state.rate["out"] * footballCoef.out * 100) / 100;
+      winSum += state.rate["out"] * footballCoef.out;
     }
 
     if (winSum > 0) {
       resMsg = "Поздравляем! Вы выиграли 🎉";
     }
 
+    winSum = +winSum.toFixed(2);
+
     state.rateMenu = false;
-    state.balance += winSum;
+    state.balance = +(state.balance + winSum).toFixed(2);
     ctx.session.state = state;
 
     setTimeout(async () => {
@@ -361,7 +363,7 @@ module.exports = (game) => {
 
   game.action(/Ударить еще раз/, async (ctx) => {
     let state = ctx.session.state;
-    const amountRate = state.rate["out"] + state.rate["goal"];
+    const amountRate = +(state.rate["out"] + state.rate["goal"]).toFixed(2);
 
     if (state.balance - amountRate < 0) {
       return ctx.answerCbQuery(
@@ -383,18 +385,19 @@ module.exports = (game) => {
     let resMsg = "Вы были близко! Не сдавайесь, в следующий раз повезет!";
 
     if (value === 3 || value === 4 || value === 5) {
-      winSum += Math.floor(state.rate["goal"] * footballCoef.goal * 100) / 100;
+      winSum += state.rate["goal"] * footballCoef.goal;
     }
 
     if (value === 1 || value === 2) {
-      winSum += Math.floor(state.rate["out"] * footballCoef.out * 100) / 100;
+      winSum += state.rate["out"] * footballCoef.out;
     }
 
     if (winSum > 0) resMsg = "Поздравляем! Вы выиграли 🎉";
 
+    winSum = +winSum.toFixed(2);
+
     state.rateMenu = false;
-    state.balance =
-      Math.floor((state.balance - amountRate + winSum) * 100) / 100;
+    state.balance = +(state.balance - amountRate + winSum).toFixed(2);
     ctx.session.state = state;
 
     setTimeout(async () => {
@@ -451,7 +454,7 @@ module.exports = (game) => {
 
     const value = dice.value;
     const state = ctx.session.state;
-    const amountRate = state.rate["out"] + state.rate["goal"];
+    const amountRate = +(state.rate["out"] + state.rate["goal"]).toFixed(2);
 
     if (state.rateMenu) {
       // Если бросаем после ставки
@@ -468,7 +471,7 @@ module.exports = (game) => {
           "У вас недостаточно средств на счету. Пожалуйста, пополните баланс, либо сделайте ставку меньшим размером."
         );
       }
-      state.balance = Math.floor((state.balance - amountRate) * 100) / 100;
+      state.balance -= amountRate;
     }
 
     const { footballCoef } = await MainStats.findOne();
@@ -481,18 +484,20 @@ module.exports = (game) => {
     let resMsg = "Вы были близко! Не сдавайесь, в следующий раз повезет!";
 
     if (value === 3 || value === 4 || value === 5) {
-      winSum += Math.floor(state.rate["goal"] * footballCoef.goal * 100) / 100;
+      winSum += state.rate["goal"] * footballCoef.goal;
     }
 
     if (value === 1 || value === 2) {
-      winSum += Math.floor(state.rate["out"] * footballCoef.out * 100) / 100;
+      winSum += state.rate["out"] * footballCoef.out;
     }
 
     if (winSum > 0) {
       resMsg = "Поздравляем! Вы выиграли 🎉";
     }
 
-    state.balance += winSum;
+    winSum = +winSum.toFixed(2);
+
+    state.balance = +(state.balance + winSum).toFixed(2);
     ctx.session.state = state;
 
     setTimeout(async () => {

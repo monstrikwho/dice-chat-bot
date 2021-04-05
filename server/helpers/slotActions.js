@@ -60,14 +60,18 @@ module.exports = (game) => {
         true
       );
     }
+
     if (amountRate === 0) {
       return await ctx.answerCbQuery("Вы не можете поставить ставку 0Р", true);
     }
 
-    state.balance = Math.floor((state.balance - amountRate) * 100) / 100;
+    state.balance -= amountRate;
     state.rate["jek"] += amountRate;
     state.countRate += 1;
     ctx.session.state = state;
+
+    state.rate["jek"] = +state.rate["jek"].toFixed(2);
+    state.balance = +state.balance.toFixed(2);
 
     const extra = await extraBoard(state);
 
@@ -158,7 +162,7 @@ module.exports = (game) => {
       );
     }
 
-    const rate = Math.floor(+msg * 100) / 100;
+    const rate = +(+msg).toFixed(2);
 
     if (
       rate === 10 ||
@@ -237,12 +241,12 @@ module.exports = (game) => {
     let resMsg = "Вы были близко! Не сдавайесь, в следующий раз повезет!";
 
     if (value === 1 || value === 22 || value === 43 || value === 64) {
-      winSum += Math.floor(amountRate * slotCoef * 100) / 100;
+      winSum = +(amountRate * slotCoef).toFixed(2);
       resMsg = "Поздравляем! Вы выиграли 🎉";
     }
 
     state.rateMenu = false;
-    state.balance += winSum;
+    state.balance = +(state.balance + winSum).toFixed(2);
     ctx.session.state = state;
 
     setTimeout(async () => {
@@ -340,13 +344,12 @@ module.exports = (game) => {
     let resMsg = "Вы были близко! Не сдавайесь, в следующий раз повезет!";
 
     if (value === 1 || value === 64 || value === 22 || value === 43) {
-      winSum += Math.floor(amountRate * slotCoef * 100) / 100;
+      winSum = +(amountRate * slotCoef).toFixed(2);
       resMsg = "Поздравляем! Вы выиграли 🎉";
     }
 
     state.rateMenu = false;
-    state.balance =
-      Math.floor((state.balance - amountRate + winSum) * 100) / 100;
+    state.balance = +(state.balance - amountRate + winSum).toFixed(2);
     ctx.session.state = state;
 
     setTimeout(async () => {
@@ -420,7 +423,7 @@ module.exports = (game) => {
           "У вас недостаточно средств на счету. Пожалуйста, пополните баланс, либо сделайте ставку меньшим размером."
         );
       }
-      state.balance = Math.floor((state.balance - amountRate) * 100) / 100;
+      state.balance = +(state.balance - amountRate).toFixed(2);
     }
 
     const { slotCoef } = await MainStats.findOne();
@@ -433,11 +436,11 @@ module.exports = (game) => {
     let resMsg = "Вы были близко! Не сдавайесь, в следующий раз повезет!";
 
     if (value === 1 || value === 22 || value === 43 || value === 64) {
-      winSum += Math.floor(amountRate * slotCoef * 100) / 100;
+      winSum = +(amountRate * slotCoef).toFixed(2);
       resMsg = "Поздравляем! Вы выиграли 🎉";
     }
 
-    state.balance += winSum;
+    state.balance = +(state.balance + winSum).toFixed(2);
     ctx.session.state = state;
 
     if (state.activeGame === "mainGame") {

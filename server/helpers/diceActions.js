@@ -75,8 +75,8 @@ module.exports = (game) => {
       return await ctx.answerCbQuery("Вы не можете поставить ставку 0₽", true);
     }
 
-    state.balance = Math.floor((state.balance - amountRate) * 100) / 100;
-    state.rate["1-2"] += amountRate;
+    state.balance = +(state.balance - amountRate).toFixed(2);
+    state.rate["1-2"] = +(state.rate["1-2"] + amountRate).toFixed(2);
     state.countRate += 1;
     ctx.session.state = state;
 
@@ -112,8 +112,8 @@ module.exports = (game) => {
       return await ctx.answerCbQuery("Вы не можете поставить ставку 0₽", true);
     }
 
-    state.balance = Math.floor((state.balance - amountRate) * 100) / 100;
-    state.rate["3-4"] += amountRate;
+    state.balance = +(state.balance - amountRate).toFixed(2);
+    state.rate["3-4"] = +(state.rate["3-4"] + amountRate).toFixed(2);
     state.countRate += 1;
     ctx.session.state = state;
 
@@ -149,8 +149,8 @@ module.exports = (game) => {
       return await ctx.answerCbQuery("Вы не можете поставить ставку 0₽", true);
     }
 
-    state.balance = Math.floor((state.balance - amountRate) * 100) / 100;
-    state.rate["5-6"] += amountRate;
+    state.balance = +(state.balance - amountRate).toFixed(2);
+    state.rate["5-6"] = +(state.rate["5-6"] + amountRate).toFixed(2);
     state.countRate += 1;
     ctx.session.state = state;
 
@@ -186,8 +186,8 @@ module.exports = (game) => {
       return await ctx.answerCbQuery("Вы не можете поставить ставку 0₽", true);
     }
 
-    state.balance = Math.floor((state.balance - amountRate) * 100) / 100;
-    state.rate[1] += amountRate;
+    state.balance = +(state.balance - amountRate).toFixed(2);
+    state.rate[1] = +(state.rate[1] + amountRate).toFixed(2);
     state.countRate += 1;
     ctx.session.state = state;
 
@@ -223,8 +223,8 @@ module.exports = (game) => {
       return await ctx.answerCbQuery("Вы не можете поставить ставку 0₽", true);
     }
 
-    state.balance = Math.floor((state.balance - amountRate) * 100) / 100;
-    state.rate[2] += amountRate;
+    state.balance = +(state.balance - amountRate).toFixed(2);
+    state.rate[2] = +(state.rate[2] + amountRate).toFixed(2);
     state.countRate += 1;
     ctx.session.state = state;
 
@@ -260,8 +260,8 @@ module.exports = (game) => {
       return await ctx.answerCbQuery("Вы не можете поставить ставку 0₽", true);
     }
 
-    state.balance = Math.floor((state.balance - amountRate) * 100) / 100;
-    state.rate[3] += amountRate;
+    state.balance = +(state.balance - amountRate).toFixed(2);
+    state.rate[3] = +(state.rate[3] + amountRate).toFixed(2);
     state.countRate += 1;
     ctx.session.state = state;
 
@@ -297,8 +297,8 @@ module.exports = (game) => {
       return await ctx.answerCbQuery("Вы не можете поставить ставку 0₽", true);
     }
 
-    state.balance = Math.floor((state.balance - amountRate) * 100) / 100;
-    state.rate[4] += amountRate;
+    state.balance = +(state.balance - amountRate).toFixed(2);
+    state.rate[4] = +(state.rate[4] + amountRate).toFixed(2);
     state.countRate += 1;
     ctx.session.state = state;
 
@@ -334,8 +334,8 @@ module.exports = (game) => {
       return await ctx.answerCbQuery("Вы не можете поставить ставку 0₽", true);
     }
 
-    state.balance = Math.floor((state.balance - amountRate) * 100) / 100;
-    state.rate[5] += amountRate;
+    state.balance = +(state.balance - amountRate).toFixed(2);
+    state.rate[5] = +(state.rate[5] + amountRate).toFixed(2);
     state.countRate += 1;
     ctx.session.state = state;
 
@@ -371,8 +371,8 @@ module.exports = (game) => {
       return await ctx.answerCbQuery("Вы не можете поставить ставку 0₽", true);
     }
 
-    state.balance = Math.floor((state.balance - amountRate) * 100) / 100;
-    state.rate[6] += amountRate;
+    state.balance = +(state.balance - amountRate).toFixed(2);
+    state.rate[6] = +(state.rate[6] + amountRate).toFixed(2);
     state.countRate += 1;
     ctx.session.state = state;
 
@@ -408,8 +408,8 @@ module.exports = (game) => {
       return await ctx.answerCbQuery("Вы не можете поставить ставку 0₽", true);
     }
 
-    state.balance = Math.floor((state.balance - amountRate) * 100) / 100;
-    state.rate["odd"] += amountRate;
+    state.balance = +(state.balance - amountRate).toFixed(2);
+    state.rate["odd"] = +(state.rate["odd"] + amountRate).toFixed(2);
     state.countRate += 1;
     ctx.session.state = state;
 
@@ -445,8 +445,8 @@ module.exports = (game) => {
       return await ctx.answerCbQuery("Вы не можете поставить ставку 0₽", true);
     }
 
-    state.balance = Math.floor((state.balance - amountRate) * 100) / 100;
-    state.rate["even"] += amountRate;
+    state.balance = +(state.balance - amountRate).toFixed(2);
+    state.rate["even"] = +(state.rate["even"] + amountRate).toFixed(2);
     state.countRate += 1;
     ctx.session.state = state;
 
@@ -537,7 +537,7 @@ module.exports = (game) => {
       return await ctx.reply("Пожалуйста, введите только положительные цифры.");
     }
 
-    const rate = Math.floor(+msg * 100) / 100;
+    const rate = +(+msg).toFixed(2);
 
     if (
       rate === 10 ||
@@ -628,54 +628,56 @@ module.exports = (game) => {
 
     if (value === 1) {
       winSum +=
-        Math.floor(state.rate[1] * diceCoef.one * 100) / 100 +
-        Math.floor(state.rate["1-2"] * diceCoef.two * 100) / 100 +
-        Math.floor(state.rate["odd"] * diceCoef.evenodd * 100) / 100;
+        state.rate[1] * diceCoef.one +
+        state.rate["1-2"] * diceCoef.two +
+        state.rate["odd"] * diceCoef.evenodd;
     }
     if (value === 2) {
       winSum +=
-        Math.floor(state.rate[2] * diceCoef.one * 100) / 100 +
-        Math.floor(state.rate["1-2"] * diceCoef.two * 100) / 100 +
-        Math.floor(state.rate["even"] * diceCoef.evenodd * 100) / 100;
+        state.rate[2] * diceCoef.one +
+        state.rate["1-2"] * diceCoef.two +
+        state.rate["even"] * diceCoef.evenodd;
     }
     if (value === 3) {
       winSum +=
-        Math.floor(state.rate[3] * diceCoef.one * 100) / 100 +
-        Math.floor(state.rate["3-4"] * diceCoef.two * 100) / 100 +
-        Math.floor(state.rate["odd"] * diceCoef.evenodd * 100) / 100;
+        state.rate[3] * diceCoef.one +
+        state.rate["3-4"] * diceCoef.two +
+        state.rate["odd"] * diceCoef.evenodd;
     }
     if (value === 4) {
       winSum +=
-        Math.floor(state.rate[4] * diceCoef.one * 100) / 100 +
-        Math.floor(state.rate["3-4"] * diceCoef.two * 100) / 100 +
-        Math.floor(state.rate["even"] * diceCoef.evenodd * 100) / 100;
+        state.rate[4] * diceCoef.one +
+        state.rate["3-4"] * diceCoef.two +
+        state.rate["even"] * diceCoef.evenodd;
     }
     if (value === 5) {
       winSum +=
-        Math.floor(state.rate[5] * diceCoef.one * 100) / 100 +
-        Math.floor(state.rate["5-6"] * diceCoef.two * 100) / 100 +
-        Math.floor(state.rate["odd"] * diceCoef.evenodd * 100) / 100;
+        state.rate[5] * diceCoef.one +
+        state.rate["5-6"] * diceCoef.two +
+        state.rate["odd"] * diceCoef.evenodd;
     }
     if (value === 6) {
       winSum +=
-        Math.floor(state.rate[6] * diceCoef.one * 100) / 100 +
-        Math.floor(state.rate["5-6"] * diceCoef.two * 100) / 100 +
-        Math.floor(state.rate["even"] * diceCoef.evenodd * 100) / 100;
+        state.rate[6] * diceCoef.one +
+        state.rate["5-6"] * diceCoef.two +
+        state.rate["even"] * diceCoef.evenodd;
     }
 
     if (winSum > 0) {
       resMsg = "Поздравляем! Вы выиграли 🎉";
     }
 
+    winSum = +winSum.toFixed(2);
+
     state.rateMenu = false;
-    state.balance += winSum;
+    state.balance = +(state.balance + winSum).toFixed(2);
     ctx.session.state = state;
 
     setTimeout(async () => {
       ctx.session.state.activeBoard = await ctx.reply(
         `${resMsg}
         
-Ваша общая ставка - ${amountRate}
+Ваша общая ставка - ${amountRate.toFixed(2)}
 Ваш выигрыш - ${winSum}
 Ваш баланс - ${state.balance}`,
         Extra.markup((m) =>
@@ -790,55 +792,56 @@ module.exports = (game) => {
 
     if (value === 1) {
       winSum +=
-        Math.floor(state.rate[1] * diceCoef.one * 100) / 100 +
-        Math.floor(state.rate["1-2"] * diceCoef.two * 100) / 100 +
-        Math.floor(state.rate["odd"] * diceCoef.evenodd * 100) / 100;
+        state.rate[1] * diceCoef.one +
+        state.rate["1-2"] * diceCoef.two +
+        state.rate["odd"] * diceCoef.evenodd;
     }
     if (value === 2) {
       winSum +=
-        Math.floor(state.rate[2] * diceCoef.one * 100) / 100 +
-        Math.floor(state.rate["1-2"] * diceCoef.two * 100) / 100 +
-        Math.floor(state.rate["even"] * diceCoef.evenodd * 100) / 100;
+        state.rate[2] * diceCoef.one +
+        state.rate["1-2"] * diceCoef.two +
+        state.rate["even"] * diceCoef.evenodd;
     }
     if (value === 3) {
       winSum +=
-        Math.floor(state.rate[3] * diceCoef.one * 100) / 100 +
-        Math.floor(state.rate["3-4"] * diceCoef.two * 100) / 100 +
-        Math.floor(state.rate["odd"] * diceCoef.evenodd * 100) / 100;
+        state.rate[3] * diceCoef.one +
+        state.rate["3-4"] * diceCoef.two +
+        state.rate["odd"] * diceCoef.evenodd;
     }
     if (value === 4) {
       winSum +=
-        Math.floor(state.rate[4] * diceCoef.one * 100) / 100 +
-        Math.floor(state.rate["3-4"] * diceCoef.two * 100) / 100 +
-        Math.floor(state.rate["even"] * diceCoef.evenodd * 100) / 100;
+        state.rate[4] * diceCoef.one +
+        state.rate["3-4"] * diceCoef.two +
+        state.rate["even"] * diceCoef.evenodd;
     }
     if (value === 5) {
       winSum +=
-        Math.floor(state.rate[5] * diceCoef.one * 100) / 100 +
-        Math.floor(state.rate["5-6"] * diceCoef.two * 100) / 100 +
-        Math.floor(state.rate["odd"] * diceCoef.evenodd * 100) / 100;
+        state.rate[5] * diceCoef.one +
+        state.rate["5-6"] * diceCoef.two +
+        state.rate["odd"] * diceCoef.evenodd;
     }
     if (value === 6) {
       winSum +=
-        Math.floor(state.rate[6] * diceCoef.one * 100) / 100 +
-        Math.floor(state.rate["5-6"] * diceCoef.two * 100) / 100 +
-        Math.floor(state.rate["even"] * diceCoef.evenodd * 100) / 100;
+        state.rate[6] * diceCoef.one +
+        state.rate["5-6"] * diceCoef.two +
+        state.rate["even"] * diceCoef.evenodd;
     }
 
     if (winSum > 0) {
       resMsg = "Поздравляем! Вы выиграли 🎉";
     }
 
+    winSum = +winSum.toFixed(2);
+
     state.rateMenu = false;
-    state.balance =
-      Math.floor((state.balance - amountRate + winSum) * 100) / 100;
+    state.balance = +(state.balance - amountRate + winSum).toFixed(2);
     ctx.session.state = state;
 
     setTimeout(async () => {
       ctx.session.state.activeBoard = await ctx.reply(
         `${resMsg}
         
-Ваша общая ставка - ${amountRate}
+Ваша общая ставка - ${amountRate.toFixed(2)}
 Ваш выигрыш - ${winSum}
 Ваш баланс - ${state.balance}`,
         Extra.markup((m) =>
@@ -919,7 +922,7 @@ module.exports = (game) => {
           "У вас недостаточно средств на счету. Пожалуйста, пополните баланс, либо сделайте ставку меньшим размером."
         );
       }
-      state.balance = Math.floor((state.balance - amountRate) * 100) / 100;
+      state.balance = +(state.balance - amountRate).toFixed(2);
     }
 
     const { diceCoef } = await MainStats.findOne();
@@ -933,53 +936,55 @@ module.exports = (game) => {
 
     if (value === 1) {
       winSum +=
-        Math.floor(state.rate[1] * diceCoef.one * 100) / 100 +
-        Math.floor(state.rate["1-2"] * diceCoef.two * 100) / 100 +
-        Math.floor(state.rate["odd"] * diceCoef.evenodd * 100) / 100;
+        state.rate[1] * diceCoef.one +
+        state.rate["1-2"] * diceCoef.two +
+        state.rate["odd"] * diceCoef.evenodd;
     }
     if (value === 2) {
       winSum +=
-        Math.floor(state.rate[2] * diceCoef.one * 100) / 100 +
-        Math.floor(state.rate["1-2"] * diceCoef.two * 100) / 100 +
-        Math.floor(state.rate["even"] * diceCoef.evenodd * 100) / 100;
+        state.rate[2] * diceCoef.one +
+        state.rate["1-2"] * diceCoef.two +
+        state.rate["even"] * diceCoef.evenodd;
     }
     if (value === 3) {
       winSum +=
-        Math.floor(state.rate[3] * diceCoef.one * 100) / 100 +
-        Math.floor(state.rate["3-4"] * diceCoef.two * 100) / 100 +
-        Math.floor(state.rate["odd"] * diceCoef.evenodd * 100) / 100;
+        state.rate[3] * diceCoef.one +
+        state.rate["3-4"] * diceCoef.two +
+        state.rate["odd"] * diceCoef.evenodd;
     }
     if (value === 4) {
       winSum +=
-        Math.floor(state.rate[4] * diceCoef.one * 100) / 100 +
-        Math.floor(state.rate["3-4"] * diceCoef.two * 100) / 100 +
-        Math.floor(state.rate["even"] * diceCoef.evenodd * 100) / 100;
+        state.rate[4] * diceCoef.one +
+        state.rate["3-4"] * diceCoef.two +
+        state.rate["even"] * diceCoef.evenodd;
     }
     if (value === 5) {
       winSum +=
-        Math.floor(state.rate[5] * diceCoef.one * 100) / 100 +
-        Math.floor(state.rate["5-6"] * diceCoef.two * 100) / 100 +
-        Math.floor(state.rate["odd"] * diceCoef.evenodd * 100) / 100;
+        state.rate[5] * diceCoef.one +
+        state.rate["5-6"] * diceCoef.two +
+        state.rate["odd"] * diceCoef.evenodd;
     }
     if (value === 6) {
       winSum +=
-        Math.floor(state.rate[6] * diceCoef.one * 100) / 100 +
-        Math.floor(state.rate["5-6"] * diceCoef.two * 100) / 100 +
-        Math.floor(state.rate["even"] * diceCoef.evenodd * 100) / 100;
+        state.rate[6] * diceCoef.one +
+        state.rate["5-6"] * diceCoef.two +
+        state.rate["even"] * diceCoef.evenodd;
     }
 
     if (winSum > 0) {
       resMsg = "Поздравляем! Вы выиграли 🎉";
     }
 
-    state.balance += winSum;
+    winSum = +winSum.toFixed(2);
+
+    state.balance = +(state.balance + winSum).toFixed(2);
     ctx.session.state = state;
 
     setTimeout(async () => {
       ctx.session.state.activeBoard = await ctx.reply(
         `${resMsg}
         
-Ваша общая ставка - ${amountRate}
+Ваша общая ставка - ${amountRate.toFixed(2)}
 Ваш выигрыш - ${winSum}
 Ваш баланс - ${state.balance}`,
         Extra.markup((m) =>
