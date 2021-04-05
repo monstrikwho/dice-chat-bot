@@ -110,8 +110,8 @@ async function inCash(txnId, amount, userId) {
       { userId: user.isRef },
       {
         $inc: {
-          mainBalance: +(amount * bonusRefPercent).toFixed(2),
-          refCash: +(amount * bonusRefPercent).toFixed(2),
+          mainBalance: +((amount * bonusRefPercent) / 100).toFixed(2),
+          refCash: +((amount * bonusRefPercent) / 100).toFixed(2),
         },
       }
     );
@@ -119,9 +119,10 @@ async function inCash(txnId, amount, userId) {
     try {
       await bot.telegram.sendMessage(
         user.isRef,
-        `На ваш ОСНОВНОЙ счет было зачисленно ${
-          Math.floor(((amount * bonusRefPercent) / 100) * 100) / 100
-        }₽ за приглашенного вами реферала.
+        `На ваш ОСНОВНОЙ счет было зачисленно ${(
+          (amount * bonusRefPercent) /
+          100
+        ).toFixed(2)}₽ за приглашенного вами реферала.
 Номер платежа: ${txnId}`
       );
     } catch (error) {}
