@@ -106,6 +106,7 @@ async function setupStart(bot) {
         if (payloadType === "ref") {
           try {
             const refUserId = startPayload.replace("ref", "");
+            if (+refUserId === ctx.from.id) return;
             const status = await User.findOne({ userId: refUserId });
             if (status) {
               isRef = refUserId;

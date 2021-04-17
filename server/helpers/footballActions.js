@@ -267,12 +267,17 @@ module.exports = async (game) => {
       const state = ctx.session.state;
       const amountRate = +(state.rate["out"] + state.rate["goal"]).toFixed(2);
 
+      if (state.gameStatus) return;
+
       if (state.countRate === 0) {
         return ctx.answerCbQuery(
           "Вы не сделали ставку. Пожалуйста сделайте ставку, чтобы ударить мяч.",
           true
         );
       }
+
+      state.gameStatus = true;
+      ctx.session.state = state;
 
       const { footballCoef } = await MainStats.findOne();
 
@@ -300,8 +305,6 @@ module.exports = async (game) => {
         resMsg = "Поздравляем! Вы выиграли 🎉";
       }
 
-      winSum = +winSum.toFixed(2);
-
       state.rateMenu = false;
       state.balance = +(state.balance + winSum).toFixed(2);
       ctx.session.state = state;
@@ -310,9 +313,8 @@ module.exports = async (game) => {
         ctx.session.state.activeBoard = await ctx.reply(
           `${resMsg}
           
-  Ваша общая ставка - ${amountRate}
-  Ваш выигрыш - ${winSum}
-  Ваш баланс - ${state.balance}`,
+Ваш выигрыш - ${winSum.toFixed(2)}
+Ваш баланс - ${state.balance}`,
           Extra.markup((m) =>
             m.inlineKeyboard([
               [
@@ -325,6 +327,8 @@ module.exports = async (game) => {
             ])
           )
         );
+        state.gameStatus = false;
+        ctx.session.state = state;
       }, 4000);
 
       if (state.activeGame === "mainGame") {
@@ -339,6 +343,7 @@ module.exports = async (game) => {
           { demoBalance: state.balance }
         );
       }
+
       saveGames({
         typeGame: "football",
         typeBalance: state.activeGame,
@@ -379,8 +384,10 @@ module.exports = async (game) => {
     });
 
     game.action(/Ударить еще раз/, async (ctx) => {
-      let state = ctx.session.state;
+      const state = ctx.session.state;
       const amountRate = +(state.rate["out"] + state.rate["goal"]).toFixed(2);
+
+      if (state.gameStatus) return;
 
       if (state.balance - amountRate < 0) {
         return ctx.answerCbQuery(
@@ -388,6 +395,9 @@ module.exports = async (game) => {
           true
         );
       }
+
+      state.gameStatus = true;
+      ctx.session.state = state;
 
       const { footballCoef } = await MainStats.findOne();
 
@@ -413,8 +423,6 @@ module.exports = async (game) => {
 
       if (winSum > 0) resMsg = "Поздравляем! Вы выиграли 🎉";
 
-      winSum = +winSum.toFixed(2);
-
       state.rateMenu = false;
       state.balance = +(state.balance - amountRate + winSum).toFixed(2);
       ctx.session.state = state;
@@ -423,9 +431,8 @@ module.exports = async (game) => {
         ctx.session.state.activeBoard = await ctx.reply(
           `${resMsg}
           
-    Ваша общая ставка - ${amountRate}
-    Ваш выигрыш - ${winSum}
-    Ваш баланс - ${state.balance}`,
+Ваш выигрыш - ${winSum.toFixed(2)}
+Ваш баланс - ${state.balance}`,
           Extra.markup((m) =>
             m.inlineKeyboard([
               [
@@ -438,6 +445,8 @@ module.exports = async (game) => {
             ])
           )
         );
+        state.gameStatus = false;
+        ctx.session.state = state;
       }, 4000);
 
       if (state.activeGame === "mainGame") {
@@ -452,6 +461,7 @@ module.exports = async (game) => {
           { demoBalance: state.balance }
         );
       }
+
       saveGames({
         typeGame: "football",
         typeBalance: state.activeGame,
@@ -475,6 +485,8 @@ module.exports = async (game) => {
       const state = ctx.session.state;
       const amountRate = +(state.rate["out"] + state.rate["goal"]).toFixed(2);
 
+      if (state.gameStatus) return;
+
       if (state.rateMenu) {
         // Если бросаем после ставки
         if (state.countRate === 0) {
@@ -492,6 +504,9 @@ module.exports = async (game) => {
         }
         state.balance -= amountRate;
       }
+
+      state.gameStatus = true;
+      ctx.session.state = state;
 
       const { footballCoef } = await MainStats.findOne();
 
@@ -514,8 +529,6 @@ module.exports = async (game) => {
         resMsg = "Поздравляем! Вы выиграли 🎉";
       }
 
-      winSum = +winSum.toFixed(2);
-
       state.balance = +(state.balance + winSum).toFixed(2);
       ctx.session.state = state;
 
@@ -523,9 +536,8 @@ module.exports = async (game) => {
         ctx.session.state.activeBoard = await ctx.reply(
           `${resMsg}
           
-  Ваша общая ставка - ${amountRate}
-  Ваш выигрыш - ${winSum}
-  Ваш баланс - ${state.balance}`,
+Ваш выигрыш - ${winSum.toFixed(2)}
+Ваш баланс - ${state.balance}`,
           Extra.markup((m) =>
             m.inlineKeyboard([
               [
@@ -538,6 +550,8 @@ module.exports = async (game) => {
             ])
           )
         );
+        state.gameStatus = false;
+        ctx.session.state = state;
       }, 4000);
 
       if (state.activeGame === "mainGame") {
@@ -552,6 +566,7 @@ module.exports = async (game) => {
           { demoBalance: state.balance }
         );
       }
+
       saveGames({
         typeGame: "football",
         typeBalance: state.activeGame,

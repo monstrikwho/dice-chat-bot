@@ -230,12 +230,17 @@ module.exports = async (game) => {
       const state = ctx.session.state;
       const amountRate = state.rate["jek"];
 
+      if (state.gameStatus) return;
+
       if (state.countRate === 0) {
         return ctx.answerCbQuery(
           "Вы не сделали ставку. Пожалуйста сделайте ставку, чтобы крутить барабан.",
           true
         );
       }
+
+      state.gameStatus = true;
+      ctx.session.state = state;
 
       const { slotCoef } = await MainStats.findOne();
 
@@ -250,7 +255,7 @@ module.exports = async (game) => {
       let resMsg = "Вы были близко! Не сдавайесь, в следующий раз повезет!";
 
       if (value === 1 || value === 22 || value === 43 || value === 64) {
-        winSum = +(amountRate * slotCoef).toFixed(2);
+        winSum = amountRate * slotCoef;
         resMsg = "Поздравляем! Вы выиграли 🎉";
       }
 
@@ -262,9 +267,8 @@ module.exports = async (game) => {
         ctx.session.state.activeBoard = await ctx.reply(
           `${resMsg}
           
-  Ваша ставка - ${amountRate}
-  Ваш выигрыш - ${winSum}
-  Ваш баланс - ${state.balance}`,
+Ваш выигрыш - ${winSum.toFixed(2)}
+Ваш баланс - ${state.balance}`,
           Extra.markup((m) =>
             m.inlineKeyboard([
               [
@@ -277,7 +281,9 @@ module.exports = async (game) => {
             ])
           )
         );
-      }, 1500);
+        state.gameStatus = false;
+        ctx.session.state = state;
+      }, 2000);
 
       if (state.activeGame === "mainGame") {
         await User.updateOne(
@@ -291,6 +297,7 @@ module.exports = async (game) => {
           { demoBalance: state.balance }
         );
       }
+
       saveGames({
         typeGame: "slot",
         typeBalance: state.activeGame,
@@ -331,8 +338,10 @@ module.exports = async (game) => {
     });
 
     game.action(/Крутить еще раз/, async (ctx) => {
-      let state = ctx.session.state;
+      const state = ctx.session.state;
       const amountRate = state.rate["jek"];
+
+      if (state.gameStatus) return;
 
       if (state.balance - amountRate < 0) {
         return ctx.answerCbQuery(
@@ -340,6 +349,9 @@ module.exports = async (game) => {
           true
         );
       }
+
+      state.gameStatus = true;
+      ctx.session.state = state;
 
       const { slotCoef } = await MainStats.findOne();
 
@@ -354,7 +366,7 @@ module.exports = async (game) => {
       let resMsg = "Вы были близко! Не сдавайесь, в следующий раз повезет!";
 
       if (value === 1 || value === 64 || value === 22 || value === 43) {
-        winSum = +(amountRate * slotCoef).toFixed(2);
+        winSum = amountRate * slotCoef;
         resMsg = "Поздравляем! Вы выиграли 🎉";
       }
 
@@ -366,9 +378,8 @@ module.exports = async (game) => {
         ctx.session.state.activeBoard = await ctx.reply(
           `${resMsg}
           
-  Ваша ставка - ${amountRate}
-  Ваш выигрыш - ${winSum}
-  Ваш баланс - ${state.balance}`,
+Ваш выигрыш - ${winSum.toFixed(2)}
+Ваш баланс - ${state.balance}`,
           Extra.markup((m) =>
             m.inlineKeyboard([
               [
@@ -381,7 +392,9 @@ module.exports = async (game) => {
             ])
           )
         );
-      }, 1500);
+        state.gameStatus = false;
+        ctx.session.state = state;
+      }, 2000);
 
       if (state.activeGame === "mainGame") {
         await User.updateOne(
@@ -395,6 +408,7 @@ module.exports = async (game) => {
           { demoBalance: state.balance }
         );
       }
+
       saveGames({
         typeGame: "slot",
         typeBalance: state.activeGame,
@@ -418,6 +432,8 @@ module.exports = async (game) => {
       const state = ctx.session.state;
       const amountRate = state.rate["jek"];
 
+      if (state.gameStatus) return;
+
       if (state.rateMenu) {
         // Если бросаем после ставки
         if (state.countRate === 0) {
@@ -433,8 +449,11 @@ module.exports = async (game) => {
             "У вас недостаточно средств на счету. Пожалуйста, пополните баланс, либо сделайте ставку меньшим размером."
           );
         }
-        state.balance = +(state.balance - amountRate).toFixed(2);
+        state.balance -= amountRate;
       }
+
+      state.gameStatus = true;
+      ctx.session.state = state;
 
       const { slotCoef } = await MainStats.findOne();
 
@@ -446,12 +465,34 @@ module.exports = async (game) => {
       let resMsg = "Вы были близко! Не сдавайесь, в следующий раз повезет!";
 
       if (value === 1 || value === 22 || value === 43 || value === 64) {
-        winSum = +(amountRate * slotCoef).toFixed(2);
+        winSum = amountRate * slotCoef;
         resMsg = "Поздравляем! Вы выиграли 🎉";
       }
 
       state.balance = +(state.balance + winSum).toFixed(2);
       ctx.session.state = state;
+
+      setTimeout(async () => {
+        ctx.session.state.activeBoard = await ctx.reply(
+          `${resMsg}
+          
+Ваш выигрыш - ${winSum.toFixed(2)}
+Ваш баланс - ${state.balance}`,
+          Extra.markup((m) =>
+            m.inlineKeyboard([
+              [
+                m.callbackButton(
+                  "Сделать другую ставку",
+                  "Сделать другую ставку"
+                ),
+                m.callbackButton("Крутить еще раз", "Крутить еще раз"),
+              ],
+            ])
+          )
+        );
+        state.gameStatus = false;
+        ctx.session.state = state;
+      }, 2000);
 
       if (state.activeGame === "mainGame") {
         await User.updateOne(
@@ -465,6 +506,7 @@ module.exports = async (game) => {
           { demoBalance: state.balance }
         );
       }
+
       saveGames({
         typeGame: "slot",
         typeBalance: state.activeGame,
@@ -476,27 +518,6 @@ module.exports = async (game) => {
         userId: ctx.from.id,
         date: moment().format("YYYY-MM-DD"),
       });
-
-      setTimeout(async () => {
-        ctx.session.state.activeBoard = await ctx.reply(
-          `${resMsg}
-          
-  Ваша ставка - ${state.rate["jek"]}
-  Ваш выигрыш - ${winSum}
-  Ваш баланс - ${state.balance}`,
-          Extra.markup((m) =>
-            m.inlineKeyboard([
-              [
-                m.callbackButton(
-                  "Сделать другую ставку",
-                  "Сделать другую ставку"
-                ),
-                m.callbackButton("Крутить еще раз", "Крутить еще раз"),
-              ],
-            ])
-          )
-        );
-      }, 1500);
     });
   } catch (error) {
     const err = new Error({
