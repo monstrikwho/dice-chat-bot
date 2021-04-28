@@ -106,13 +106,14 @@ async function inCash(txnId, amount, userId) {
 
   if (user.isRef !== 0) {
     // Начисляем процент пополениня пригласившему реферала
+    const { mainBalance, refCash } = await User.findOne({ userId: user.isRef });
     await User.updateOne(
       { userId: user.isRef },
       {
-        $inc: {
-          mainBalance: +((amount * bonusRefPercent) / 100).toFixed(2),
-          refCash: +((amount * bonusRefPercent) / 100).toFixed(2),
-        },
+        mainBalance: +(mainBalance + (amount * bonusRefPercent) / 100).toFixed(
+          2
+        ),
+        refCash: +(refCash + (amount * bonusRefPercent) / 100).toFixed(2),
       }
     );
     // Отправляем сообщение пригласившему
@@ -129,7 +130,10 @@ async function inCash(txnId, amount, userId) {
   }
 
   // Начисляем сумму для пользователя
-  await User.updateOne({ userId }, { $inc: { mainBalance: amount } });
+  await User.updateOne(
+    { userId },
+    { mainBalance: +(user.mainBalance + amount).toFixed(2) }
+  );
   try {
     await bot.telegram.sendMessage(
       userId,

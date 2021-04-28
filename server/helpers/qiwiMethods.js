@@ -127,13 +127,15 @@ module.exports.outMoney = async (
     commission = 100 + amount * (0.02 + outPercent / 100);
   }
 
+  const { mainBalance } = await Users.findOne({ userId });
+
   await Users.updateOne(
     { userId },
-    { $inc: { mainBalance: -(amount + commission) } }
+    { mainBalance: +(mainBalance - (amount + commission)).toFixed(2) }
   );
   await bot.telegram.sendMessage(
     userId,
-    `С вашего баланса была удержана сумма: ${amount}P`
+    `С вашего баланса была удержана сумма: ${amount + commission}P`
   );
 
   // Перевод на кошелек киви
@@ -171,10 +173,13 @@ module.exports.outMoney = async (
     )
     .then((res) => res.data)
     .catch(async (err) => {
-      await Users.updateOne({ userId }, { $inc: { mainBalance: amount } });
+      await Users.updateOne(
+        { userId },
+        { mainBalance: +(mainBalance + amount + commission).toFixed(2) }
+      );
       await bot.telegram.sendMessage(
         userId,
-        `Возврат удержанной суммы: ${amount}P`
+        `Возврат удержанной суммы: ${amount + commission}P`
       );
 
       return await bot.telegram.sendMessage(
