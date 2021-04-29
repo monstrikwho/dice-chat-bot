@@ -8,6 +8,8 @@ const schema = new Schema({
   comment: String,
   account: String,
   date: String,
+  isRef: String,
+  refCash: String,
 });
 
 module.exports = model("Orders", schema);

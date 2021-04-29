@@ -63,6 +63,16 @@ async function processing(data) {
 
   if (status === "SUCCESS") {
     // Сохраняем нужную о платеже в БД
+    const user = await User.findOne({ userId });
+    const { bonusRefPercent } = await MainStats.findOne({});
+
+    const isRef = user.isRef;
+    let refCash = +((amount * bonusRefPercent) / 100).toFixed(2);
+
+    if (isRef === 0) {
+      refCash = 0;
+    }
+
     const order = new Order({
       txnId,
       type,
@@ -70,6 +80,8 @@ async function processing(data) {
       comment,
       account,
       date,
+      isRef,
+      refCash,
     });
     await order.save();
     try {
