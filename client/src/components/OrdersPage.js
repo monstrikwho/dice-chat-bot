@@ -29,15 +29,8 @@ export default function OrdersPage() {
       id: "1",
       field: "amount",
       label: "Сумма",
-      cellRenderer: ({
-        tableManager,
-        value,
-        data,
-        column,
-        colIndex,
-        rowIndex,
-        onChange,
-      }) => (
+      width: "100px",
+      cellRenderer: ({ value, data }) => (
         <div className={data.type === "IN" ? "type-in" : "type-out"}>
           {value}
         </div>
@@ -47,15 +40,9 @@ export default function OrdersPage() {
       id: "2",
       field: "comment",
       label: "UID",
-      cellRenderer: ({
-        tableManager,
-        value,
-        data,
-        column,
-        colIndex,
-        rowIndex,
-        onChange,
-      }) => (
+      width: "150px",
+      sortable: false,
+      cellRenderer: ({ value, data }) => (
         <div className={data.type === "IN" ? "type-in" : "type-out"}>
           {value}
         </div>
@@ -65,15 +52,9 @@ export default function OrdersPage() {
       id: "3",
       field: "account",
       label: "Аккаунт",
-      cellRenderer: ({
-        tableManager,
-        value,
-        data,
-        column,
-        colIndex,
-        rowIndex,
-        onChange,
-      }) => (
+      width: "180px",
+      sortable: false,
+      cellRenderer: ({ value, data }) => (
         <div className={data.type === "IN" ? "type-in" : "type-out"}>
           {value}
         </div>
@@ -83,15 +64,9 @@ export default function OrdersPage() {
       id: "4",
       field: "txnId",
       label: "Order ID",
-      cellRenderer: ({
-        tableManager,
-        value,
-        data,
-        column,
-        colIndex,
-        rowIndex,
-        onChange,
-      }) => (
+      width: "150px",
+      sortable: false,
+      cellRenderer: ({ value, data }) => (
         <div className={data.type === "IN" ? "type-in" : "type-out"}>
           {value}
         </div>
@@ -99,17 +74,42 @@ export default function OrdersPage() {
     },
     {
       id: "5",
+      field: "isRef",
+      label: "Пригласил",
+      width: "150px",
+      sortable: false,
+      getValue: ({ value }) => {
+        if (!value) return "";
+        return value;
+      },
+      cellRenderer: ({ value, data }) => (
+        <div className={data.type === "IN" ? "type-in" : "type-out"}>
+          {value}
+        </div>
+      ),
+    },
+    {
+      id: "6",
+      field: "refCash",
+      label: "Кэш пригласившему",
+      width: "200px",
+      sortable: false,
+      getValue: ({ value }) => {
+        if (!value) return "";
+        return value;
+      },
+      cellRenderer: ({ value, data }) => (
+        <div className={data.type === "IN" ? "type-in" : "type-out"}>
+          {value}
+        </div>
+      ),
+    },
+    {
+      id: "7",
       field: "date",
       label: "Дата",
-      cellRenderer: ({
-        tableManager,
-        value,
-        data,
-        column,
-        colIndex,
-        rowIndex,
-        onChange,
-      }) => (
+      width: "130px",
+      cellRenderer: ({ value, data }) => (
         <div className={data.type === "IN" ? "type-in" : "type-out"}>
           {value}
         </div>

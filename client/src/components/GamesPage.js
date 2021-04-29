@@ -29,15 +29,8 @@ export default function GamesPage() {
       id: "1",
       field: "rateAmount",
       label: "Сумма",
-      cellRenderer: ({
-        tableManager,
-        value,
-        data,
-        column,
-        colIndex,
-        rowIndex,
-        onChange,
-      }) => {
+      width: "150px",
+      cellRenderer: ({ value, data }) => {
         const typeGame =
           data.typeGame === "football"
             ? "⚽️"
@@ -45,46 +38,34 @@ export default function GamesPage() {
             ? "🎲"
             : "🎰";
         const result = data.result === "win" ? "res-win" : "res-lose";
-        const typeBalance = data.typeBalance === "mainGame" ? "⭐️" : "";
 
         return (
           <div className={result}>
-            {typeGame} {value} <span>{typeBalance}</span>
+            {typeGame} {value}
           </div>
         );
       },
     },
     {
       id: "2",
-      field: "rateWinAmount",
-      label: "Выигрыш",
-      cellRenderer: ({
-        tableManager,
-        value,
-        data,
-        column,
-        colIndex,
-        rowIndex,
-        onChange,
-      }) => (
-        <div className={data.result === "win" ? "res-win" : "res-lose"}>
-          {value}
-        </div>
-      ),
+      field: "typeBalance",
+      label: "⭐️",
+      width: "80px",
+      cellRenderer: ({ data }) => {
+        const typeBalance = data.typeBalance === "mainGame" ? "⭐️" : "";
+        return (
+          <div className={data.result === "win" ? "res-win" : "res-lose"}>
+            {typeBalance}
+          </div>
+        );
+      },
     },
     {
       id: "3",
-      field: "userId",
-      label: "UID",
-      cellRenderer: ({
-        tableManager,
-        value,
-        data,
-        column,
-        colIndex,
-        rowIndex,
-        onChange,
-      }) => (
+      field: "rateWinAmount",
+      label: "Выигрыш",
+      width: "150px",
+      cellRenderer: ({ value, data }) => (
         <div className={data.result === "win" ? "res-win" : "res-lose"}>
           {value}
         </div>
@@ -92,17 +73,22 @@ export default function GamesPage() {
     },
     {
       id: "4",
+      field: "userId",
+      label: "UID",
+      width: "150px",
+      sortable: false,
+      cellRenderer: ({ value, data }) => (
+        <div className={data.result === "win" ? "res-win" : "res-lose"}>
+          {value}
+        </div>
+      ),
+    },
+    {
+      id: "5",
       field: "date",
       label: "Дата",
-      cellRenderer: ({
-        tableManager,
-        value,
-        data,
-        column,
-        colIndex,
-        rowIndex,
-        onChange,
-      }) => (
+      width: "150px",
+      cellRenderer: ({ value, data }) => (
         <div className={data.result === "win" ? "res-win" : "res-lose"}>
           {value}
         </div>

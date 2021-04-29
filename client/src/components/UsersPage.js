@@ -43,15 +43,11 @@ export default function UsersPage() {
       id: "1",
       field: "userId",
       label: "UID",
-      cellRenderer: ({
-        tableManager,
-        value,
-        data,
-        column,
-        colIndex,
-        rowIndex,
-        onChange,
-      }) => (
+      width: "130px",
+      editable: false,
+      sortable: false,
+      getValue: ({ value }) => value.toString(),
+      cellRenderer: ({ value, data }) => (
         <div
           className={
             data.isBlocked === false ? "is-block-false" : "is-block-true"
@@ -65,15 +61,10 @@ export default function UsersPage() {
       id: "2",
       field: "mainBalance",
       label: "MainBalance",
-      cellRenderer: ({
-        tableManager,
-        value,
-        data,
-        column,
-        colIndex,
-        rowIndex,
-        onChange,
-      }) => (
+      width: "150px",
+      searchable: false,
+      getValue: ({ value }) => value.toString(),
+      cellRenderer: ({ value, data }) => (
         <div
           className={
             data.isBlocked === false ? "is-block-false" : "is-block-true"
@@ -87,15 +78,26 @@ export default function UsersPage() {
       id: "3",
       field: "demoBalance",
       label: "DemoBalance",
-      cellRenderer: ({
-        tableManager,
-        value,
-        data,
-        column,
-        colIndex,
-        rowIndex,
-        onChange,
-      }) => (
+      width: "150px",
+      searchable: false,
+      getValue: ({ value }) => value.toString(),
+      cellRenderer: ({ value, data }) => (
+        <div
+          className={
+            data.isBlocked === false ? "is-block-false" : "is-block-true"
+          }
+        >
+          {value}
+        </div>
+      ),
+    },
+    {
+      id: "4",
+      field: "userRights",
+      label: "Права доступа",
+      width: "150px",
+      sortable: false,
+      cellRenderer: ({ value, data }) => (
         <div
           className={
             data.isBlocked === false ? "is-block-false" : "is-block-true"
@@ -107,17 +109,16 @@ export default function UsersPage() {
     },
     {
       id: "5",
-      field: "userRights",
-      label: "Доступ",
-      cellRenderer: ({
-        tableManager,
-        value,
-        data,
-        column,
-        colIndex,
-        rowIndex,
-        onChange,
-      }) => (
+      field: "userName",
+      label: "User Name",
+      width: "200px",
+      editable: false,
+      sortable: false,
+      getValue: ({ value }) => {
+        if (!value) return "";
+        return value;
+      },
+      cellRenderer: ({ value, data }) => (
         <div
           className={
             data.isBlocked === false ? "is-block-false" : "is-block-true"
@@ -129,17 +130,12 @@ export default function UsersPage() {
     },
     {
       id: "6",
-      field: "userName",
-      label: "User Name",
-      cellRenderer: ({
-        tableManager,
-        value,
-        data,
-        column,
-        colIndex,
-        rowIndex,
-        onChange,
-      }) => (
+      field: "isRef",
+      label: "Пригласил",
+      width: "130px",
+      searchable: false,
+      sortable: false,
+      cellRenderer: ({ value, data }) => (
         <div
           className={
             data.isBlocked === false ? "is-block-false" : "is-block-true"
@@ -151,17 +147,46 @@ export default function UsersPage() {
     },
     {
       id: "7",
+      field: "refCash",
+      label: "Кэш с рефералки",
+      width: "180px",
+      searchable: false,
+      editable: false,
+      cellRenderer: ({ value, data }) => (
+        <div
+          className={
+            data.isBlocked === false ? "is-block-false" : "is-block-true"
+          }
+        >
+          {value}
+        </div>
+      ),
+    },
+    {
+      id: "8",
+      field: "countRef",
+      label: "Кол-во рефералов",
+      width: "180px",
+      searchable: false,
+      editable: false,
+      cellRenderer: ({ value, data }) => (
+        <div
+          className={
+            data.isBlocked === false ? "is-block-false" : "is-block-true"
+          }
+        >
+          {value}
+        </div>
+      ),
+    },
+    {
+      id: "9",
       field: "regDate",
       label: "RegDate",
-      cellRenderer: ({
-        tableManager,
-        value,
-        data,
-        column,
-        colIndex,
-        rowIndex,
-        onChange,
-      }) => (
+      width: "130px",
+      searchable: false,
+      editable: false,
+      cellRenderer: ({ value, data }) => (
         <div
           className={
             data.isBlocked === false ? "is-block-false" : "is-block-true"
@@ -177,14 +202,7 @@ export default function UsersPage() {
       pinned: true,
       sortable: false,
       resizable: false,
-      cellRenderer: ({
-        tableManager,
-        value,
-        data,
-        column,
-        colIndex,
-        rowIndex,
-      }) => (
+      cellRenderer: ({ tableManager, data }) => (
         <button
           style={{ margin: 10 }}
           onClick={(e) => {
@@ -194,15 +212,7 @@ export default function UsersPage() {
           &#x270E;
         </button>
       ),
-      editorCellRenderer: ({
-        tableManager,
-        value,
-        data,
-        column,
-        colIndex,
-        rowIndex,
-        onChange,
-      }) => (
+      editorCellRenderer: ({ tableManager, data }) => (
         <div style={{ display: "inline-flex" }}>
           <button
             style={{ marginLeft: 20 }}
@@ -241,6 +251,10 @@ export default function UsersPage() {
         enableColumnsReorder={false}
         components={{ PageSize }}
         isLoading={isLoading}
+        // onSearchTextChange={(searchText, tableManager) => {
+        //   // tableManager.searchApi.setSearchText(searchText);
+        //   tableManager.searchApi.searchRows(rowsData);
+        // }}
         onRowClick={(
           { rowIndex, data, column, isEdit, event },
           tableManager
