@@ -63,8 +63,8 @@ async function processing(data) {
 
   if (status === "SUCCESS") {
     // Сохраняем нужную о платеже в БД
-    const user = await User.findOne({ userId });
-    const { bonusRefPercent } = await MainStats.findOne({});
+    const user = await User.findOne({ userId: comment });
+    const { bonusRefPercent } = await MainStats.findOne();
 
     const isRef = user.isRef;
     let refCash = +((amount * bonusRefPercent) / 100).toFixed(2);
