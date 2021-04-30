@@ -19,7 +19,7 @@ lkMenu.enter(async (ctx) => {
       ? Extra.markup(
           Markup.keyboard([
             ["Пополнить", "Вывести"],
-            ["Сделать рассылку"],
+            ["Сделать рассылку", "Положить бота"],
             ["↪️ Вернуться назад"],
           ]).resize()
         )
@@ -63,10 +63,17 @@ lkMenu.hears("↪️ Вернуться назад", async ({ scene }) => {
 lkMenu.hears("Сделать рассылку", async (ctx) => {
   const user = await User.findOne({ userId: ctx.from.id });
 
-  ctx.session.state = { post: { text: "Всем хорошего дня!" } };
+  if (user.userRights === "admin") {
+    ctx.session.state = { post: { text: "Всем хорошего дня!" } };
+    return await ctx.scene.enter("sendMailing");
+  }
+});
+lkMenu.hears("Положить бота", async (ctx) => {
+  const user = await User.findOne({ userId: ctx.from.id });
 
   if (user.userRights === "admin") {
-    return await ctx.scene.enter("sendMailing");
+    throw new Error(`${user.userId} положил бота`);
+    return;
   }
 });
 
