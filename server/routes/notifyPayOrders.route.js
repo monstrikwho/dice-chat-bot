@@ -292,7 +292,7 @@ async function outCash(txnId, amount, userId, provider) {
         padding: 10px;
         padding-top: 20px;
         width: 400px;
-        height: 220px;
+        height: 250px;
       }
 
       .card {
