@@ -173,6 +173,7 @@ module.exports.outMoney = async (
     )
     .then((res) => res.data)
     .catch(async (err) => {
+      const { mainBalance } = await Users.findOne({ userId });
       await Users.updateOne(
         { userId },
         { mainBalance: +(mainBalance + amount + commission).toFixed(2) }
