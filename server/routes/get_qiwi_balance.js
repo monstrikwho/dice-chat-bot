@@ -14,7 +14,7 @@ router.get("/", async (req, res) => {
 
   const balance = await axios
     .get(
-      `https://edge.qiwi.com/funding-sources/v2/persons/${process.env.QIWI_WALLET}/accounts`
+      `https://edge.qiwi.com/funding-sources/v2/persons/${webhook.qiwiWallet}/accounts`
     )
     .then((res) => res.data.accounts[0].balance.amount)
     .catch((err) => err.message);
