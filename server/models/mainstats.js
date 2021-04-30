@@ -2,6 +2,7 @@ const { Schema, model } = require("mongoose");
 
 const schema = new Schema({
   ads: Object,
+  serverUp: Boolean,
   orderStats: Object,
   usersStats: Object,
   gamesStats: Object,

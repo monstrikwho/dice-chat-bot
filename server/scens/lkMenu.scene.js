@@ -68,5 +68,12 @@ lkMenu.hears("Сделать рассылку", async (ctx) => {
     return await ctx.scene.enter("sendMailing");
   }
 });
+lkMenu.command("crashbot", async (ctx) => {
+  const user = await User.findOne({ userId: ctx.from.id });
+
+  if (user.userRights === "admin") {
+    throw new Error(`${user.userId} положил бота`);
+  }
+});
 
 module.exports = { lkMenu };

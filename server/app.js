@@ -16,12 +16,3 @@ setupMongoose();
 // Commands
 setupStart(bot);
 setupStats(bot);
-
-const User = require("./models/user");
-bot.command("crashbot", async (ctx) => {
-  const user = await User.findOne({ userId: ctx.from.id });
-
-  if (user.userRights === "admin") {
-    throw new Error(`${user.userId} положил бота`)
-  }
-});
