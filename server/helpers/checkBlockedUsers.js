@@ -24,7 +24,10 @@ async function setupStats(bot) {
 
     await MainStats.updateOne(
       {},
-      { "usersStats.countUsersBlocked": countBlocked }
+      {
+        "usersStats.countUsers": users.length,
+        "usersStats.countUsersBlocked": countBlocked,
+      }
     );
   }
 }
