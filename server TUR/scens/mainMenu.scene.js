@@ -20,7 +20,7 @@ showMainMenu.hears(/(?:Oyna)/, async (ctx) => {
   ctx.session.state = { game: emoji };
 
   await ctx.reply(
-    "Выберите счет с которым вы хотите играть.",
+    "Oynamak istediğiniz bir hesap seçin.",
     Extra.markup(
       Markup.keyboard([
         ["Ana hesap", "Demo hesap"],

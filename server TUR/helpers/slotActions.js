@@ -358,7 +358,7 @@ Bakiyeniz - ${state.balance}`,
           m.inlineKeyboard([
             [
               m.callbackButton("Başka bir bahis oyna", "Başka bir bahis oyna"),
-              m.callbackButton("Bir kez daha zar at", "Bir kez daha zar at"),
+              m.callbackButton("Tekrar çevir", "Tekrar çevir"),
             ],
           ])
         )

@@ -26,7 +26,7 @@ Nasıl oynanır?
         keyboard: [
           [
             {
-              text: "↪️ Вернуться назад",
+              text: "↪️ Geri",
             },
           ],
         ],
@@ -37,7 +37,7 @@ Nasıl oynanır?
   );
 });
 
-infoBlock.hears("↪️ Вернуться назад", async ({ scene }) => {
+infoBlock.hears("↪️ Geri", async ({ scene }) => {
   return await scene.enter("showMainMenu");
 });
 
