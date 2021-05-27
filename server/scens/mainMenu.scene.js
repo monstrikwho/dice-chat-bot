@@ -64,18 +64,10 @@ showMainMenu.hears("Основной счет", async (ctx) => {
 
 showMainMenu.hears("Демо счет", async (ctx) => {
   const diceGame = ctx.session.state.game;
-  const isPvp = ctx.session.state?.pvp;
 
   ctx.session.state.activeGame = "demoGame";
   ctx.session.state.typeGame = diceGame;
   ctx.session.state.typeBalance = "demoBalance";
-
-  if (diceGame === "🎲" && isPvp) {
-    return await ctx.scene.enter("pvpDiceGame");
-  }
-  if (diceGame === "⚽️" && isPvp) {
-    return await ctx.scene.enter("pvpFootballGame");
-  }
 
   if (diceGame === "🎲") {
     return await ctx.scene.enter("diceGame");
