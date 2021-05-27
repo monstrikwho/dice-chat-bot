@@ -163,11 +163,7 @@ async function setupStart(bot) {
 
         return await ctx.scene.enter("showMainMenu");
       } catch (error) {
-        const err = new Error({
-          message: error.message,
-          err: error,
-        });
-        await err.save();
+        console.log(error)
       }
     });
   } catch (error) {

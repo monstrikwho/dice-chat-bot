@@ -6,11 +6,13 @@ const schema = new Schema({
   orderStats: Object,
   usersStats: Object,
   gamesStats: Object,
+  pvpGames: Object,
   constRef: Number,
   minGameRate: Number,
   minIn: Number,
   minOut: Object,
   outPercent: Number,
+  pvpPercent: Number,
   bonusRefPercent: Number,
   bonusRefDaughter: Number,
   bonusRefFather: Number,
@@ -18,7 +20,7 @@ const schema = new Schema({
   slotCoef: Number,
   footballCoef: Object,
   diceCoef: Object,
-  webhook: Object
+  webhook: Object,
 });
 
 module.exports = model("MainStats", schema);

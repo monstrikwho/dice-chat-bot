@@ -9,6 +9,7 @@ showMainMenu.enter(async (ctx) => {
     Extra.markup(
       Markup.keyboard([
         ["Играть 🎲", "Играть ⚽️", "Играть 🎰"],
+        ["PvP 🎲", "PvP ⚽️"],
         ["Личный кабинет", "Инфо"],
       ]).resize()
     )
@@ -30,36 +31,59 @@ showMainMenu.hears(/(?:Играть)/, async (ctx) => {
   );
 });
 
+showMainMenu.hears(/(?:PvP)/, async (ctx) => {
+  const emoji = ctx.update.message.text.replace("PvP ", "");
+
+  ctx.session.state = { typeGame: emoji, typeBalance: "mainBalance" };
+
+  if (emoji === "🎲") {
+    return await ctx.scene.enter("pvpDiceGame");
+  }
+  if (emoji === "⚽️") {
+    return await ctx.scene.enter("pvpFootballGame");
+  }
+});
+
 showMainMenu.hears("Основной счет", async (ctx) => {
   const diceGame = ctx.session.state.game;
 
+  ctx.session.state.activeGame = "mainGame";
+  ctx.session.state.typeGame = diceGame;
+  ctx.session.state.typeBalance = "mainBalance";
+
   if (diceGame === "🎲") {
-    ctx.session.state.activeGame = "mainGame";
     return await ctx.scene.enter("diceGame");
   }
   if (diceGame === "⚽️") {
-    ctx.session.state.activeGame = "mainGame";
     return await ctx.scene.enter("footballGame");
   }
   if (diceGame === "🎰") {
-    ctx.session.state.activeGame = "mainGame";
     return await ctx.scene.enter("slotGame");
   }
 });
 
 showMainMenu.hears("Демо счет", async (ctx) => {
   const diceGame = ctx.session.state.game;
+  const isPvp = ctx.session.state?.pvp;
+
+  ctx.session.state.activeGame = "demoGame";
+  ctx.session.state.typeGame = diceGame;
+  ctx.session.state.typeBalance = "demoBalance";
+
+  if (diceGame === "🎲" && isPvp) {
+    return await ctx.scene.enter("pvpDiceGame");
+  }
+  if (diceGame === "⚽️" && isPvp) {
+    return await ctx.scene.enter("pvpFootballGame");
+  }
 
   if (diceGame === "🎲") {
-    ctx.session.state.activeGame = "demoGame";
     return await ctx.scene.enter("diceGame");
   }
   if (diceGame === "⚽️") {
-    ctx.session.state.activeGame = "demoGame";
     return await ctx.scene.enter("footballGame");
   }
   if (diceGame === "🎰") {
-    ctx.session.state.activeGame = "demoGame";
     return await ctx.scene.enter("slotGame");
   }
 });

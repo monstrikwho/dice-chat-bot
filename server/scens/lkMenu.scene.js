@@ -8,11 +8,8 @@ const MainStats = require("../models/mainstats");
 const lkMenu = new Scene("lkMenu");
 lkMenu.enter(async (ctx) => {
   const user = await User.findOne({ userId: ctx.from.id });
-  const {
-    bonusRefDaughter,
-    bonusRefFather,
-    bonusRefPercent,
-  } = await MainStats.findOne({});
+  const { bonusRefDaughter, bonusRefFather, bonusRefPercent } =
+    await MainStats.findOne({});
 
   const extra =
     user.userRights === "admin"
