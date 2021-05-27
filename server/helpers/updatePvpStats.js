@@ -2,7 +2,7 @@ const moment = require("moment");
 
 const User = require("../models/user");
 
-async function updatePvpStats(bot) {
+async function updatePvpStats() {
   setInterval(checkUsers, 1000 * 60);
 
   async function checkUsers() {
