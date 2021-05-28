@@ -439,7 +439,7 @@ async function selectMyLobby(ctx) {
       `Лобби еще не собрано, пожалуйста дождитесь остальных игроков..
 Как только лобби собирется, бот автоматически сделает бросок и пришлет вам результат игры.
 
-Призовой фонд: ${lobbyPrize}p
+Призовой фонд: ${lobbyPrize.toFixed(2)}p
 
 👤 Соперники:
 ${[...lobby.rivals, ...new Array(lobby.size - lobby.rivals.length)]
@@ -618,7 +618,7 @@ async function showSelectRivals(ctx) {
   const newActiveBoard = await ctx.reply(
     `Вы успешно выбрали лобби.
 
-Призовой фонд: ${lobbyPrize}p
+Призовой фонд: ${lobbyPrize.toFixed(2)}p
     
 Соперники:
 ${[...lobby.rivals, ...new Array(lobby.size - lobby.rivals.length)]
@@ -957,9 +957,9 @@ async function checkLastPlayer(lobby, ctx) {
 ${
   userId === winner
     ? `Вы выиграли!
-Ваш выигрыш: ${lobbyPrize}p`
+Ваш выигрыш: ${lobbyPrize.toFixed(2)}p`
     : `Выиграл ${winner}
-Выигрыш составил: ${lobbyPrize}p`
+Выигрыш составил: ${lobbyPrize.toFixed(2)}p`
 }
       
 ${lobby.rivals
