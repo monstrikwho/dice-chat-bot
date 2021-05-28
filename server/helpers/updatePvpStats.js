@@ -13,7 +13,7 @@ async function updatePvpStats() {
       "pvpDice.winCash": -1,
     });
 
-    for (let i = 0; i < users.length; i++) {
+    for (let i = 0; i < diceUsers.length; i++) {
       await User.updateOne(
         { userId: diceUsers[i].userId },
         { "pvpDice.rating": i + 1 }

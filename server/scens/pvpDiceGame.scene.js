@@ -254,7 +254,7 @@ async function showMainView(ctx) {
 
   const newPhotoMessage = await bot.telegram.sendPhoto(
     ctx.from.id,
-    "AgACAgIAAxkBAAIWbGCZQ2YINkXL_u5KDZMtsXr3ylGRAAJlsjEbmEzQSByhDFghgy-XgQuaoi4AAwEAAwIAA20AA1_5AQABHwQ"
+    "AgACAgIAAxkBAAEJcGZgsJPRIlMAAbHa5iTRQDOueFU0YzkAAgizMRuAJoBJpbhNlFqOCWl2pIOfLgADAQADAgADbQADMX0EAAEfBA"
   );
 
   ctx.session.state.photoMessage = newPhotoMessage;
@@ -354,7 +354,7 @@ async function showMyLobby(ctx) {
 
   const newPhotoMessage = await bot.telegram.sendPhoto(
     ctx.from.id,
-    "AgACAgIAAxkBAAIWbGCZQ2YINkXL_u5KDZMtsXr3ylGRAAJlsjEbmEzQSByhDFghgy-XgQuaoi4AAwEAAwIAA20AA1_5AQABHwQ"
+    "AgACAgIAAxkBAAEJcGZgsJPRIlMAAbHa5iTRQDOueFU0YzkAAgizMRuAJoBJpbhNlFqOCWl2pIOfLgADAQADAgADbQADMX0EAAEfBA"
   );
 
   ctx.session.state.photoMessage = newPhotoMessage;
