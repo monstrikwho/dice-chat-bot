@@ -48,8 +48,6 @@ showMainMenu.hears("Основной счет", async (ctx) => {
   const diceGame = ctx.session.state.game;
 
   ctx.session.state.activeGame = "mainGame";
-  ctx.session.state.typeGame = diceGame;
-  ctx.session.state.typeBalance = "mainBalance";
 
   if (diceGame === "🎲") {
     return await ctx.scene.enter("diceGame");
@@ -66,8 +64,6 @@ showMainMenu.hears("Демо счет", async (ctx) => {
   const diceGame = ctx.session.state.game;
 
   ctx.session.state.activeGame = "demoGame";
-  ctx.session.state.typeGame = diceGame;
-  ctx.session.state.typeBalance = "demoBalance";
 
   if (diceGame === "🎲") {
     return await ctx.scene.enter("diceGame");

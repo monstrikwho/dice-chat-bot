@@ -47,11 +47,20 @@ async function setupStart(bot) {
     );
   }
 
-  async function saveUser(ctx, startDemoBalance, bouns, isRef, constRef) {
+  async function saveUser(ctx, startDemoBalance, bonus, isRef, constRef) {
+    const diceUsers = await User.find({ "pvpDice.count": { $gte: 1 } }).sort({
+      "pvpDice.winCash": -1,
+    });
+    const footballUsers = await User.find({
+      "pvpFootball.count": { $gte: 1 },
+    }).sort({
+      "pvpDice.winCash": -1,
+    });
+
     const user = new User({
       userId: ctx.from.id,
       userName: ctx.from.username,
-      demoBalance: startDemoBalance + bouns,
+      demoBalance: startDemoBalance + bonus,
       mainBalance: 0,
       userRights: "user",
       isRef,
@@ -59,6 +68,20 @@ async function setupStart(bot) {
       countRef: 0,
       isBlocked: false,
       btnStart: true,
+      pvpDice: {
+        rating: diceUsers.length + 1,
+        count: 0,
+        winCount: 0,
+        playCash: 0,
+        winCash: 0,
+      },
+      pvpFootball: {
+        rating: footballUsers.length + 1,
+        count: 0,
+        winCount: 0,
+        playCash: 0,
+        winCash: 0,
+      },
       regDate: moment().format("YYYY-MM-DD"),
     });
     await user.save();
@@ -73,7 +96,6 @@ async function setupStart(bot) {
       }
     );
   }
-
   try {
     // Start command
     bot.start(async (ctx) => {
@@ -82,15 +104,11 @@ async function setupStart(bot) {
 
       const startPayload = ctx.startPayload;
 
-      const {
-        constRef,
-        bonusRefDaughter,
-        bonusRefFather,
-        startDemoBalance,
-      } = await MainStats.findOne({});
+      const { constRef, bonusRefDaughter, bonusRefFather, startDemoBalance } =
+        await MainStats.findOne({});
 
       let isRef = constRef;
-      let bouns = 0;
+      let bonus = 0;
 
       // Определяем тип ссылки
       let payloadType =
@@ -110,7 +128,7 @@ async function setupStart(bot) {
             const status = await User.findOne({ userId: refUserId });
             if (status) {
               isRef = refUserId;
-              bouns = bonusRefDaughter;
+              bonus = bonusRefDaughter;
               updateRefUsers(isRef, bonusRefFather);
             }
           } catch (error) {
@@ -143,7 +161,7 @@ async function setupStart(bot) {
         const selectUser = await User.findOne({ userId: ctx.from.id });
 
         if (!selectUser) {
-          saveUser(ctx, startDemoBalance, bouns, isRef, constRef);
+          saveUser(ctx, startDemoBalance, bonus, isRef, constRef);
         } else {
           updateUser(ctx, selectUser);
           return await ctx.scene.enter("showMainMenu");
@@ -163,7 +181,7 @@ async function setupStart(bot) {
 
         return await ctx.scene.enter("showMainMenu");
       } catch (error) {
-        console.log(error)
+        console.log(error);
       }
     });
   } catch (error) {

@@ -396,10 +396,8 @@ async function showMyLobby(ctx) {
       m.inlineKeyboard([
         ...boardGames[boardCountPage - 1].map((cols) =>
           cols.map((game) => {
-            const status =
-              game.rivals.length === game.size ? "Готово" : "Ожидание";
             return m.callbackButton(
-              `Lobby #${game.lobbyId} ➖ ${game.prize}р  👤 [${game.rivals.length}/${game.size}] ➖ ${status}`,
+              `Lobby #${game.lobbyId} ➖ ${game.prize}р  👤 [${game.rivals.length}/${game.size}]`,
               `lobby_id:${game.lobbyId}`
             );
           })
