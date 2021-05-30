@@ -8,18 +8,15 @@ const MainStats = require("../models/mainstats");
 const lkMenu = new Scene("lkMenu");
 lkMenu.enter(async (ctx) => {
   const user = await User.findOne({ userId: ctx.from.id });
-  const {
-    bonusRefDaughter,
-    bonusRefFather,
-    bonusRefPercent,
-  } = await MainStats.findOne({});
+  const { bonusRefDaughter, bonusRefFather, bonusRefPercent } =
+    await MainStats.findOne({});
 
   const extra =
     user.userRights === "admin"
       ? Extra.markup(
           Markup.keyboard([
-            // ["Yükle", "Para çek"],
-            ["Сделать рассылку"],
+            ["Yükle", "Para çek"],
+            // ["Сделать рассылку"],
             ["↪️ Geri"],
           ]).resize()
         )
@@ -45,9 +42,9 @@ Davet linkiniz: t.me/luckycat_bot?start=ref${ctx.from.id}`,
   );
 });
 
-// lkMenu.hears("Yükle", async ({ scene }) => {
-//   return await scene.enter("inMoney");
-// });
+lkMenu.hears("Yükle", async ({ scene }) => {
+  return await scene.enter("inMoney");
+});
 
 // lkMenu.hears("Para çek", async ({ scene }) => {
 //   return await scene.enter("outMoney");
@@ -57,21 +54,22 @@ lkMenu.hears("↪️ Geri", async ({ scene }) => {
   return await scene.enter("showMainMenu");
 });
 
-lkMenu.hears("Сделать рассылку", async (ctx) => {
-  const user = await User.findOne({ userId: ctx.from.id });
+// lkMenu.hears("Сделать рассылку", async (ctx) => {
+//   const user = await User.findOne({ userId: ctx.from.id });
 
-  ctx.session.state = { post: { text: "Mutlu günler!" } };
+//   ctx.session.state = { post: { text: "Mutlu günler!" } };
 
-  if (user.userRights === "admin") {
-    return await ctx.scene.enter("sendMailing");
-  }
-});
-lkMenu.command("crashbot", async (ctx) => {
-  const user = await User.findOne({ userId: ctx.from.id });
+//   if (user.userRights === "admin") {
+//     return await ctx.scene.enter("sendMailing");
+//   }
+// });
 
-  if (user.userRights === "admin") {
-    throw new Error(`${user.userId} положил бота`);
-  }
-});
+// lkMenu.command("crashbot", async (ctx) => {
+//   const user = await User.findOne({ userId: ctx.from.id });
+
+//   if (user.userRights === "admin") {
+//     throw new Error(`${user.userId} положил бота`);
+//   }
+// });
 
 module.exports = { lkMenu };

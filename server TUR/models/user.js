@@ -17,6 +17,8 @@ const schema = new mongoose.Schema({
   userRights: String,
   pass: Number,
   regDate: String,
+  pvpDice: Object,
+  pvpFootball: Object,
 });
 
 module.exports = mongoose.model("Users", schema);

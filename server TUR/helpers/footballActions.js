@@ -10,7 +10,7 @@ const extraBoard = require("./footballExtra");
 const { saveGames } = require("./saveData");
 
 let message = ({ balance }) => `Bahislerinizi yapın.
-Bakineyiz: ${balance} ₽`;
+Bakineyiz: ${balance} TL`;
 
 module.exports = async (game) => {
   game.action("🗑 Bahisleri sıfırla", async (ctx) => {
@@ -115,7 +115,7 @@ module.exports = async (game) => {
     } catch (error) {}
   });
 
-  game.action(/(?:5TL|10TL|50TL|100TL|500TL)/, async (ctx) => {
+  game.action(/(?:5 TL|10 TL|50 TL|100 TL|500 TL)/, async (ctx) => {
     const value = ctx.update.callback_query.data
       .replace(/\D+/, "")
       .replace("₽", "");

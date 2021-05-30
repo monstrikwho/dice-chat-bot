@@ -9,6 +9,7 @@ showMainMenu.enter(async (ctx) => {
     Extra.markup(
       Markup.keyboard([
         ["Oyna 🎲", "Oyna ⚽️", "Oyna 🎰"],
+        ["PvP 🎲", "PvP ⚽️"],
         ["Hesabınız", "Info"],
       ]).resize()
     )
@@ -22,27 +23,36 @@ showMainMenu.hears(/(?:Oyna)/, async (ctx) => {
   await ctx.reply(
     "Oynamak istediğiniz bir hesap seçin.",
     Extra.markup(
-      Markup.keyboard([
-        ["Ana hesap", "Demo hesap"],
-        ["↪️ Geri"],
-      ]).resize()
+      Markup.keyboard([["Ana hesap", "Demo hesap"], ["↪️ Geri"]]).resize()
     )
   );
+});
+
+showMainMenu.hears(/(?:PvP)/, async (ctx) => {
+  const emoji = ctx.update.message.text.replace("PvP ", "");
+
+  ctx.session.state = { typeGame: emoji, typeBalance: "mainBalance" };
+
+  if (emoji === "🎲") {
+    return await ctx.scene.enter("pvpDiceGame");
+  }
+  if (emoji === "⚽️") {
+    return await ctx.scene.enter("pvpFootballGame");
+  }
 });
 
 showMainMenu.hears("Ana hesap", async (ctx) => {
   const diceGame = ctx.session.state.game;
 
+  ctx.session.state.activeGame = "mainGame";
+
   if (diceGame === "🎲") {
-    ctx.session.state.activeGame = "mainGame";
     return await ctx.scene.enter("diceGame");
   }
   if (diceGame === "⚽️") {
-    ctx.session.state.activeGame = "mainGame";
     return await ctx.scene.enter("footballGame");
   }
   if (diceGame === "🎰") {
-    ctx.session.state.activeGame = "mainGame";
     return await ctx.scene.enter("slotGame");
   }
 });
@@ -50,16 +60,15 @@ showMainMenu.hears("Ana hesap", async (ctx) => {
 showMainMenu.hears("Demo hesap", async (ctx) => {
   const diceGame = ctx.session.state.game;
 
+  ctx.session.state.activeGame = "demoGame";
+
   if (diceGame === "🎲") {
-    ctx.session.state.activeGame = "demoGame";
     return await ctx.scene.enter("diceGame");
   }
   if (diceGame === "⚽️") {
-    ctx.session.state.activeGame = "demoGame";
     return await ctx.scene.enter("footballGame");
   }
   if (diceGame === "🎰") {
-    ctx.session.state.activeGame = "demoGame";
     return await ctx.scene.enter("slotGame");
   }
 });

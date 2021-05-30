@@ -5,6 +5,8 @@ const { showMainMenu } = require("./mainMenu.scene");
 const { diceGame } = require("./diceGame.scene");
 const { footballGame } = require("./football.scene");
 const { slotGame } = require("./slotGame.scene");
+const { pvpDiceGame } = require("./pvpDiceGame.scene");
+const { pvpFootballGame } = require("./pvpFootballGame.scene");
 const { lkMenu } = require("./lkMenu.scene");
 const { infoBlock } = require("./infoBlock.scene");
 const { outMoney } = require("./outMoney.scene");
@@ -18,7 +20,7 @@ const {
   editDocument,
   editMessage,
 } = require("./sendMailing.scene");
-const { inMoney, writeAmount } = require("./inMoney.scene");
+const { inMoney } = require("./inMoney.scene");
 const { outQiwi } = require("./outMoney/qiwi");
 const { outCardRu } = require("./outMoney/cardRu");
 const { outCardOther } = require("./outMoney/cardOther");
@@ -29,6 +31,8 @@ function setupScenes(bot) {
     diceGame,
     footballGame,
     slotGame,
+    pvpDiceGame,
+    pvpFootballGame,
     lkMenu,
     infoBlock,
     outMoney,
@@ -41,7 +45,6 @@ function setupScenes(bot) {
     editVoice,
     editDocument,
     editMessage,
-    writeAmount,
     outQiwi,
     outCardRu,
     outCardOther,

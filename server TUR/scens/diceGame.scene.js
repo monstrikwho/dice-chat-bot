@@ -48,7 +48,7 @@ diceGame.enter(async (ctx) => {
       Extra.markup(Markup.keyboard([["🏡 Menüye dön"]]).resize())
     );
 
-    let message = ({ balance }) => `Bakiyeniz: ${balance} ₽`;
+    let message = ({ balance }) => `Bakiyeniz: ${balance} TL`;
 
     const extra = await extraBoard(initState);
 
