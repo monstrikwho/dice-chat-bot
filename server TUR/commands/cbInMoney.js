@@ -34,8 +34,6 @@ bot.action("Начислить", async (ctx) => {
   if (order.status === "paid") return;
   await Order.updateOne({ id: orderId }, { status: "paid" });
 
-  console.log(amountTl);
-
   // Зачисляем баланс юзеру
   await User.updateOne(
     { userId: user.userId },
@@ -134,7 +132,7 @@ bot.on("callback_query", async (ctx) => {
   // Если ордер создан
   if (orderStatus) {
     return ctx.answerCbQuery(
-      `İsteğiniz alındı! Bakiyenizin hesaba aktarılması birkaç dakika sürecek. @Zar_destek`,
+      `İsteğiniz alındı! Bakiyenizin hesaba aktarılması birkaç dakika sürecek. Eğer 30 dakika içinde aktarılmazsa lütfen ödeme görüntüsünü desteğe gönderin.`,
       true
     );
   }
@@ -152,8 +150,6 @@ bot.on("callback_query", async (ctx) => {
     date: moment().format("YYYY-MM-DD"),
   });
   await order.save();
-
-  console.log(moderId);
 
   await bot.telegram.sendMessage(
     moderId,
@@ -177,7 +173,7 @@ rub: ${cbDataArr[4]}`,
   );
 
   return ctx.answerCbQuery(
-    `İsteğiniz alındı! Bakiyenizin hesaba aktarılması birkaç dakika sürecek. @Zar_destek`,
+    `İsteğiniz alındı! Bakiyenizin hesaba aktarılması birkaç dakika sürecek. Eğer 30 dakika içinde aktarılmazsa lütfen ödeme görüntüsünü desteğe gönderin.`,
     true
   );
 });

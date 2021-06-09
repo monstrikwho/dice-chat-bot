@@ -62,10 +62,11 @@ inMoney.hears(/(?:25 TL|50 TL|100 TL|500 TL)/, async (ctx) => {
       !ctx.from.username ? ctx.from.id : "Dilerseniz boş bırakabilirsiniz"
     }
 
-Tutar hesabınıza 30 dakika içinde aktarılmazsa destek ekibimize yazın - @ZAR_destek
 Yazdığınız miktar güncel Rus Rublesi  döviz kuru üzerinden sayılır, ancak bankanız ek ücret uygulayabilir (genellikle %5'ten az)
 
 Ödemenizi gerçekleştirmek için 24 saatiniz olacak. Eğer ödemeniz 24 saat içinde gerçekleşmezse işleminiz iptal edilecektir.
+
+İsteğiniz alındı! Bakiyenizin hesaba aktarılması birkaç dakika sürecek. Eğer bakiyeniz hesabınıza 30 dakika içinde aktarılmazsa lütfen ödeme işleminizin ekran görüntüsünü destek ekibimize iletin. @Zar_destek
 
 Lütfen ödemenizi gerçekleştirdikten sonra Bot'a dönüp "Ödedim"e tıklayın.👇`,
     {
@@ -155,10 +156,11 @@ inMoney.on("text", async (ctx) => {
       !ctx.from.username ? ctx.from.id : "Dilerseniz boş bırakabilirsiniz"
     }
 
-Tutar hesabınıza 30 dakika içinde aktarılmazsa destek ekibimize yazın - @ZAR_destek
 Yazdığınız miktar güncel Rus Rublesi  döviz kuru üzerinden sayılır, ancak bankanız ek ücret uygulayabilir (genellikle %5'ten az)
 
 Ödemenizi gerçekleştirmek için 24 saatiniz olacak. Eğer ödemeniz 24 saat içinde gerçekleşmezse işleminiz iptal edilecektir.
+
+İsteğiniz alındı! Bakiyenizin hesaba aktarılması birkaç dakika sürecek. Eğer bakiyeniz hesabınıza 30 dakika içinde aktarılmazsa lütfen ödeme işleminizin ekran görüntüsünü destek ekibimize iletin. @Zar_destek
 
 Lütfen ödemenizi gerçekleştirdikten sonra Bot'a dönüp "Ödedim"e tıklayın.👇`,
     {
