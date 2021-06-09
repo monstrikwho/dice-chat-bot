@@ -588,6 +588,9 @@ module.exports = async (game) => {
     try {
       await ctx.deleteMessage(ctx.session.state.activeBoard.message_id);
     } catch (error) {}
+    try {
+      await ctx.deleteMessage(ctx.session.state.photoMsg.message_id);
+    } catch (error) {}
 
     const diceMsg = await bot.telegram.sendDice(ctx.from.id, { emoji: "🎲" });
     const value = diceMsg.dice.value;
@@ -672,17 +675,19 @@ Bakiyeniz - ${state.balance}`,
       );
     }
 
-    saveGames({
-      typeGame: "dice",
-      typeBalance: state.activeGame,
-      result: winSum > 0 ? "win" : "lose",
-      rateAmount: amountRate,
-      rateWinAmount: winSum.toFixed(2),
-      rateValue: value,
-      rate: state.rate,
-      userId: ctx.from.id,
-      date: moment().format("YYYY-MM-DD"),
-    });
+    if (state.activeGame === "mainGame") {
+      saveGames({
+        typeGame: "dice",
+        typeBalance: state.activeGame,
+        result: winSum > 0 ? "win" : "lose",
+        rateAmount: amountRate,
+        rateWinAmount: winSum.toFixed(2),
+        rateValue: value,
+        rate: state.rate,
+        userId: ctx.from.id,
+        date: moment().format("YYYY-MM-DD"),
+      });
+    }
   });
 
   game.action(/Başka bir bahis oyna/, async (ctx) => {
@@ -714,8 +719,19 @@ Bakiyeniz - ${state.balance}`,
     ctx.session.state = state;
     ctx.session.state.rateMenu = true;
 
-    const extra = await extraBoard(state);
+    if (Boolean(+process.env.DEV)) {
+      ctx.session.state.photoMsg = await bot.telegram.sendPhoto(
+        ctx.from.id,
+        "AgACAgIAAxkBAAIDkGCzeYJUYXdMSqY3V8uBr5hVFhUUAAJitDEbH2KhScl0liCHqsJ-PL4GpC4AAwEAAwIAA3MAA8K8AQABHwQ"
+      );
+    } else {
+      ctx.session.state.photoMsg = await bot.telegram.sendPhoto(
+        ctx.from.id,
+        "AgACAgIAAxkBAAMHYLu2bb4MdQW0sjMk6bJGdX6D67oAAj-1MRuPweFJMQwZnSLsWXaHBo-hLgADAQADAgADcwADc0sDAAEfBA"
+      );
+    }
 
+    const extra = await extraBoard(state);
     ctx.session.state.activeBoard = await ctx.reply(message(state), extra);
   });
 
@@ -836,17 +852,19 @@ Bakiyeniz - ${state.balance}`,
       );
     }
 
-    saveGames({
-      typeGame: "dice",
-      typeBalance: state.activeGame,
-      result: winSum > 0 ? "win" : "lose",
-      rateAmount: amountRate,
-      rateWinAmount: winSum.toFixed(2),
-      rateValue: value,
-      rate: state.rate,
-      userId: ctx.from.id,
-      date: moment().format("YYYY-MM-DD"),
-    });
+    if (state.activeGame === "mainGame") {
+      saveGames({
+        typeGame: "dice",
+        typeBalance: state.activeGame,
+        result: winSum > 0 ? "win" : "lose",
+        rateAmount: amountRate,
+        rateWinAmount: winSum.toFixed(2),
+        rateValue: value,
+        rate: state.rate,
+        userId: ctx.from.id,
+        date: moment().format("YYYY-MM-DD"),
+      });
+    }
   });
 
   game.on("dice", async (ctx) => {
@@ -897,6 +915,9 @@ Bakiyeniz - ${state.balance}`,
 
     try {
       await ctx.deleteMessage(state.activeBoard.message_id);
+    } catch (error) {}
+    try {
+      await ctx.deleteMessage(state.photoMsg.message_id);
     } catch (error) {}
 
     let winSum = 0;
@@ -979,16 +1000,18 @@ Bakiyeniz - ${state.balance}`,
       );
     }
 
-    saveGames({
-      typeGame: "dice",
-      typeBalance: state.activeGame,
-      result: winSum > 0 ? "win" : "lose",
-      rateAmount: amountRate,
-      rateWinAmount: winSum.toFixed(2),
-      rateValue: value,
-      rate: state.rate,
-      userId: ctx.from.id,
-      date: moment().format("YYYY-MM-DD"),
-    });
+    if (state.activeGame === "mainGame") {
+      saveGames({
+        typeGame: "dice",
+        typeBalance: state.activeGame,
+        result: winSum > 0 ? "win" : "lose",
+        rateAmount: amountRate,
+        rateWinAmount: winSum.toFixed(2),
+        rateValue: value,
+        rate: state.rate,
+        userId: ctx.from.id,
+        date: moment().format("YYYY-MM-DD"),
+      });
+    }
   });
 };

@@ -14,6 +14,7 @@ router.post("/", async (req, res) => {
       minIn: data.minIn,
       minOut: data.minOut,
       outPercent: data.outPercent,
+      pvpPercent: data.pvpPercent,
       bonusRefPercent: data.bonusRefPercent,
       bonusRefDaughter: data.bonusRefDaughter,
       bonusRefFather: data.bonusRefFather,
@@ -21,7 +22,6 @@ router.post("/", async (req, res) => {
       slotCoef: data.slotCoef,
       footballCoef: data.footballCoef,
       diceCoef: data.diceCoef,
-      webhook: data.webhook,
     }
   );
 

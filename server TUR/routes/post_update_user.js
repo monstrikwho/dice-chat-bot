@@ -42,8 +42,8 @@ router.post("/", async (req, res) => {
     try {
       await bot.telegram.sendMessage(
         userId,
-        `Size yönetici hakları verildi. 
-Giriş yapmak için giriş bilgileriniz: ${userId}`
+        `Вам дали права доступа администратора
+Ваш логин для входа в систему: ${userId}`
       );
     } catch (error) {}
   }

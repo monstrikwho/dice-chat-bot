@@ -7,35 +7,50 @@ import GridTable from "@nadavshaar/react-grid-table";
 import "../styles/UsersPage.sass";
 
 export default function UsersPage() {
+  const [lang, setLang] = useState(null);
   const [isLoading, setLoading] = useState(false);
   const [rowsData, setRowsData] = useState([]);
 
-  const getData = async () => {
-    await axios
-      .get(`${process.env.REACT_APP_URL}/get_user_data`)
-      .then(({ data }) => {
-        setRowsData(data.users);
-        setLoading(false);
-      });
+  const getData = async (url) => {
+    await axios.get(`${url}/get_user_data`).then(({ data }) => {
+      setRowsData(data.users);
+      setLoading(false);
+    });
   };
 
   useEffect(() => {
     setLoading(true);
-    getData();
+    const lang = localStorage.getItem("lang");
+    setLang(lang);
+
+    if (!lang) {
+      localStorage.setItem("lang", "RU");
+      setLang("RU");
+    }
+
+    const url =
+      lang === "RU"
+        ? process.env.REACT_APP_URL_RU
+        : process.env.REACT_APP_URL_TUR;
+
+    getData(url);
   }, []);
 
   const changeRow = async (tableManager, data) => {
-    await axios
-      .post(`${process.env.REACT_APP_URL}/post_update_user`, data)
-      .then(() => {
-        let rowsClone = [...rowsData];
-        let updatedRowIndex = rowsClone.findIndex(
-          (r) => r.userId === data.userId
-        );
-        rowsClone[updatedRowIndex] = data;
-        setRowsData(rowsClone);
-        tableManager.rowEditApi.setEditRowId(null);
-      });
+    const url =
+      lang === "RU"
+        ? process.env.REACT_APP_URL_RU
+        : process.env.REACT_APP_URL_TUR;
+
+    await axios.post(`${url}/post_update_user`, data).then(() => {
+      let rowsClone = [...rowsData];
+      let updatedRowIndex = rowsClone.findIndex(
+        (r) => r.userId === data.userId
+      );
+      rowsClone[updatedRowIndex] = data;
+      setRowsData(rowsClone);
+      tableManager.rowEditApi.setEditRowId(null);
+    });
   };
 
   const columns = [
@@ -134,6 +149,7 @@ export default function UsersPage() {
       label: "Пригласил",
       width: "130px",
       searchable: false,
+      editable: false,
       sortable: false,
       cellRenderer: ({ value, data }) => (
         <div
@@ -239,7 +255,7 @@ export default function UsersPage() {
 
   return (
     <div id="users-page">
-      <NavbarMenu />
+      <NavbarMenu lang={lang} pageTitle={"Users page"} />
       <GridTable
         rowIdField={"userId"}
         columns={columns}

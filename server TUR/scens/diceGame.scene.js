@@ -53,19 +53,30 @@ diceGame.enter(async (ctx) => {
     const extra = await extraBoard(initState);
 
     // Отправляем init board
+    if (Boolean(+process.env.DEV)) {
+      ctx.session.state.photoMsg = await bot.telegram.sendPhoto(
+        ctx.from.id,
+        "AgACAgIAAxkBAAIDkGCzeYJUYXdMSqY3V8uBr5hVFhUUAAJitDEbH2KhScl0liCHqsJ-PL4GpC4AAwEAAwIAA3MAA8K8AQABHwQ"
+      );
+    } else {
+      ctx.session.state.photoMsg = await bot.telegram.sendPhoto(
+        ctx.from.id,
+        "AgACAgIAAxkBAAMHYLu2bb4MdQW0sjMk6bJGdX6D67oAAj-1MRuPweFJMQwZnSLsWXaHBo-hLgADAQADAgADcwADc0sDAAEfBA"
+      );
+    }
     ctx.session.state.activeBoard = await ctx.reply(message(initState), extra);
   } catch (error) {}
 });
 
-diceGame.hears(
-  "🏡 Menüye dön",
-  async ({ scene, deleteMessage, session }) => {
-    try {
-      await deleteMessage(session.state.activeBoard.message_id);
-    } catch (error) {}
-    await scene.enter("showMainMenu");
-  }
-);
+diceGame.hears("🏡 Menüye dön", async ({ scene, deleteMessage, session }) => {
+  try {
+    await deleteMessage(session.state.activeBoard.message_id);
+  } catch (error) {}
+  try {
+    await deleteMessage(session.state.photoMsg.message_id);
+  } catch (error) {}
+  await scene.enter("showMainMenu");
+});
 
 // Подключаем actions
 actionsBord(diceGame);

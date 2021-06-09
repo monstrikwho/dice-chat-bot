@@ -6,14 +6,14 @@ import GridTable from "@nadavshaar/react-grid-table";
 
 import "../styles/GamesPage.sass";
 
-export default function GamesPage() {
+export default function PvpGames() {
   const [lang, setLang] = useState(null);
   const [isLoading, setLoading] = useState(false);
   const [rowsData, setRowsData] = useState([]);
 
   const getData = async (url) => {
-    await axios.get(`${url}/get_games_data`).then(({ data }) => {
-      setRowsData(data.games);
+    await axios.get(`${url}/get_pvpdice`).then(({ data }) => {
+      setRowsData(data.dice);
       setLoading(false);
     });
   };
@@ -39,20 +39,19 @@ export default function GamesPage() {
   const columns = [
     {
       id: "1",
-      field: "rateAmount",
-      label: "Сумма",
+      field: "lobbyId",
+      label: "lobbyId",
       width: "150px",
       cellRenderer: ({ value, data }) => {
         const typeGame =
-          data.typeGame === "football"
-            ? "⚽️"
-            : data.typeGame === "dice"
+          data.typeGame === "🎲"
             ? "🎲"
-            : "🎰";
-        const result = data.result === "win" ? "res-win" : "res-lose";
+            : data.typeGame === "⚽️"
+            ? "⚽️"
+            : "🎳";
 
         return (
-          <div className={result}>
+          <div>
             {typeGame} {value}
           </div>
         );
@@ -60,8 +59,8 @@ export default function GamesPage() {
     },
     {
       id: "2",
-      field: "rateWinAmount",
-      label: "Выигрыш",
+      field: "prize",
+      label: "Ставка",
       width: "150px",
       cellRenderer: ({ value, data }) => (
         <div className={data.result === "win" ? "res-win" : "res-lose"}>
@@ -71,8 +70,8 @@ export default function GamesPage() {
     },
     {
       id: "3",
-      field: "userId",
-      label: "UID",
+      field: "rivals",
+      label: "Участники",
       width: "150px",
       sortable: false,
       cellRenderer: ({ value, data }) => (
@@ -83,6 +82,18 @@ export default function GamesPage() {
     },
     {
       id: "4",
+      field: "winner",
+      label: "Победитель",
+      width: "150px",
+      sortable: false,
+      cellRenderer: ({ value, data }) => (
+        <div className={data.result === "win" ? "res-win" : "res-lose"}>
+          {value}
+        </div>
+      ),
+    },
+    {
+      id: "5",
       field: "date",
       label: "Дата",
       width: "150px",
@@ -100,7 +111,7 @@ export default function GamesPage() {
 
   return (
     <div id="games-page">
-      <NavbarMenu lang={lang} pageTitle={"Games page"} />
+      <NavbarMenu lang={lang} pageTitle={"PVP Games"} />
       <GridTable
         columns={columns}
         rows={rowsData}

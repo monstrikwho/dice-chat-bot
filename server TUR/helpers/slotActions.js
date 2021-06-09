@@ -9,8 +9,13 @@ const MainStats = require("../models/mainstats");
 const { saveGames } = require("./saveData");
 const extraBoard = require("./slotExtra");
 
-let message = ({ balance }) => `Bahislerinizi yapın.
-Bakineyiz: ${balance} ₽`;
+let message = ({ balance, slotCoef }) => `Sonuç katsayıları:
+
+➖	777 durumunda bahsinizin x${slotCoef.x3_7} katını kazanırsınız.
+➖	Aynı 3 nesne tutturmanız durumunda bahsinizin x${slotCoef.x3} katını kazanırsınız.
+➖	Aynı 2 nesne tutturmanız durumunda bahsinizin x${slotCoef.x2} katını kazanırsı
+
+Bakineyiz: ${balance} TL`;
 
 module.exports = async (game) => {
   game.action("🗑 Bahisleri sıfırla", async (ctx) => {
@@ -87,7 +92,7 @@ module.exports = async (game) => {
   game.action(/(?:5 TL|10 TL|50 TL|100 TL|500 TL)/, async (ctx) => {
     const value = ctx.update.callback_query.data
       .replace(/\D+/, "")
-      .replace("₽", "");
+      .replace("TL", "");
     let state = ctx.session.state;
 
     if (state.valueRate === +value) {
@@ -226,6 +231,9 @@ module.exports = async (game) => {
     try {
       await ctx.deleteMessage(state.activeBoard.message_id);
     } catch (error) {}
+    try {
+      await ctx.deleteMessage(state.photoMsg.message_id);
+    } catch (error) {}
 
     const diceMsg = await bot.telegram.sendDice(ctx.from.id, { emoji: "🎰" });
     const value = diceMsg.dice.value;
@@ -234,8 +242,23 @@ module.exports = async (game) => {
     let resMsg =
       "Neredeyse oldu! Vazgeçmeyin, şans bir dahaki sefer sizinle olacak!";
 
-    if (value === 1 || value === 22 || value === 43 || value === 64) {
-      winSum = amountRate * slotCoef;
+    if (value === 64) {
+      winSum = amountRate * slotCoef.x3_7;
+      resMsg = "Tebrikler! Kazandın 🎉";
+    }
+
+    if (value === 1 || value === 22 || value === 43) {
+      winSum = amountRate * slotCoef.x3;
+      resMsg = "Tebrikler! Kazandın 🎉";
+    }
+
+    const value_x2 = [
+      2, 3, 4, 6, 11, 16, 17, 21, 23, 24, 27, 32, 33, 38, 41, 42, 44, 48, 49,
+      54, 59, 61, 62, 63,
+    ];
+
+    if (value_x2.indexOf(value) !== -1) {
+      winSum = amountRate * slotCoef.x2;
       resMsg = "Tebrikler! Kazandın 🎉";
     }
 
@@ -275,17 +298,19 @@ Bakiyeniz - ${state.balance}`,
       );
     }
 
-    saveGames({
-      typeGame: "slot",
-      typeBalance: state.activeGame,
-      result: winSum > 0 ? "win" : "lose",
-      rateAmount: amountRate,
-      rateWinAmount: winSum.toFixed(2),
-      rateValue: value,
-      rate: state.rate,
-      userId: ctx.from.id,
-      date: moment().format("YYYY-MM-DD"),
-    });
+    if (state.activeGame === "mainGame") {
+      saveGames({
+        typeGame: "slot",
+        typeBalance: state.activeGame,
+        result: winSum > 0 ? "win" : "lose",
+        rateAmount: amountRate,
+        rateWinAmount: winSum.toFixed(2),
+        rateValue: value,
+        rate: state.rate,
+        userId: ctx.from.id,
+        date: moment().format("YYYY-MM-DD"),
+      });
+    }
   });
 
   game.action(/Başka bir bahis oyna/, async (ctx) => {
@@ -308,8 +333,19 @@ Bakiyeniz - ${state.balance}`,
     state.rateMenu = true;
     ctx.session.state = state;
 
-    const extra = await extraBoard(state);
+    if (Boolean(+process.env.DEV)) {
+      ctx.session.state.photoMsg = await bot.telegram.sendPhoto(
+        ctx.from.id,
+        "AgACAgIAAxkBAAIIjWC7sJWlqbL_KYLhNuJz6Qhm9kJaAAKWtDEbC2fgSUCGMmR4SljxJhocpC4AAwEAAwIAA3MAAy_xAQABHwQ"
+      );
+    } else {
+      ctx.session.state.photoMsg = await bot.telegram.sendPhoto(
+        ctx.from.id,
+        "AgACAgIAAxkBAAMIYLu26v_d8YRocTjxbrFgr-YKtvwAAkC1MRuPweFJvDfgasioU5oebQABny4AAwEAAwIAA3MAA5sYBQABHwQ"
+      );
+    }
 
+    const extra = await extraBoard(state);
     ctx.session.state.activeBoard = await ctx.reply(message(state), extra);
   });
 
@@ -339,8 +375,23 @@ Bakiyeniz - ${state.balance}`,
     let resMsg =
       "Neredeyse oldu! Vazgeçmeyin, şans bir dahaki sefer sizinle olacak!";
 
-    if (value === 1 || value === 64 || value === 22 || value === 43) {
-      winSum = amountRate * slotCoef;
+    if (value === 64) {
+      winSum = amountRate * slotCoef.x3_7;
+      resMsg = "Tebrikler! Kazandın 🎉";
+    }
+
+    if (value === 1 || value === 22 || value === 43) {
+      winSum = amountRate * slotCoef.x3;
+      resMsg = "Tebrikler! Kazandın 🎉";
+    }
+
+    const value_x2 = [
+      2, 3, 4, 6, 11, 16, 17, 21, 23, 24, 27, 32, 33, 38, 41, 42, 44, 48, 49,
+      54, 59, 61, 62, 63,
+    ];
+
+    if (value_x2.indexOf(value) !== -1) {
+      winSum = amountRate * slotCoef.x2;
       resMsg = "Tebrikler! Kazandın 🎉";
     }
 
@@ -380,17 +431,19 @@ Bakiyeniz - ${state.balance}`,
       );
     }
 
-    saveGames({
-      typeGame: "slot",
-      typeBalance: state.activeGame,
-      result: winSum > 0 ? "win" : "lose",
-      rateAmount: amountRate,
-      rateWinAmount: winSum.toFixed(2),
-      rateValue: value,
-      rate: state.rate,
-      userId: ctx.from.id,
-      date: moment().format("YYYY-MM-DD"),
-    });
+    if (state.activeGame === "mainGame") {
+      saveGames({
+        typeGame: "slot",
+        typeBalance: state.activeGame,
+        result: winSum > 0 ? "win" : "lose",
+        rateAmount: amountRate,
+        rateWinAmount: winSum.toFixed(2),
+        rateValue: value,
+        rate: state.rate,
+        userId: ctx.from.id,
+        date: moment().format("YYYY-MM-DD"),
+      });
+    }
   });
 
   game.on("dice", async (ctx) => {
@@ -429,13 +482,31 @@ Bakiyeniz - ${state.balance}`,
     try {
       await ctx.deleteMessage(state.activeBoard.message_id);
     } catch (error) {}
+    try {
+      await ctx.deleteMessage(state.photoMsg.message_id);
+    } catch (error) {}
 
     let winSum = 0;
     let resMsg =
       "Neredeyse oldu! Vazgeçmeyin, şans bir dahaki sefer sizinle olacak!";
 
-    if (value === 1 || value === 22 || value === 43 || value === 64) {
-      winSum = amountRate * slotCoef;
+    if (value === 64) {
+      winSum = amountRate * slotCoef.x3_7;
+      resMsg = "Tebrikler! Kazandın 🎉";
+    }
+
+    if (value === 1 || value === 22 || value === 43) {
+      winSum = amountRate * slotCoef.x3;
+      resMsg = "Tebrikler! Kazandın 🎉";
+    }
+
+    const value_x2 = [
+      2, 3, 4, 6, 11, 16, 17, 21, 23, 24, 27, 32, 33, 38, 41, 42, 44, 48, 49,
+      54, 59, 61, 62, 63,
+    ];
+
+    if (value_x2.indexOf(value) !== -1) {
+      winSum = amountRate * slotCoef.x2;
       resMsg = "Tebrikler! Kazandın 🎉";
     }
 
@@ -474,16 +545,18 @@ Bakiyeniz - ${state.balance}`,
       );
     }
 
-    saveGames({
-      typeGame: "slot",
-      typeBalance: state.activeGame,
-      result: winSum > 0 ? "win" : "lose",
-      rateAmount: amountRate,
-      rateWinAmount: winSum.toFixed(2),
-      rateValue: value,
-      rate: state.rate,
-      userId: ctx.from.id,
-      date: moment().format("YYYY-MM-DD"),
-    });
+    if (state.activeGame === "mainGame") {
+      saveGames({
+        typeGame: "slot",
+        typeBalance: state.activeGame,
+        result: winSum > 0 ? "win" : "lose",
+        rateAmount: amountRate,
+        rateWinAmount: winSum.toFixed(2),
+        rateValue: value,
+        rate: state.rate,
+        userId: ctx.from.id,
+        date: moment().format("YYYY-MM-DD"),
+      });
+    }
   });
 };

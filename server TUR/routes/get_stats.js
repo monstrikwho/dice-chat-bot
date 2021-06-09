@@ -1,10 +1,10 @@
 const { Router } = require("express");
 const router = Router();
 
-const Stats = require("../models/mainstats");
+const MainStats = require("../models/mainstats");
 
 router.get("/", async (req, res) => {
-  const stats = await Stats.findOne();
+  const stats = await MainStats.findOne();
   res.send({ stats });
 });
 

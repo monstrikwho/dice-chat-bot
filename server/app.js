@@ -1,4 +1,4 @@
-require("dotenv").config({ path: "../.env" });
+require("dotenv").config();
 
 // Init
 const { bot, startBot } = require("./init/startBot");

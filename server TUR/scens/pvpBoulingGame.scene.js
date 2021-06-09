@@ -1,7 +1,7 @@
 const { bot } = require("../init/startBot");
 
 const User = require("../models/user");
-const PvpGame = require("../models/pvpFootballGame");
+const PvpGame = require("../models/pvpBoulingGame");
 const MainStats = require("../models/mainstats");
 
 const Scene = require("telegraf/scenes/base");
@@ -10,8 +10,8 @@ const Markup = require("telegraf/markup");
 
 const isNumber = require("is-number");
 
-const pvpFootballGame = new Scene("pvpFootballGame");
-pvpFootballGame.enter(async (ctx) => {
+const pvpBoulingGame = new Scene("pvpBoulingGame");
+pvpBoulingGame.enter(async (ctx) => {
   await ctx.reply(
     "PVP-GAMES’e giriş yaptınız.",
     Extra.markup(Markup.keyboard([["🏡 Ana Menüye Dön"]]).resize())
@@ -20,7 +20,7 @@ pvpFootballGame.enter(async (ctx) => {
   await showMainView(ctx);
 });
 
-pvpFootballGame.action("Lobilerim", async (ctx) => {
+pvpBoulingGame.action("Lobilerim", async (ctx) => {
   const { actionStatus } = ctx.session.state;
 
   if (actionStatus) return;
@@ -31,7 +31,7 @@ pvpFootballGame.action("Lobilerim", async (ctx) => {
   await removeState(ctx);
 });
 
-pvpFootballGame.action(">", async (ctx) => {
+pvpBoulingGame.action(">", async (ctx) => {
   const { activeView, boardCountPage, boardMaxPages, actionStatus } =
     ctx.session.state;
 
@@ -55,7 +55,7 @@ pvpFootballGame.action(">", async (ctx) => {
   await removeState(ctx);
 });
 
-pvpFootballGame.action("<", async (ctx) => {
+pvpBoulingGame.action("<", async (ctx) => {
   const { activeView, boardCountPage, actionStatus } = ctx.session.state;
 
   if (actionStatus) return;
@@ -78,7 +78,7 @@ pvpFootballGame.action("<", async (ctx) => {
   await removeState(ctx);
 });
 
-pvpFootballGame.action("Lobi oluştur", async (ctx) => {
+pvpBoulingGame.action("Lobi oluştur", async (ctx) => {
   const { actionStatus } = ctx.session.state;
 
   if (actionStatus) return;
@@ -91,7 +91,7 @@ pvpFootballGame.action("Lobi oluştur", async (ctx) => {
   await removeState(ctx);
 });
 
-pvpFootballGame.action("info", async (ctx) => {
+pvpBoulingGame.action("info", async (ctx) => {
   const { actionStatus } = ctx.session.state;
 
   if (actionStatus) return;
@@ -102,7 +102,7 @@ pvpFootballGame.action("info", async (ctx) => {
   await removeState(ctx);
 });
 
-pvpFootballGame.on("text", async (ctx) => {
+pvpBoulingGame.on("text", async (ctx) => {
   const msg = ctx.update.message.text;
   const { activeView, createLobbyStep, activeBoard } = ctx.session.state;
 
@@ -119,7 +119,7 @@ pvpFootballGame.on("text", async (ctx) => {
   }
 });
 
-pvpFootballGame.action("Lobiye katıl", async (ctx) => {
+pvpBoulingGame.action("Lobiye katıl", async (ctx) => {
   const { actionStatus } = ctx.session.state;
 
   if (actionStatus) return;
@@ -130,7 +130,7 @@ pvpFootballGame.action("Lobiye katıl", async (ctx) => {
   await removeState(ctx);
 });
 
-pvpFootballGame.action("Lobiden çık", async (ctx) => {
+pvpBoulingGame.action("Lobiden çık", async (ctx) => {
   const { actionStatus } = ctx.session.state;
 
   if (actionStatus) return;
@@ -141,12 +141,13 @@ pvpFootballGame.action("Lobiden çık", async (ctx) => {
   await removeState(ctx);
 });
 
-pvpFootballGame.action("🔄 Güncelle", async (ctx) => {
+pvpBoulingGame.action("🔄 Güncelle", async (ctx) => {
   const { activeView, actionStatus } = ctx.session.state;
-  ctx.session.state.boardCountPage = 1;
 
   if (actionStatus) return;
   await setState(ctx);
+
+  ctx.session.state.boardCountPage = 1;
 
   if (activeView === "mylobby") {
     await showMyLobby(ctx);
@@ -158,7 +159,7 @@ pvpFootballGame.action("🔄 Güncelle", async (ctx) => {
   await removeState(ctx);
 });
 
-pvpFootballGame.action("Geri", async (ctx) => {
+pvpBoulingGame.action("Geri", async (ctx) => {
   const { activeView, createLobbyStep, actionStatus } = ctx.session.state;
 
   if (actionStatus) return;
@@ -183,7 +184,7 @@ pvpFootballGame.action("Geri", async (ctx) => {
   await removeState(ctx);
 });
 
-pvpFootballGame.action(/./, async (ctx) => {
+pvpBoulingGame.action(/./, async (ctx) => {
   const { activeView, actionStatus } = ctx.session.state;
   const btnData = ctx.update.callback_query.data;
 
@@ -237,12 +238,12 @@ async function showMainView(ctx) {
   if (Boolean(+process.env.DEV)) {
     ctx.session.state.photoMessage = await bot.telegram.sendPhoto(
       ctx.from.id,
-      "AgACAgIAAxkBAAIDkWCzedCUwsmSnTLhBbyC-zsb7ex0AAJjtDEbH2KhSd_MZ1tswUfco6Keoi4AAwEAAwIAA3MAA3HHAgABHwQ"
+      "AgACAgIAAxkBAAIJMGC94R1zzGZWCZcXhzdc_mY-c4S1AALgsTEbA3jxSRK4cSd9GpiM7DYFpC4AAwEAAwIAA3MAA2MQAgABHwQ"
     );
   } else {
     ctx.session.state.photoMessage = await bot.telegram.sendPhoto(
       ctx.from.id,
-      "AgACAgIAAxkBAAMJYLu3EdTGi_eSL60_ElZJPTF6Y9AAAkG1MRuPweFJt8u93pt-0mxNz16aLgADAQADAgADcwADd9oHAAEfBA"
+      "AgACAgIAAxkBAAII-GC94Paumo_BrCfVR8d5Qk0zmXwKAAIrszEb7ozwSTraTYhjH84jvbsGpC4AAwEAAwIAA3MAA28UAgABHwQ"
     );
   }
 
@@ -251,7 +252,7 @@ async function showMainView(ctx) {
       `Şu anda rakip yok.
 Lobinizi oluşturabilirsiniz: "Lobilerim" --> "Lobi oluştur"
 
-Bakiyeniz: ${user[typeBalance]} TL`,
+Bakiyen: ${user[typeBalance]} TL`,
       Extra.markup((m) =>
         m.inlineKeyboard([
           [
@@ -273,7 +274,7 @@ Bakiyeniz: ${user[typeBalance]} TL`,
     `Oyuna katılmak için bir lobi seçin.
 Kendi lobinizi oluşturun:
 Benim Lobim ---> Lobi kur
-    
+
 Bakiyeniz: ${user[typeBalance]} TL
 
 Sayfa: ${boardCountPage}/${boardMaxPages}`,
@@ -343,12 +344,12 @@ async function showMyLobby(ctx) {
   if (Boolean(+process.env.DEV)) {
     ctx.session.state.photoMessage = await bot.telegram.sendPhoto(
       ctx.from.id,
-      "AgACAgIAAxkBAAIDkWCzedCUwsmSnTLhBbyC-zsb7ex0AAJjtDEbH2KhSd_MZ1tswUfco6Keoi4AAwEAAwIAA3MAA3HHAgABHwQ"
+      "AgACAgIAAxkBAAIJMGC94R1zzGZWCZcXhzdc_mY-c4S1AALgsTEbA3jxSRK4cSd9GpiM7DYFpC4AAwEAAwIAA3MAA2MQAgABHwQ"
     );
   } else {
     ctx.session.state.photoMessage = await bot.telegram.sendPhoto(
       ctx.from.id,
-      "AgACAgIAAxkBAAMJYLu3EdTGi_eSL60_ElZJPTF6Y9AAAkG1MRuPweFJt8u93pt-0mxNz16aLgADAQADAgADcwADd9oHAAEfBA"
+      "AgACAgIAAxkBAAII-GC94Paumo_BrCfVR8d5Qk0zmXwKAAIrszEb7ozwSTraTYhjH84jvbsGpC4AAwEAAwIAA3MAA28UAgABHwQ"
     );
   }
 
@@ -378,7 +379,7 @@ async function showMyLobby(ctx) {
         ];
 
   const newActiveBoard = await ctx.reply(
-    `Lobiden çıkış yapabilirsiniz: Lobiye girin --> ‘Lobiden çık’  ${
+    `Lobiden çıkış yapabilirsiniz: Lobiye girin --> ‘Lobiden çık’ ${
       userGames.length === 10 ? "\n10 adetten fazla lobi oluşturamazsınız." : ""
     }
 
@@ -386,12 +387,12 @@ Sayfa: ${boardCountPage}/${boardMaxPages}`,
     Extra.markup((m) =>
       m.inlineKeyboard([
         ...boardGames[boardCountPage - 1].map((cols) =>
-          cols.map((game) =>
-            m.callbackButton(
+          cols.map((game) => {
+            return m.callbackButton(
               `Lobby #${game.lobbyId} ➖ ${game.prize} TL  👤 [${game.rivals.length}/${game.size}]`,
               `lobby_id:${game.lobbyId}`
-            )
-          )
+            );
+          })
         ),
         [
           m.callbackButton("<", "<"),
@@ -427,10 +428,9 @@ async function selectMyLobby(ctx) {
 
   if (lobby.statusGame === "waiting") {
     const newActiveBoard = await ctx.reply(
-      `Lobi henüz dolmadı. Lütfen diğer oyuncuları bekleyin.
-Lobi toplanır toplanmaz, bot otomatik olarak bir atış yapacak ve size oyunun sonucunu gönderecektir.
+      `Lobi henüz dolmadı. Lütfen diğer oyuncuları bekleyin. Lobi toplanır toplanmaz, bot otomatik olarak bir atış yapacak ve size sonucu gösterecektir.
 
-Ödül havuzu: ${lobby.prize} TL
+Bahis: ${lobby.prize} TL
 
 👤 Rakipler:
 ${[...lobby.rivals, ...new Array(lobby.size - lobby.rivals.length)]
@@ -461,7 +461,6 @@ ${[...lobby.rivals, ...new Array(lobby.size - lobby.rivals.length)]
     );
     ctx.session.state.activeBoard = newActiveBoard;
   }
-  return;
 }
 
 async function showStats(ctx) {
@@ -472,8 +471,8 @@ async function showStats(ctx) {
     await ctx.deleteMessage(activeBoard.message_id);
   } catch (error) {}
 
-  const allUsers = await User.find({ "pvpFootball.count": { $gte: 1 } })
-    .sort({ "pvpFootball.winCash": -1 })
+  const allUsers = await User.find({ "pvpBouling.count": { $gte: 1 } })
+    .sort({ "pvpBouling.winCash": -1 })
     .limit(10);
 
   const user = await User.findOne({ userId: ctx.from.id });
@@ -487,12 +486,11 @@ async function showStats(ctx) {
   ctx.session.state.activeBoard = await ctx.reply(
     `Var olan bir lobiye katılabilir ya da kendi lobinizi oluşturup diğer oyuncular ile oynayabilirsiniz. Lobi dolduğunda size bir bildirim gelir ve oyun otomatik olarak başlar.
 
-Futboldaki penaltıda olduğu gibi her oyuncu 5 kez topa vurur. En çok skor yapan kişi kazanır. Beraberlik durumunda maksimum 5 kez tekrar oynanır. Kimse kazanmazsa bahis tutarları oyuncuların hesaplarına geri aktarılır.
-    
-    
-Sıralamadaki yeriniz: №${user.pvpFootball.rating}
-Oynadın ${user.pvpFootball.count} toplamda ${user.pvpFootball.playCash} TL
-Genel kazancınız: ${user.pvpFootball.winCash} TL
+Her oyuncu 3 kez zar atar, toplamda en büyük zarı atan kazanır. Beraberlik durumunda ekstra raunt oynanır.
+
+Sıralamadaki yeriniz: №${user.pvpBouling.rating}
+Oynadın ${user.pvpBouling.count} toplamda ${user.pvpBouling.playCash} TL
+Genel kazancınız: ${user.pvpBouling.winCash} TL
 
 En iyi 10 oyuncu:
 ${allUsers
@@ -512,7 +510,7 @@ ${latestGames
     const status = item.winner === ctx.from.id ? "🟢" : "🔴";
     return `${status} 👤 ${item.rivals.length} 💰 ${
       item.prize * item.rivals.length
-    } TL  ⚽️ ${item.reversedResults[ctx.from.id].join(" ⚽️ ")}`;
+    } TL  🎳 ${item.reversedResults[ctx.from.id].join(" 🎳 ")}`;
   })
   .join("\n")}`,
     {
@@ -543,8 +541,8 @@ async function showCreateLobbyStep2(ctx) {
   const user = await User.findOne({ userId: ctx.from.id });
 
   const newActiveBoard = await ctx.reply(
-    `Adım 2/2 – Sohbet’e bahis yazın.
-Bu miktar hesabınızdan kesilecektir.
+    `Adım 2/2 Lütfen sohbete bahis tutarını girin.
+Bu miktar hesabınızda kesilecektir.
     
 Bakiyeniz: ${user[typeBalance]} TL`,
     Extra.markup((m) => m.inlineKeyboard([m.callbackButton("Geri", "Geri")]))
@@ -612,7 +610,7 @@ async function showSelectRivals(ctx) {
   const newActiveBoard = await ctx.reply(
     `Lobi başarılı bir şekilde seçildi.
 
-Ödül havuzu: ${lobby.prize} TL
+Bahis: ${lobby.prize} TL
     
 Rakipler:
 ${[...lobby.rivals, ...new Array(lobby.size - lobby.rivals.length)]
@@ -620,7 +618,8 @@ ${[...lobby.rivals, ...new Array(lobby.size - lobby.rivals.length)]
     if (!item) return `${i + 1}. Bekleniyor..`;
     return `${i + 1}. ${lobby.rivalsLinks[item]}`;
   })
-  .join("\n")}`,
+  .join("\n")}
+`,
     {
       parse_mode: "HTML",
       reply_markup: {
@@ -691,7 +690,6 @@ async function checkLastPlayer(lobby, ctx) {
     return await showMainView(ctx);
   }
 
-  // Сообщение о том, что лобби начало игру
   lobby.rivals.map((userId) =>
     bot.telegram.sendMessage(userId, `${lobby.lobbyId} no’lu lobi toplandı.`, {
       disable_notification: true,
@@ -712,13 +710,14 @@ async function checkLastPlayer(lobby, ctx) {
   await MainStats.updateOne(
     {},
     {
-      $inc: { "pvpGames.football.countLobby": 1 },
-      "pvpGames.football.countCash": +(
-        pvpGames.football.countCash + lobby.prize
+      $inc: { "pvpGames.dice.countLobby": 1 },
+      "pvpGames.dice.countCash": +(
+        pvpGames.dice.countCash + lobby.prize
       ).toFixed(2),
     }
   );
 
+  // Записываем ключи объекта
   lobby.results[0] = {};
   lobby.resultsSum[0] = {};
 
@@ -729,218 +728,55 @@ async function checkLastPlayer(lobby, ctx) {
 
   // Делаем бросок каждому игроку
   for (let userId of lobby.rivals) {
-    // Отправляем каждому игроку сообщение о том, кто бьет мяч
+    // Отправляем каждому игроку сообщение о том, кто делает бросок
     for (let uid of lobby.rivals) {
       if (uid !== userId) {
         await bot.telegram.sendMessage(
           uid,
-          `Şimdi rakibiniz şut çekecek: ${lobby.rivalsLinks[userId]}`,
+          `Şimdi atmak bir oyuncu yapar: ${lobby.rivalsLinks[userId]}`,
           { parse_mode: "HTML", disable_notification: true }
         );
       } else {
-        await bot.telegram.sendMessage(uid, `Şimdi siz şut çekeceksiniz.`, {
+        await bot.telegram.sendMessage(uid, `Şimdi atışın`, {
           disable_notification: true,
         });
       }
     }
 
-    const diceMsg = await bot.telegram.sendDice(userId, {
-      emoji: "⚽️",
+    const dice1 = await bot.telegram.sendDice(userId, {
+      emoji: "🎳",
+      disable_notification: true,
+    });
+    const dice2 = await bot.telegram.sendDice(userId, {
+      emoji: "🎳",
+      disable_notification: true,
+    });
+    const dice3 = await bot.telegram.sendDice(userId, {
+      emoji: "🎳",
       disable_notification: true,
     });
 
     // Пересылаем остальным игрокам результат броска
     lobby.rivals.map((replyTo) => {
       if (replyTo === userId) return;
-      bot.telegram.forwardMessage(replyTo, userId, diceMsg.message_id, {
+      bot.telegram.forwardMessage(replyTo, userId, dice1.message_id, {
+        disable_notification: true,
+      });
+      bot.telegram.forwardMessage(replyTo, userId, dice2.message_id, {
+        disable_notification: true,
+      });
+      bot.telegram.forwardMessage(replyTo, userId, dice3.message_id, {
         disable_notification: true,
       });
     });
 
-    // Берем предыдущие результаты
-    let results = [...lobby.results[0][userId], diceMsg.dice.value];
-    let resultsSum = lobby.resultsSum[0][userId];
+    const value1 = dice1.dice.value === 2 ? 1 : dice1.dice.value;
+    const value2 = dice2.dice.value === 2 ? 1 : dice2.dice.value;
+    const value3 = dice3.dice.value === 2 ? 1 : dice3.dice.value;
 
-    // Если забиваем гол, добавляем игроку очко
-    if (diceMsg.dice.value >= 3) resultsSum++;
+    const results = [value1, value2, value3];
+    const resultsSum = value1 + value2 + value3;
 
-    // Записываем результат игры
-    lobby.results[0] = { ...lobby.results[0], [userId]: results };
-    lobby.resultsSum[0] = { ...lobby.resultsSum[0], [userId]: resultsSum };
-
-    // Ожидаем окончание анимации
-    await timeout(4000);
-  }
-  // Делаем бросок каждому игроку
-  for (let userId of lobby.rivals) {
-    // Отправляем каждому игроку сообщение о том, кто бьет мяч
-    for (let uid of lobby.rivals) {
-      if (uid !== userId) {
-        await bot.telegram.sendMessage(
-          uid,
-          `Şimdi rakibiniz şut çekecek: ${lobby.rivalsLinks[userId]}`,
-          { parse_mode: "HTML", disable_notification: true }
-        );
-      } else {
-        await bot.telegram.sendMessage(uid, `Şimdi siz şut çekeceksiniz.`, {
-          disable_notification: true,
-        });
-      }
-    }
-
-    const diceMsg = await bot.telegram.sendDice(userId, {
-      emoji: "⚽️",
-      disable_notification: true,
-    });
-
-    // Пересылаем остальным игрокам результат броска
-    lobby.rivals.map((replyTo) => {
-      if (replyTo === userId) return;
-      bot.telegram.forwardMessage(replyTo, userId, diceMsg.message_id, {
-        disable_notification: true,
-      });
-    });
-
-    // Берем предыдущие результаты
-    let results = [...lobby.results[0][userId], diceMsg.dice.value];
-    let resultsSum = lobby.resultsSum[0][userId];
-
-    // Если забиваем гол, добавляем игроку очко
-    if (diceMsg.dice.value >= 3) resultsSum++;
-
-    // Записываем результат игры
-    lobby.results[0] = { ...lobby.results[0], [userId]: results };
-    lobby.resultsSum[0] = { ...lobby.resultsSum[0], [userId]: resultsSum };
-
-    // Ожидаем окончание анимации
-    await timeout(4000);
-  }
-  // Делаем бросок каждому игроку
-  for (let userId of lobby.rivals) {
-    // Отправляем каждому игроку сообщение о том, кто бьет мяч
-    for (let uid of lobby.rivals) {
-      if (uid !== userId) {
-        await bot.telegram.sendMessage(
-          uid,
-          `Şimdi rakibiniz şut çekecek: ${lobby.rivalsLinks[userId]}`,
-          { parse_mode: "HTML", disable_notification: true }
-        );
-      } else {
-        await bot.telegram.sendMessage(uid, `Şimdi siz şut çekeceksiniz.`, {
-          disable_notification: true,
-        });
-      }
-    }
-
-    const diceMsg = await bot.telegram.sendDice(userId, {
-      emoji: "⚽️",
-      disable_notification: true,
-    });
-
-    // Пересылаем остальным игрокам результат броска
-    lobby.rivals.map((replyTo) => {
-      if (replyTo === userId) return;
-      bot.telegram.forwardMessage(replyTo, userId, diceMsg.message_id, {
-        disable_notification: true,
-      });
-    });
-
-    // Берем предыдущие результаты
-    let results = [...lobby.results[0][userId], diceMsg.dice.value];
-    let resultsSum = lobby.resultsSum[0][userId];
-
-    // Если забиваем гол, добавляем игроку очко
-    if (diceMsg.dice.value >= 3) resultsSum++;
-
-    // Записываем результат игры
-    lobby.results[0] = { ...lobby.results[0], [userId]: results };
-    lobby.resultsSum[0] = { ...lobby.resultsSum[0], [userId]: resultsSum };
-
-    // Ожидаем окончание анимации
-    await timeout(4000);
-  }
-  // Делаем бросок каждому игроку
-  for (let userId of lobby.rivals) {
-    // Отправляем каждому игроку сообщение о том, кто бьет мяч
-    for (let uid of lobby.rivals) {
-      if (uid !== userId) {
-        await bot.telegram.sendMessage(
-          uid,
-          `Şimdi rakibiniz şut çekecek: ${lobby.rivalsLinks[userId]}`,
-          { parse_mode: "HTML", disable_notification: true }
-        );
-      } else {
-        await bot.telegram.sendMessage(uid, `Şimdi siz şut çekeceksiniz.`, {
-          disable_notification: true,
-        });
-      }
-    }
-
-    const diceMsg = await bot.telegram.sendDice(userId, {
-      emoji: "⚽️",
-      disable_notification: true,
-    });
-
-    // Пересылаем остальным игрокам результат броска
-    lobby.rivals.map((replyTo) => {
-      if (replyTo === userId) return;
-      bot.telegram.forwardMessage(replyTo, userId, diceMsg.message_id, {
-        disable_notification: true,
-      });
-    });
-
-    // Берем предыдущие результаты
-    let results = [...lobby.results[0][userId], diceMsg.dice.value];
-    let resultsSum = lobby.resultsSum[0][userId];
-
-    // Если забиваем гол, добавляем игроку очко
-    if (diceMsg.dice.value >= 3) resultsSum++;
-
-    // Записываем результат игры
-    lobby.results[0] = { ...lobby.results[0], [userId]: results };
-    lobby.resultsSum[0] = { ...lobby.resultsSum[0], [userId]: resultsSum };
-
-    // Ожидаем окончание анимации
-    await timeout(4000);
-  }
-  // Делаем бросок каждому игроку
-  for (let userId of lobby.rivals) {
-    // Отправляем каждому игроку сообщение о том, кто бьет мяч
-    for (let uid of lobby.rivals) {
-      if (uid !== userId) {
-        await bot.telegram.sendMessage(
-          uid,
-          `Şimdi rakibiniz şut çekecek: ${lobby.rivalsLinks[userId]}`,
-          { parse_mode: "HTML", disable_notification: true }
-        );
-      } else {
-        await bot.telegram.sendMessage(uid, `Şimdi siz şut çekeceksiniz.`, {
-          disable_notification: true,
-        });
-      }
-    }
-
-    const diceMsg = await bot.telegram.sendDice(userId, {
-      emoji: "⚽️",
-      disable_notification: true,
-    });
-
-    // Пересылаем остальным игрокам результат броска
-    lobby.rivals.map((replyTo) => {
-      if (replyTo === userId) return;
-      bot.telegram.forwardMessage(replyTo, userId, diceMsg.message_id, {
-        disable_notification: true,
-      });
-    });
-
-    // Берем предыдущие результаты
-    let results = [...lobby.results[0][userId], diceMsg.dice.value];
-    let resultsSum = lobby.resultsSum[0][userId];
-
-    // Если забиваем гол, добавляем игроку очко
-    if (diceMsg.dice.value >= 3) resultsSum++;
-
-    // Записываем результат игры
     lobby.results[0] = { ...lobby.results[0], [userId]: results };
     lobby.resultsSum[0] = { ...lobby.resultsSum[0], [userId]: resultsSum };
 
@@ -980,16 +816,16 @@ ${
   userId === winner
     ? `Kazandınız!
 Kazanılan oyunlar: ${lobbyPrize.toFixed(2)} TL`
-    : `Kazandı: ${winner === 0 ? "drow" : `${lobby.rivalsLinks[winner]}`}
+    : `Kazandı ${winner === 0 ? "drow" : `${lobby.rivalsLinks[winner]}`}
 Kazanç: ${lobbyPrize.toFixed(2)} TL`
 }
-      
+   
 ${lobby.rivals
   .map(
     (item, i) =>
-      `${i + 1}. 👤 ${lobby.rivalsLinks[item]} ➖ ⚽️ ${reversedResults[
+      `${i + 1}. 👤 ${lobby.rivalsLinks[item]} ➖ 🎳 ${reversedResults[
         item
-      ].join(" ⚽️ ")}`
+      ].join(" 🎳 ")}`
   )
   .join("\n")}`,
       {
@@ -1013,14 +849,14 @@ ${lobby.rivals
 
     // Обновляем статистику игроков
     for (let i = 0; i < lobby.rivals.length; i++) {
-      const { pvpFootball } = await User.findOne({ userId: lobby.rivals[i] });
+      const { pvpBouling } = await User.findOne({ userId: lobby.rivals[i] });
       await User.updateOne(
         { userId: lobby.rivals[i] },
         {
-          pvpFootball: {
-            ...pvpFootball,
-            count: pvpFootball.count + 1,
-            playCash: +(pvpFootball.playCash + lobby.prize).toFixed(2),
+          pvpBouling: {
+            ...pvpBouling,
+            count: pvpBouling.count + 1,
+            playCash: +(pvpBouling.playCash + lobby.prize).toFixed(2),
           },
         }
       );
@@ -1042,29 +878,29 @@ ${lobby.rivals
   );
 
   // Начисляем выигрыш победителю
-  const { mainBalance, pvpFootball } = await User.findOne({ userId: winner });
+  const { mainBalance, pvpBouling } = await User.findOne({ userId: winner });
   await User.updateOne(
     { userId: winner },
     {
       mainBalance: +(mainBalance + lobbyPrize).toFixed(2),
-      pvpFootball: {
-        ...pvpFootball,
-        winCount: pvpFootball.winCount + 1,
-        winCash: +(pvpFootball.winCash + lobbyPrize).toFixed(2),
+      pvpBouling: {
+        ...pvpBouling,
+        winCount: pvpBouling.winCount + 1,
+        winCash: +(pvpBouling.winCash + lobbyPrize).toFixed(2),
       },
     }
   );
 
   // Обновляем статистику игроков
   for (let i = 0; i < lobby.rivals.length; i++) {
-    const { pvpFootball } = await User.findOne({ userId: lobby.rivals[i] });
+    const { pvpBouling } = await User.findOne({ userId: lobby.rivals[i] });
     await User.updateOne(
       { userId: lobby.rivals[i] },
       {
-        pvpFootball: {
-          ...pvpFootball,
-          count: pvpFootball.count + 1,
-          playCash: +(pvpFootball.playCash + lobby.prize).toFixed(2),
+        pvpBouling: {
+          ...pvpBouling,
+          count: pvpBouling.count + 1,
+          playCash: +(pvpBouling.playCash + lobby.prize).toFixed(2),
         },
       }
     );
@@ -1084,13 +920,12 @@ async function playing2round(lobby, players, round = 2) {
     }
   }
 
-  // Если победитель один
   if (players2round.length === 1) {
     return { resLobby: lobby, winner: players[0].userId };
   }
 
   // ВОЗВРАТ
-  if (round === 6) {
+  if (round === 3) {
     for (let userId of lobby.rivals) {
       await bot.telegram.sendMessage(
         userId,
@@ -1131,9 +966,9 @@ Oyna:
 ${players2round
   .map(
     (item, i) =>
-      `${i + 1}. 👤 ${lobby.rivalsLinks[item.userId]} ➖ ⚽️ ${reversedResults[
-        item.userId
-      ].join(" ⚽️ ")}`
+      `${i + 1}. 👤 ${
+        lobby.rivalsLinks[item.userId]
+      } ➖ 🎳⚽️ ${reversedResults[item.userId].join(" 🎳 ")}`
   )
   .join("\n")}`,
         { parse_mode: "HTML", disable_notification: true }
@@ -1155,35 +990,49 @@ ${players2round
         if (uid !== userId) {
           await bot.telegram.sendMessage(
             uid,
-            `Şimdi rakibiniz şut çekecek: ${lobby.rivalsLinks[userId]}`,
+            `Şimdi atmak bir oyuncu yapar: ${lobby.rivalsLinks[userId]}`,
             { parse_mode: "HTML", disable_notification: true }
           );
         } else {
-          await bot.telegram.sendMessage(uid, `Şimdi siz şut çekeceksiniz.`, {
+          await bot.telegram.sendMessage(uid, `Şimdi atışın`, {
             disable_notification: true,
           });
         }
       }
 
-      const diceMsg = await bot.telegram.sendDice(userId, {
-        emoji: "⚽️",
+      const diceMsg1 = await bot.telegram.sendDice(userId, {
+        emoji: "🎳",
+        disable_notification: true,
+      });
+      const diceMsg2 = await bot.telegram.sendDice(userId, {
+        emoji: "🎳",
+        disable_notification: true,
+      });
+      const diceMsg3 = await bot.telegram.sendDice(userId, {
+        emoji: "🎳",
         disable_notification: true,
       });
 
       // Пересылаем остальным игрокам результат броска
       lobby.rivals.map((replyTo) => {
         if (replyTo === userId) return;
-        bot.telegram.forwardMessage(replyTo, userId, diceMsg.message_id, {
+        bot.telegram.forwardMessage(replyTo, userId, diceMsg1.message_id, {
+          disable_notification: true,
+        });
+        bot.telegram.forwardMessage(replyTo, userId, diceMsg2.message_id, {
+          disable_notification: true,
+        });
+        bot.telegram.forwardMessage(replyTo, userId, diceMsg3.message_id, {
           disable_notification: true,
         });
       });
 
-      // Берем предыдущие результаты
-      let results = [...lobby.results[round - 1][userId], diceMsg.dice.value];
-      let resultsSum = lobby.resultsSum[round - 1][userId];
+      const value1 = diceMsg1.dice.value === 2 ? 1 : diceMsg1.dice.value;
+      const value2 = diceMsg2.dice.value === 2 ? 1 : diceMsg2.dice.value;
+      const value3 = diceMsg3.dice.value === 2 ? 1 : diceMsg3.dice.value;
 
-      // Если забиваем гол, добавляем игроку очко
-      if (diceMsg.dice.value >= 3) resultsSum++;
+      const results = [value1, value2, value3];
+      const resultsSum = value1 + value2 + value3;
 
       // Записываем результат игры
       lobby.results[round - 1] = {
@@ -1209,8 +1058,8 @@ ${players2round
     const sortedPlayers = finallPlayers.sort(
       (a, b) => b.resultsSum - a.resultsSum
     );
-    round++;
-    return await playing2round(lobby, sortedPlayers, round);
+
+    return await playing2round(lobby, sortedPlayers, round++);
   }
 }
 
@@ -1313,6 +1162,7 @@ function setState(ctx) {
     resolve();
   });
 }
+
 function removeState(ctx) {
   return new Promise((resolve) => {
     ctx.session.state.actionStatus = false;
@@ -1320,4 +1170,4 @@ function removeState(ctx) {
   });
 }
 
-module.exports = { pvpFootballGame };
+module.exports = { pvpBoulingGame };

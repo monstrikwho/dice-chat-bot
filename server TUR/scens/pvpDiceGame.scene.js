@@ -89,7 +89,7 @@ pvpDiceGame.action("Lobi oluştur", async (ctx) => {
   await removeState(ctx);
 });
 
-pvpDiceGame.action("İstatistikler", async (ctx) => {
+pvpDiceGame.action("info", async (ctx) => {
   const { actionStatus } = ctx.session.state;
 
   if (actionStatus) return;
@@ -254,12 +254,17 @@ async function showMainView(ctx) {
     await ctx.deleteMessage(photoMessage.message_id);
   } catch (error) {}
 
-  const newPhotoMessage = await bot.telegram.sendPhoto(
-    ctx.from.id,
-    "AgACAgIAAxkBAAIDkGCzeYJUYXdMSqY3V8uBr5hVFhUUAAJitDEbH2KhScl0liCHqsJ-PL4GpC4AAwEAAwIAA3MAA8K8AQABHwQ"
-  );
-
-  ctx.session.state.photoMessage = newPhotoMessage;
+  if (Boolean(+process.env.DEV)) {
+    ctx.session.state.photoMessage = await bot.telegram.sendPhoto(
+      ctx.from.id,
+      "AgACAgIAAxkBAAIDkGCzeYJUYXdMSqY3V8uBr5hVFhUUAAJitDEbH2KhScl0liCHqsJ-PL4GpC4AAwEAAwIAA3MAA8K8AQABHwQ"
+    );
+  } else {
+    ctx.session.state.photoMessage = await bot.telegram.sendPhoto(
+      ctx.from.id,
+      "AgACAgIAAxkBAAMHYLu2bb4MdQW0sjMk6bJGdX6D67oAAj-1MRuPweFJMQwZnSLsWXaHBo-hLgADAQADAgADcwADc0sDAAEfBA"
+    );
+  }
 
   if (pvpGames.length === 0) {
     const newActiveBoard = await ctx.reply(
@@ -272,7 +277,7 @@ Bakiyen: ${user[typeBalance]} TL`,
           [
             m.callbackButton("Lobilerim", "Lobilerim"),
             m.callbackButton("🔄 Güncelle", "🔄 Güncelle"),
-            m.callbackButton("İstatistikler", "İstatistikler"),
+            m.callbackButton("info", "info"),
           ],
         ])
       )
@@ -309,7 +314,7 @@ Sayfa: ${boardCountPage}/${boardMaxPages}`,
         ],
         [
           m.callbackButton("Lobilerim", "Lobilerim"),
-          m.callbackButton("İstatistikler", "İstatistikler"),
+          m.callbackButton("info", "info"),
         ],
       ])
     )
@@ -355,12 +360,17 @@ async function showMyLobby(ctx) {
     await ctx.deleteMessage(photoMessage.message_id);
   } catch (error) {}
 
-  const newPhotoMessage = await bot.telegram.sendPhoto(
-    ctx.from.id,
-    "AgACAgIAAxkBAAIDkGCzeYJUYXdMSqY3V8uBr5hVFhUUAAJitDEbH2KhScl0liCHqsJ-PL4GpC4AAwEAAwIAA3MAA8K8AQABHwQ"
-  );
-
-  ctx.session.state.photoMessage = newPhotoMessage;
+  if (Boolean(+process.env.DEV)) {
+    ctx.session.state.photoMessage = await bot.telegram.sendPhoto(
+      ctx.from.id,
+      "AgACAgIAAxkBAAIDkGCzeYJUYXdMSqY3V8uBr5hVFhUUAAJitDEbH2KhScl0liCHqsJ-PL4GpC4AAwEAAwIAA3MAA8K8AQABHwQ"
+    );
+  } else {
+    ctx.session.state.photoMessage = await bot.telegram.sendPhoto(
+      ctx.from.id,
+      "AgACAgIAAxkBAAMHYLu2bb4MdQW0sjMk6bJGdX6D67oAAj-1MRuPweFJMQwZnSLsWXaHBo-hLgADAQADAgADcwADc0sDAAEfBA"
+    );
+  }
 
   if (pvpGames.length === 0) {
     const newActiveBoard = await ctx.reply(
@@ -427,9 +437,9 @@ async function selectMyLobby(ctx) {
   ctx.session.state.activeView = "select-mylobby";
 
   const lobby = await PvpGame.findOne({ lobbyId });
-  const { pvpPercent } = await MainStats.findOne();
 
-  const lobbyPrize = lobby.prize * lobby.size * (1 - pvpPercent / 100);
+  // const { pvpPercent } = await MainStats.findOne();
+  // const lobbyPrize = lobby.prize * lobby.size * (1 - pvpPercent / 100);
 
   try {
     await ctx.deleteMessage(activeBoard.message_id);
@@ -437,26 +447,36 @@ async function selectMyLobby(ctx) {
 
   if (lobby.statusGame === "waiting") {
     const newActiveBoard = await ctx.reply(
-      `Lobi henüz dolmadı. Lütfen diğer oyuncuları bekleyin.
-Lobi toplanır toplanmaz, bot otomatik olarak bir atış yapacak ve size oyunun sonucunu gönderecektir.
+      `Lobi henüz dolmadı. Lütfen diğer oyuncuları bekleyin. Lobi toplanır toplanmaz, bot otomatik olarak bir atış yapacak ve size sonucu gösterecektir.
 
-Ödül havuzu: ${lobbyPrize.toFixed(2)} TL
+Bahis: ${lobby.prize} TL
 
 👤 Rakipler:
 ${[...lobby.rivals, ...new Array(lobby.size - lobby.rivals.length)]
   .map((item, i) => {
-    if (!item) return `${i + 1}. Beklenti..`;
-    return `${i + 1}. ${item}`;
+    if (!item) return `${i + 1}. Bekleniyor..`;
+    return `${i + 1}. ${lobby.rivalsLinks[item]}`;
   })
   .join("\n")}`,
-      Extra.markup((m) =>
-        m.inlineKeyboard([
-          [
-            m.callbackButton("Lobiden çık", "Lobiden çık"),
-            m.callbackButton("Geri", "Geri"),
+      {
+        parse_mode: "HTML",
+        reply_markup: {
+          inline_keyboard: [
+            [
+              {
+                text: "Lobiden çık",
+                callback_data: "Lobiden çık",
+              },
+            ],
+            [
+              {
+                text: "Geri",
+                callback_data: "Geri",
+              },
+            ],
           ],
-        ])
-      )
+        },
+      }
     );
     ctx.session.state.activeBoard = newActiveBoard;
   }
@@ -483,7 +503,10 @@ async function showStats(ctx) {
     .limit(10);
 
   ctx.session.state.activeBoard = await ctx.reply(
-    `TOPLAM PUANLAMA
+    `Var olan bir lobiye katılabilir ya da kendi lobinizi oluşturup diğer oyuncular ile oynayabilirsiniz. Lobi dolduğunda size bir bildirim gelir ve oyun otomatik olarak başlar.
+
+Her oyuncu 3 kez zar atar, toplamda en büyük zarı atan kazanır. Beraberlik durumunda ekstra raunt oynanır.
+
 Sıralamadaki yeriniz: №${user.pvpDice.rating}
 Oynadın ${user.pvpDice.count} toplamda ${user.pvpDice.playCash} TL
 Genel kazancınız: ${user.pvpDice.winCash} TL
@@ -492,7 +515,11 @@ En iyi 10 oyuncu:
 ${allUsers
   .map(
     (item, i) =>
-      `${i + 1}. ${item.userName ? "@" + item.userName : item.userId}`
+      `${i + 1}. ${
+        item.userName
+          ? "@" + item.userName
+          : `<a href="tg://user?id=${item.userId}">@${item.userId}</a>`
+      }`
   )
   .join("\n")}
 
@@ -502,10 +529,22 @@ ${latestGames
     const status = item.winner === ctx.from.id ? "🟢" : "🔴";
     return `${status} 👤 ${item.rivals.length} 💰 ${
       item.prize * item.rivals.length
-    }p  🎲 ${item.reversedResults[ctx.from.id].join(" 🎲 ")}`;
+    } TL  🎲 ${item.reversedResults[ctx.from.id].join(" 🎲 ")}`;
   })
   .join("\n")}`,
-    Extra.markup((m) => m.inlineKeyboard([[m.callbackButton("Geri", "Geri")]]))
+    {
+      parse_mode: "HTML",
+      reply_markup: {
+        inline_keyboard: [
+          [
+            {
+              text: "Geri",
+              callback_data: "Geri",
+            },
+          ],
+        ],
+      },
+    }
   );
 }
 
@@ -547,8 +586,8 @@ async function showCreateLobbyStep2(ctx) {
   const user = await User.findOne({ userId: ctx.from.id });
 
   const newActiveBoard = await ctx.reply(
-    `Adım 2/2 – Sohbet’e bahis yazın.
-Bu miktar hesabınızdan kesilecektir.
+    `Adım 2/2 Lütfen sohbete bahis tutarını girin.
+Bu miktar hesabınızda kesilecektir.
     
 Bakiyeniz: ${user[typeBalance]} TL`,
     Extra.markup((m) => m.inlineKeyboard([m.callbackButton("Geri", "Geri")]))
@@ -598,9 +637,9 @@ async function showSelectRivals(ctx) {
 
   const lobby = await PvpGame.findOne({ lobbyId });
   const user = await User.findOne({ userId: ctx.from.id });
-  const { pvpPercent } = await MainStats.findOne();
 
-  const lobbyPrize = lobby.prize * lobby.size * (1 - pvpPercent / 100);
+  // const { pvpPercent } = await MainStats.findOne();
+  // const lobbyPrize = lobby.prize * lobby.size * (1 - pvpPercent / 100);
 
   if (user[typeBalance] < lobby.prize) {
     return await ctx.answerCbQuery(
@@ -616,22 +655,35 @@ async function showSelectRivals(ctx) {
   const newActiveBoard = await ctx.reply(
     `Lobi başarılı bir şekilde seçildi.
 
-Ödül havuzu: ${lobbyPrize.toFixed(2)} TL
+Bahis: ${lobby.prize} TL
     
 Rakipler:
 ${[...lobby.rivals, ...new Array(lobby.size - lobby.rivals.length)]
   .map((item, i) => {
-    if (!item) return `${i + 1}. Beklenti..`;
-    return `${i + 1}. ${item}`;
+    if (!item) return `${i + 1}. Bekleniyor..`;
+    return `${i + 1}. ${lobby.rivalsLinks[item]}`;
   })
   .join("\n")}
 `,
-    Extra.markup((m) =>
-      m.inlineKeyboard([
-        [m.callbackButton("Lobiye katıl", "Lobiye katıl")],
-        [m.callbackButton("Geri", "Geri")],
-      ])
-    )
+    {
+      parse_mode: "HTML",
+      reply_markup: {
+        inline_keyboard: [
+          [
+            {
+              text: "Lobiye katıl",
+              callback_data: "Lobiye katıl",
+            },
+          ],
+          [
+            {
+              text: "Geri",
+              callback_data: "Geri",
+            },
+          ],
+        ],
+      },
+    }
   );
 
   ctx.session.state = {
@@ -648,7 +700,22 @@ async function joinToLobby(ctx) {
   if (lobby.rivals.indexOf(ctx.from.id) > 0) return;
 
   lobby.rivals.push(ctx.from.id);
-  await PvpGame.updateOne({ lobbyId }, { rivals: lobby.rivals });
+  lobby.rivalsLinks[ctx.from.id] = ctx.from.username
+    ? `@${ctx.from.username}`
+    : `<a href="tg://user?id=${ctx.from.id}">@${ctx.from.id}</a>`;
+
+  await PvpGame.updateOne(
+    { lobbyId },
+    {
+      rivals: lobby.rivals,
+      rivalsLinks: {
+        ...lobby.rivalsLinks,
+        [ctx.from.id]: ctx.from.username
+          ? `@${ctx.from.username}`
+          : `<a href="tg://user?id=${ctx.from.id}">@${ctx.from.id}</a>`,
+      },
+    }
+  );
 
   const user = await User.findOne({ userId: ctx.from.id });
   await User.updateOne(
@@ -690,7 +757,7 @@ async function checkLastPlayer(lobby, ctx) {
     {
       $inc: { "pvpGames.dice.countLobby": 1 },
       "pvpGames.dice.countCash": +(
-        pvpGames.dice.countCash + lobbyPrize
+        pvpGames.dice.countCash + lobby.prize
       ).toFixed(2),
     }
   );
@@ -711,8 +778,8 @@ async function checkLastPlayer(lobby, ctx) {
       if (uid !== userId) {
         await bot.telegram.sendMessage(
           uid,
-          `Şimdi atmak bir oyuncu yapar: ${userId}`,
-          { disable_notification: true }
+          `Şimdi atmak bir oyuncu yapar: ${lobby.rivalsLinks[userId]}`,
+          { parse_mode: "HTML", disable_notification: true }
         );
       } else {
         await bot.telegram.sendMessage(uid, `Şimdi atışın`, {
@@ -794,16 +861,19 @@ ${
   userId === winner
     ? `Kazandınız!
 Kazanılan oyunlar: ${lobbyPrize.toFixed(2)} TL`
-    : `Kazandı ${winner}
+    : `Kazandı ${lobby.rivalsLinks[winner]}
 Kazanç: ${lobbyPrize.toFixed(2)} TL`
 }
    
 ${lobby.rivals
   .map(
     (item, i) =>
-      `${i + 1}. 👤 ${item} ➖ 🎲 ${reversedResults[item].join(" 🎲 ")}`
+      `${i + 1}. 👤 ${lobby.rivalsLinks[item]} ➖ 🎲 ${reversedResults[
+        item
+      ].join(" 🎲 ")}`
   )
-  .join("\n")}`
+  .join("\n")}`,
+      { parse_mode: "HTML" }
     )
   );
 
@@ -868,6 +938,17 @@ async function playing2round(lobby, players, round = 2) {
 
   // Если несколько победителей
   if (players2round.length > 1) {
+    const reversedResults = {};
+    for (let i = 0; i < lobby.resultsSum.length; i++) {
+      for (const [key, value] of Object.entries(lobby.resultsSum[i])) {
+        if (reversedResults[key]) {
+          reversedResults[key] = [...reversedResults[key], value];
+        } else {
+          reversedResults[key] = [value];
+        }
+      }
+    }
+
     // Отправляем игрокам сообщение об втором раунде
     lobby.rivals.map((userId) =>
       bot.telegram.sendMessage(
@@ -875,8 +956,15 @@ async function playing2round(lobby, players, round = 2) {
         `Lobi #${lobby.lobbyId} ➖ ${round} yuvarlak
 
 Oyna:
-${players2round.map((item, i) => `${i + 1}. 👤 ${item.userId}`).join("\n")}`,
-        { disable_notification: true }
+${players2round
+  .map(
+    (item, i) =>
+      `${i + 1}. 👤 ${lobby.rivalsLinks[item.userId]} ➖ 🎲 ${reversedResults[
+        item.userId
+      ].join(" 🎲 ")}`
+  )
+  .join("\n")}`,
+        { parse_mode: "HTML", disable_notification: true }
       )
     );
 
@@ -895,8 +983,8 @@ ${players2round.map((item, i) => `${i + 1}. 👤 ${item.userId}`).join("\n")}`,
         if (uid !== userId) {
           await bot.telegram.sendMessage(
             uid,
-            `Şimdi atmak bir oyuncu yapar: ${userId}`,
-            { disable_notification: true }
+            `Şimdi atmak bir oyuncu yapar: ${lobby.rivalsLinks[userId]}`,
+            { parse_mode: "HTML", disable_notification: true }
           );
         } else {
           await bot.telegram.sendMessage(uid, `Şimdi atışın`, {
@@ -983,6 +1071,11 @@ async function createLobby(ctx) {
     size: createLobbyRoomSize,
     prize: createLobbyRate,
     rivals: [ctx.from.id],
+    rivalsLinks: {
+      [ctx.from.id]: ctx.from.username
+        ? `@${ctx.from.username}`
+        : `<a href="tg://user?id=${ctx.from.id}">@${ctx.from.id}</a>`,
+    },
     creator: ctx.from.id,
   });
   await pvpGame.save();
@@ -1062,6 +1155,7 @@ function setState(ctx) {
     resolve();
   });
 }
+
 function removeState(ctx) {
   return new Promise((resolve) => {
     ctx.session.state.actionStatus = false;

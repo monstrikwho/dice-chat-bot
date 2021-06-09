@@ -8,6 +8,7 @@ const schema = new Schema({
   prize: Number,
   size: Number,
   rivals: Array,
+  rivalsLinks: Object,
   creator: Number,
   results: Array,
   resultsSum: Array,

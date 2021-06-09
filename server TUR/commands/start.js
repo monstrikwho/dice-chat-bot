@@ -7,6 +7,7 @@ const MainStats = require("../models/mainstats");
 async function setupStart(bot) {
   // Setup scens
   setupScenes(bot);
+  const rateLimmiter = {};
 
   async function saveAdsStats(ads, adsName) {
     if (ads[adsName]) {
@@ -33,7 +34,11 @@ ${bonusRefFather} TL DEMO hesabınıza yatırıldı`
   async function updateUser(ctx, user) {
     await User.updateOne(
       { userId: ctx.from.id },
-      { isBlocked: false, btnStart: true, userName: ctx.from.username }
+      {
+        isBlocked: false,
+        btnStart: true,
+        userName: ctx.from.username ? ctx.from.username.toLowerCase() : "",
+      }
     );
     await MainStats.updateOne(
       {},
@@ -47,18 +52,9 @@ ${bonusRefFather} TL DEMO hesabınıza yatırıldı`
   }
 
   async function saveUser(ctx, startDemoBalance, bonus, isRef, constRef) {
-    const diceUsers = await User.find({ "pvpDice.count": { $gte: 1 } }).sort({
-      "pvpDice.winCash": -1,
-    });
-    const footballUsers = await User.find({
-      "pvpFootball.count": { $gte: 1 },
-    }).sort({
-      "pvpDice.winCash": -1,
-    });
-
     const user = new User({
       userId: ctx.from.id,
-      userName: ctx.from.username,
+      userName: ctx.from.username ? ctx.from.username.toLowerCase() : "",
       demoBalance: startDemoBalance + bonus,
       mainBalance: 0,
       userRights: "user",
@@ -68,19 +64,27 @@ ${bonusRefFather} TL DEMO hesabınıza yatırıldı`
       isBlocked: false,
       btnStart: true,
       pvpDice: {
-        rating: diceUsers.length + 1,
+        rating: "Hiç bir oyun oynamadınız",
         count: 0,
         winCount: 0,
         playCash: 0,
         winCash: 0,
       },
       pvpFootball: {
-        rating: footballUsers.length + 1,
+        rating: "Hiç bir oyun oynamadınız",
         count: 0,
         winCount: 0,
         playCash: 0,
         winCash: 0,
       },
+      pvpBouling: {
+        rating: "Hiç bir oyun oynamadınız",
+        count: 0,
+        winCount: 0,
+        playCash: 0,
+        winCash: 0,
+      },
+      getBonus: false,
       regDate: moment().format("YYYY-MM-DD"),
     });
     await user.save();
@@ -99,8 +103,27 @@ ${bonusRefFather} TL DEMO hesabınıza yatırıldı`
   try {
     // Start command
     bot.start(async (ctx) => {
+      const userId = ctx.from.id;
+
       // Откидываем возможность запуска бота в пабликах
-      if (+ctx.chat.id < 0) return;
+      if (userId < 0) return;
+
+      // ******************* RATE LIMITER *******************
+      if (!rateLimmiter[userId]) {
+        rateLimmiter[userId] = {};
+      }
+
+      const now = Math.floor(Date.now() / 1000);
+
+      if (!rateLimmiter[userId][now]) {
+        rateLimmiter[userId] = {};
+        rateLimmiter[userId][now] = 0;
+      }
+
+      rateLimmiter[userId][now]++;
+
+      if (rateLimmiter[userId][now] > 2) return;
+      // ******************* RATE LIMITER *******************
 
       const startPayload = ctx.startPayload;
 
@@ -118,55 +141,80 @@ ${bonusRefFather} TL DEMO hesabınıza yatırıldı`
           ? "ads"
           : "other";
 
-      // Если переход был по реф. ссылке
-      if (payloadType !== "other") {
-        // Если это реферальная ссылка
-        if (payloadType === "ref") {
-          try {
-            const refUserId = startPayload.replace("ref", "");
-            if (+refUserId === ctx.from.id) return;
-            const status = await User.findOne({ userId: refUserId });
-            if (status) {
-              isRef = refUserId;
-              bonus = bonusRefDaughter;
-              updateRefUsers(isRef, bonusRefFather);
-            }
-          } catch (error) {}
-        }
-
-        // Сохраняем статистику рекламыы
-        if (payloadType === "ads") {
-          try {
-            const { ads } = await MainStats.findOne({});
-            const adsName = startPayload.replace("ads-", "");
-            // Save ads stats
-            saveAdsStats(ads, adsName);
-          } catch (error) {}
-        }
+      // Если это реферальная ссылка
+      if (payloadType === "ref") {
+        try {
+          const refUserId = startPayload.replace("ref", "");
+          if (+refUserId === ctx.from.id) return;
+          const status = await User.findOne({ userId: refUserId });
+          if (status) {
+            isRef = refUserId;
+            bonus = bonusRefDaughter;
+            updateRefUsers(isRef, bonusRefFather);
+          }
+        } catch (error) {}
       }
 
-      try {
-        const selectUser = await User.findOne({ userId: ctx.from.id });
+      // Сохраняем статистику рекламыы
+      if (payloadType === "ads") {
+        try {
+          const { ads } = await MainStats.findOne({});
+          const adsName = startPayload.replace("ads-", "");
+          // Save ads stats
+          saveAdsStats(ads, adsName);
+        } catch (error) {}
+      }
 
-        if (!selectUser) {
-          saveUser(ctx, startDemoBalance, bonus, isRef, constRef);
-        } else {
-          updateUser(ctx, selectUser);
-          return await ctx.scene.enter("showMainMenu");
+      const selectUser = await User.findOne({ userId: ctx.from.id });
+
+      if (selectUser && selectUser.userRights === "moder") {
+        return await ctx.scene.enter("moderMenu");
+      }
+
+      // Если юзер есть в базе
+      if (selectUser) {
+        if (!selectUser.getBonus) {
+          await ctx.reply(
+            `Demo hesabında 1000 TL hediye para ile oynamaya başlamak için kanalımıza ve sohbet sayfamıza katılın.
+
+<a href="https://t.me/joinchat/iW9U-P6q-Z4yMGM6">💬 Sohbet sayfamız</a>
+<a href="https://t.me/joinchat/wdgqdldMxj1iNTNk">📬 Kanalımız</a>`,
+            {
+              parse_mode: "HTML",
+              disable_web_page_preview: true,
+            }
+          );
         }
+        updateUser(ctx, selectUser);
+      }
+
+      // Если юзера нету в базе
+      if (!selectUser) {
+        saveUser(ctx, startDemoBalance, bonus, isRef, constRef);
 
         await ctx.reply(`Hilesiz Telegram oyununa hoş geldiniz!
 Burada şans sadece size bağlı!
 Eğlenceli Telegram çıkartmalarıyla para kazanın! 
 Demo hesabında ÜCRETSİZ olarak deneyin. İyi oyunlar!`);
 
-        if (isRef !== constRef) {
+        await ctx.reply(
+          `Demo hesabında 1000 TL hediye para ile oynamaya başlamak için kanalımıza ve sohbet sayfamıza katılın.
+    
+<a href="https://t.me/joinchat/iW9U-P6q-Z4yMGM6">💬 Sohbet sayfamız</a>
+<a href="https://t.me/joinchat/wdgqdldMxj1iNTNk">📬 Kanalımız</a>`,
+          {
+            parse_mode: "HTML",
+            disable_web_page_preview: true,
+          }
+        );
+
+        if (isRef !== constRef && bonusRefDaughter > 0) {
           await ctx.reply(`Davet linkini kullanarak kayıt oldunuz.
 DEMO hesabındaki bonusunuz: +${bonusRefDaughter} TL`);
         }
+      }
 
-        return await ctx.scene.enter("showMainMenu");
-      } catch (error) {}
+      return await ctx.scene.enter("showMainMenu");
     });
   } catch (error) {}
 }

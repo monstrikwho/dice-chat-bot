@@ -6,20 +6,20 @@ const infoBlock = new Scene("infoBlock");
 infoBlock.enter(async (ctx) => {
   return await bot.telegram.sendMessage(
     ctx.chat.id,
-    `Bu nedenle, herhangi bir hile veya sahtekarlık olasılığının olmadığını garanti etmekteyiz. Çünkü oyunu ve sonuçlarını etkileyemeyiz. Bize basitçe bir çıkartma gönderirsiniz (manuel olarak yapabilirsiniz, ancak konforunuz için bir düğme oluşturulmuştur) ve tamamen kendi şansınıza  bağlı olarak oynadığınız oyunlardan para kazanırsınız.
-
+    `‘Zar’ telegram çıkartmalarına dayalı çevrimiçi oyunlara sahip bir bottur. Tek başınıza oynayabilir ya da arkadaşlarınızla rekabet edebilirsiniz!
+Bu nedenle, herhangi bir hile veya sahtekarlık olasılığının olmadığını garanti etmekteyiz. Çünkü oyunu ve sonuçlarını etkileyemeyiz. Bize basitçe bir çıkartma gönderirsiniz (manuel olarak yapabilirsiniz, ancak konforunuz için bir düğme oluşturulmuştur) ve tamamen kendi şansınıza  bağlı olarak oynadığınız oyunlardan para kazanırsınız.
+    
 💦 Demo hesabında ÜCRETSİZ oynayabilirsiniz.
 🔥 Anında para çekebilirsiniz.
-⚠️Demo hesabından para çekilemez.
+⚠️ Demo hesabından para çekilemez.
 
-Nasıl oynanır?
-1) Bahsin tutarını seçin;
-2) Bahis yapın;
-3) Sohbete çıkartma gönderin.
+You can also earn money by ınvıtıng your frıends and getting 5% from all of their cash ın.
+Ayrıca arkadaşlarınızı davet ederek para kazanabilirsiniz! 
     
-<a href="http://t.me/LuckyCatGames">❓ Destek</a>
-<a href="http://t.me/joinchat/P0el-xuDN6g-ZsY7decv7A">💬 Oyuncularla iletişim kurmak için sohbet hesabımız</a>
-<a href="http://t.me/luckycat_orders">💳 Ödemelerin paylaşıldığı sohbet hesabımız</a>`,
+<a href="https://t.me/ZAR_destek">❓ Destek</a>
+<a href="https://t.me/joinchat/iW9U-P6q-Z4yMGM6">💬 Sohbet sayfamız</a>
+<a href="https://t.me/joinchat/wdgqdldMxj1iNTNk">📬 Kanalımız</a>
+`,
     {
       parse_mode: "HTML",
       reply_markup: {

@@ -18,6 +18,7 @@ import {
 import NavbarMenu from "../containers/NavbarMenu";
 
 export default function SettingsPage() {
+  const [lang, setLang] = useState(null);
   const [data, setData] = useState({
     constRef: 0,
     minGameRate: 0,
@@ -48,41 +49,85 @@ export default function SettingsPage() {
   const [modalShow, setModalShow] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  const getData = async () => {
-    await axios
-      .get(`${process.env.REACT_APP_URL}/get_settings`)
-      .then(({ data }) => {
-        if (data) {
-          setData(data);
-        }
-      });
+  const getData = async (url) => {
+    await axios.get(`${url}/get_settings`).then(({ data }) => {
+      if (data) {
+        setData(data);
+        setLoading(false);
+      }
+    });
   };
 
   const saveChanges = async () => {
     setModalShow(true);
     setLoading(true);
-    await axios
-      .post(`${process.env.REACT_APP_URL}/post_settings`, { data })
-      .then(({ data }) => {
-        if (data.status) {
-          setLoading(false);
-        }
-      });
+
+    const url =
+      lang === "RU"
+        ? process.env.REACT_APP_URL_RU
+        : process.env.REACT_APP_URL_TUR;
+
+    await axios.post(`${url}/post_settings`, { data }).then(({ data }) => {
+      if (data.status) {
+        setLoading(false);
+      }
+    });
   };
 
   const changeToken = async () => {
     const token = data.webhook.qiwiToken;
-    await axios.post(`${process.env.REACT_APP_URL}/post_set_token`, { token });
+
+    const url =
+      lang === "RU"
+        ? process.env.REACT_APP_URL_RU
+        : process.env.REACT_APP_URL_TUR;
+
+    await axios.post(`${url}/post_set_token`, { token });
     getData();
   };
 
   useEffect(() => {
-    getData();
+    setLoading(true);
+    const lang = localStorage.getItem("lang");
+    setLang(lang);
+
+    if (!lang) {
+      localStorage.setItem("lang", "RU");
+      setLang("RU");
+    }
+
+    const url =
+      lang === "RU"
+        ? process.env.REACT_APP_URL_RU
+        : process.env.REACT_APP_URL_TUR;
+
+    getData(url);
   }, []);
+
+  if (loading) {
+    return (
+      <div id="settings-page" style={{ heigth: "100vh" }}>
+        <NavbarMenu lang={lang} />
+        <Container
+          style={{
+            height: "calc(100vh - 56px)",
+            display: "flex",
+            flexDirection: "column",
+            justifyContent: "center",
+            alignItems: "center",
+          }}
+        >
+          <Spinner animation="border" role="status">
+            <span className="sr-only">Loading...</span>
+          </Spinner>
+        </Container>
+      </div>
+    );
+  }
 
   return (
     <div id="settings-page">
-      <NavbarMenu />
+      <NavbarMenu lang={lang} pageTitle={"Settings page"} />
       <Container>
         <Form>
           <Card>
@@ -91,17 +136,73 @@ export default function SettingsPage() {
               <h6>Коэффициенты игр</h6>
 
               <label>Slot Coef</label>
-              <Row>
-                <Col>
-                  <FormControl
-                    type="number"
-                    onChange={(e) => {
-                      setData({ ...data, slotCoef: e.target.value });
-                    }}
-                    value={data.slotCoef}
-                  />
-                </Col>
-              </Row>
+              {lang === "RU" ? (
+                <Row>
+                  <Col>
+                    <FormControl
+                      type="number"
+                      onChange={(e) => {
+                        setData({
+                          ...data,
+                          slotCoef: {
+                            ...data.slotCoef,
+                            x2: e.target.value,
+                          },
+                        });
+                      }}
+                      value={data.slotCoef}
+                    />
+                  </Col>
+                </Row>
+              ) : (
+                <Row>
+                  <Col>
+                    <FormControl
+                      type="number"
+                      onChange={(e) => {
+                        setData({
+                          ...data,
+                          slotCoef: {
+                            ...data.slotCoef,
+                            x2: e.target.value,
+                          },
+                        });
+                      }}
+                      value={data.slotCoef.x2}
+                    />
+                  </Col>
+                  <Col>
+                    <FormControl
+                      type="number"
+                      onChange={(e) => {
+                        setData({
+                          ...data,
+                          slotCoef: {
+                            ...data.slotCoef,
+                            x3: e.target.value,
+                          },
+                        });
+                      }}
+                      value={data.slotCoef.x3}
+                    />
+                  </Col>
+                  <Col>
+                    <FormControl
+                      type="number"
+                      onChange={(e) => {
+                        setData({
+                          ...data,
+                          slotCoef: {
+                            ...data.slotCoef,
+                            x3_7: e.target.value,
+                          },
+                        });
+                      }}
+                      value={data.slotCoef.x3_7}
+                    />
+                  </Col>
+                </Row>
+              )}
 
               <label>Football Coef</label>
               <Row>
@@ -198,6 +299,48 @@ export default function SettingsPage() {
                 value={data.startDemoBalance}
               />
 
+              {lang === "TUR" ? (
+                <React.Fragment>
+                  <label>Kanal bonus</label>
+                  <FormControl
+                    type="number"
+                    onChange={(e) => {
+                      setData({ ...data, kanalBonus: e.target.value });
+                    }}
+                    value={data.kanalBonus}
+                  />
+
+                  <label>TRYRUB</label>
+                  <FormControl
+                    type="number"
+                    onChange={(e) => {
+                      setData({ ...data, TRYRUB: e.target.value });
+                    }}
+                    value={data.TRYRUB}
+                  />
+
+                  <label>Exchange coef</label>
+                  <FormControl
+                    type="number"
+                    onChange={(e) => {
+                      setData({ ...data, exchangeCoef: e.target.value });
+                    }}
+                    value={data.exchangeCoef}
+                  />
+
+                  <label>Moder UID</label>
+                  <FormControl
+                    type="number"
+                    onChange={(e) => {
+                      setData({ ...data, moderId: e.target.value });
+                    }}
+                    value={data.moderId}
+                  />
+                </React.Fragment>
+              ) : (
+                ""
+              )}
+
               <label>Min game rate</label>
               <FormControl
                 type="number"
@@ -216,51 +359,79 @@ export default function SettingsPage() {
                 value={data.minIn}
               />
 
-              <label>Min out cash</label>
-              <Row>
-                <Col>
-                  <InputGroup className="mb-3">
-                    <InputGroup.Prepend>
-                      <InputGroup.Text id="basic-addon1">Card</InputGroup.Text>
-                    </InputGroup.Prepend>
-                    <FormControl
-                      type="number"
-                      onChange={(e) => {
-                        setData({
-                          ...data,
-                          minOut: { ...data.minOut, card: e.target.value },
-                        });
-                      }}
-                      value={data.minOut.card}
-                    />
-                  </InputGroup>
-                </Col>
-                <Col>
-                  <InputGroup className="mb-3">
-                    <InputGroup.Prepend>
-                      <InputGroup.Text id="basic-addon1">Qiwi</InputGroup.Text>
-                    </InputGroup.Prepend>
-                    <FormControl
-                      type="number"
-                      onChange={(e) => {
-                        setData({
-                          ...data,
-                          minOut: { ...data.minOut, qiwi: e.target.value },
-                        });
-                      }}
-                      value={data.minOut.qiwi}
-                    />
-                  </InputGroup>
-                </Col>
-              </Row>
+              {lang === "RU" ? (
+                <React.Fragment>
+                  <label>Min out cash</label>
+                  <Row>
+                    <Col>
+                      <InputGroup className="mb-3">
+                        <InputGroup.Prepend>
+                          <InputGroup.Text id="basic-addon1">
+                            Card
+                          </InputGroup.Text>
+                        </InputGroup.Prepend>
+                        <FormControl
+                          type="number"
+                          onChange={(e) => {
+                            setData({
+                              ...data,
+                              minOut: { ...data.minOut, card: e.target.value },
+                            });
+                          }}
+                          value={data.minOut.card}
+                        />
+                      </InputGroup>
+                    </Col>
+                    <Col>
+                      <InputGroup className="mb-3">
+                        <InputGroup.Prepend>
+                          <InputGroup.Text id="basic-addon1">
+                            Qiwi
+                          </InputGroup.Text>
+                        </InputGroup.Prepend>
+                        <FormControl
+                          type="number"
+                          onChange={(e) => {
+                            setData({
+                              ...data,
+                              minOut: { ...data.minOut, qiwi: e.target.value },
+                            });
+                          }}
+                          value={data.minOut.qiwi}
+                        />
+                      </InputGroup>
+                    </Col>
+                  </Row>
 
-              <label>Out percent</label>
+                  <label>Out percent</label>
+                  <FormControl
+                    type="number"
+                    onChange={(e) => {
+                      setData({ ...data, outPercent: e.target.value });
+                    }}
+                    value={data.outPercent}
+                  />
+                </React.Fragment>
+              ) : (
+                <React.Fragment>
+                  <label>Min out cash</label>
+                  <FormControl
+                    type="number"
+                    onChange={(e) => {
+                      setData({ ...data, minOut: e.target.value });
+                    }}
+                    value={data.minOut}
+                  />
+                </React.Fragment>
+              )}
+
+              <label>PVP percent</label>
               <FormControl
                 type="number"
                 onChange={(e) => {
-                  setData({ ...data, outPercent: e.target.value });
+                  setData({ ...data, pvpPercent: e.target.value });
                 }}
-                value={data.outPercent}
+                value={data.pvpPercent}
               />
 
               <label>Const ref (0 or UID)</label>
@@ -299,20 +470,27 @@ export default function SettingsPage() {
                 value={data.bonusRefFather}
               />
 
-              <label>Auth Secret</label>
-              <Form.Control
-                type="text"
-                onChange={(e) => {
-                  setData({
-                    ...data,
-                    webhook: {
-                      ...data.webhook,
-                      authSecret: e.target.value,
-                    },
-                  });
-                }}
-                value={data.webhook.authSecret}
-              />
+              {lang === "RU" ? (
+                <React.Fragment>
+                  <label>Auth Secret</label>
+                  <Form.Control
+                    type="text"
+                    onChange={(e) => {
+                      setData({
+                        ...data,
+                        webhook: {
+                          ...data.webhook,
+                          authSecret: e.target.value,
+                        },
+                      });
+                    }}
+                    value={data.webhook.authSecret}
+                  />
+                </React.Fragment>
+              ) : (
+                ""
+              )}
+
               <Button
                 variant="primary"
                 onClick={(e) => {
@@ -326,50 +504,54 @@ export default function SettingsPage() {
             </Card.Body>
           </Card>
 
-          <Card>
-            <Card.Header as="h5">Webhook</Card.Header>
-            <Card.Body>
-              <Card.Text>
-                Чтобы изменить КИВИ токен, введите его ниже и нажмите кнопку
-                "Изменить токен"
-              </Card.Text>
+          {lang === "RU" ? (
+            <Card>
+              <Card.Header as="h5">Webhook</Card.Header>
+              <Card.Body>
+                <Card.Text>
+                  Чтобы изменить КИВИ токен, введите его ниже и нажмите кнопку
+                  "Изменить токен"
+                </Card.Text>
 
-              <label>qiwiToken</label>
-              <Form.Control
-                type="text"
-                onChange={(e) => {
-                  setData({
-                    ...data,
-                    webhook: {
-                      ...data.webhook,
-                      qiwiToken: e.target.value,
-                    },
-                  });
-                }}
-                value={data.webhook.qiwiToken}
-              />
+                <label>qiwiToken</label>
+                <Form.Control
+                  type="text"
+                  onChange={(e) => {
+                    setData({
+                      ...data,
+                      webhook: {
+                        ...data.webhook,
+                        qiwiToken: e.target.value,
+                      },
+                    });
+                  }}
+                  value={data.webhook.qiwiToken}
+                />
 
-              <label>qiwiWallet</label>
-              <Form.Control value={data.webhook.qiwiWallet} disabled />
+                <label>qiwiWallet</label>
+                <Form.Control value={data.webhook.qiwiWallet} disabled />
 
-              <label>Webhook Uri</label>
-              <Form.Control value={data.webhook.hookUrl} disabled />
+                <label>Webhook Uri</label>
+                <Form.Control value={data.webhook.hookUrl} disabled />
 
-              <label>Webhook Id</label>
-              <Form.Control value={data.webhook.hookId} disabled />
+                <label>Webhook Id</label>
+                <Form.Control value={data.webhook.hookId} disabled />
 
-              <Button
-                variant="primary"
-                onClick={(e) => {
-                  e.preventDefault();
-                  changeToken();
-                }}
-                block
-              >
-                Change Token
-              </Button>
-            </Card.Body>
-          </Card>
+                <Button
+                  variant="primary"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    changeToken();
+                  }}
+                  block
+                >
+                  Change Token
+                </Button>
+              </Card.Body>
+            </Card>
+          ) : (
+            ""
+          )}
         </Form>
       </Container>
 

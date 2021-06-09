@@ -9,7 +9,7 @@ showMainMenu.enter(async (ctx) => {
     Extra.markup(
       Markup.keyboard([
         ["Oyna 🎲", "Oyna ⚽️", "Oyna 🎰"],
-        ["PvP 🎲", "PvP ⚽️"],
+        ["PvP 🎲", "PvP ⚽️", "PvP 🎳"],
         ["Hesabınız", "Info"],
       ]).resize()
     )
@@ -38,6 +38,9 @@ showMainMenu.hears(/(?:PvP)/, async (ctx) => {
   }
   if (emoji === "⚽️") {
     return await ctx.scene.enter("pvpFootballGame");
+  }
+  if (emoji === "🎳") {
+    return await ctx.scene.enter("pvpBoulingGame");
   }
 });
 

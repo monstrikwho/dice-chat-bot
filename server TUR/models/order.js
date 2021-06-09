@@ -1,15 +1,15 @@
 const { Schema, model } = require("mongoose");
 
 const schema = new Schema({
-  txnId: Number,
+  id: Number,
   type: String,
   status: String,
-  amount: Number,
-  comment: String,
-  account: String,
+  userId: Number,
+  amount: Object,
+  card: Number,
+  name: String,
+  userMsgId: Array,
   date: String,
-  isRef: String,
-  refCash: String,
 });
 
 module.exports = model("Orders", schema);

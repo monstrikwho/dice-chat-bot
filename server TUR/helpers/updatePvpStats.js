@@ -32,6 +32,19 @@ async function updatePvpStats() {
         { "pvpFootball.rating": i + 1 }
       );
     }
+
+    const boulingUsers = await User.find({
+      "pvpBouling.count": { $gte: 1 },
+    }).sort({
+      "pvpBouling.winCash": -1,
+    });
+
+    for (let i = 0; i < boulingUsers.length; i++) {
+      await User.updateOne(
+        { userId: boulingUsers[i].userId },
+        { "pvpBouling.rating": i + 1 }
+      );
+    }
   }
 }
 

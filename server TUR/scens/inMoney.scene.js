@@ -1,146 +1,193 @@
+const { bot } = require("../init/startBot");
+
 const Scene = require("telegraf/scenes/base");
 const Extra = require("telegraf/extra");
 const Markup = require("telegraf/markup");
+
 const isNumber = require("is-number");
-const request = require("request");
 
 const MainStats = require("../models/mainstats");
 
 const inMoney = new Scene("inMoney");
 inMoney.enter(async (ctx) => {
-  const { minIn } = await MainStats.findOne();
+  const { minIn, minOut } = await MainStats.findOne();
 
-  return await ctx.reply(
-    `Yenileme miktarını seçin.
-Yenileme için minimum miktar: ${minIn} TL`,
+  ctx.session.state.activeMsg = await ctx.reply(
+    `Aşağıdaki tutarlardan birini seçin ya da dilediğiniz tutarı girin.
+
+Minimum: ${minIn} TL
+
+Çekebileceğiniz minimum tutar: ${minOut} TL`,
     Extra.markup(
       Markup.keyboard([
-        ["50TL", "100TL", "500TL", "1000TL"],
-        ["↪️ geri gelmek"],
+        ["25 TL", "50 TL", "100 TL", "500 TL"],
+        ["↪️ Geri"],
       ]).resize()
     )
   );
 });
 
-inMoney.hears(/(?:50TL|100TL|500TL|1000TL)/, async (ctx) => {
-  const amount = +ctx.update.message.text.replace("TL", "");
-  const comment = ctx.from.id;
+inMoney.hears(/(?:25 TL|50 TL|100 TL|500 TL)/, async (ctx) => {
+  const amount = +ctx.update.message.text.replace(" TL", "");
 
-  const account = "P1051197168";
-  const apiId = "1407343849";
-  const apiPass = "1234";
-  const m_shop = "1405684803";
+  const url = `https://donatty.com/zarouyntg`;
+  const { TRYRUB, orderStats, exchangeCoef } = await MainStats.findOne();
 
-  const dataInvoice = {
-    account,
-    apiId,
-    apiPass,
-    action: "invoiceCreate",
-    m_shop,
-    m_orderid: "121331",
-    m_amount: amount,
-    m_curr: "USD",
-    m_desc: comment,
-  };
-
-  const url = await req(dataInvoice);
+  const exchange = Math.ceil(amount * TRYRUB * (1 + 0.01 * exchangeCoef));
 
   await ctx.scene.enter("lkMenu");
 
-  return await ctx.reply(
-    `Oyun dengesini yenileyeceksiniz ${amount} TL.
-Lütfen yenileme sayfasına gitmek için "Doldurmak" düğmesine tıklayın.`,
+  if (Boolean(+process.env.DEV)) {
+    ctx.session.state.photoMsg = await bot.telegram.sendPhoto(
+      ctx.from.id,
+      "AgACAgIAAxkBAAIJMWC_wOK5aTTde4wFb6ggU1HhcrG1AAISszEbR2sAAUpd4sWEfESsOGogA54uAAMBAAMCAANzAAMQ6AQAAR8E"
+    );
+  } else {
+    ctx.session.state.photoMsg = await bot.telegram.sendPhoto(
+      ctx.from.id,
+      "AgACAgIAAxkBAAIzxmC_wKo6yL6GQ_391gE9KQjpsO9DAAKrszEbF9MAAUqQdIp60IgyE27xEqQuAAMBAAMCAANzAAM3KAIAAR8E"
+    );
+  }
+
+  await MainStats.updateOne({}, { $inc: { "orderStats.lastNumberOrder": 1 } });
+
+  await ctx.reply(
+    `${amount} TL tutarı hesabınıza aktarmak için aşağıdaki adımları izleyin.
+
+1) Kullanıcı adınız ➖ ${
+      ctx.from.username ? ctx.from.username : ctx.from.first_name
+    }
+2) Aktarmak istediğiniz tutar ➖ ${exchange} (Rus Rublesi)
+3) Notunuz ➖ ${
+      !ctx.from.username ? ctx.from.id : "Dilerseniz boş bırakabilirsiniz"
+    }
+
+Tutar hesabınıza 30 dakika içinde aktarılmazsa destek ekibimize yazın - @ZAR_destek
+Yazdığınız miktar güncel Rus Rublesi  döviz kuru üzerinden sayılır, ancak bankanız ek ücret uygulayabilir (genellikle %5'ten az)
+
+Ödemenizi gerçekleştirmek için 24 saatiniz olacak. Eğer ödemeniz 24 saat içinde gerçekleşmezse işleminiz iptal edilecektir.
+
+Lütfen ödemenizi gerçekleştirdikten sonra Bot'a dönüp "Ödedim"e tıklayın.👇`,
     {
       reply_markup: {
         inline_keyboard: [
           [
             {
-              text: "Doldurmak",
+              text: `Ödemeye devam et #${orderStats.lastNumberOrder + 1}`,
               url: url,
+            },
+          ],
+          [
+            {
+              text: "Iptal",
+              callback_data: "Iptal",
+            },
+            {
+              text: "Odedim",
+              callback_data: `order:${orderStats.lastNumberOrder + 1}:${
+                ctx.from.id
+              }:${amount}:${exchange}`,
             },
           ],
         ],
       },
     }
   );
+
+  return;
 });
 
 inMoney.on("text", async (ctx) => {
   const msg = ctx.update.message.text;
 
-  if (msg === "↪️ geri gelmek") {
+  if (msg === "↪️ Geri") {
+    try {
+      await ctx.deleteMessage(ctx.session.state.photoMsg.message_id);
+    } catch (error) {}
     return await ctx.scene.enter("lkMenu");
   }
 
   const amount = +ctx.update.message.text.replace(/\D+/, "").trim();
 
-  const { minIn } = await MainStats.findOne();
-
-  if (isNumber(amount)) {
-    if (amount < minIn) {
-      return await ctx.reply(`Yenilecek minimum miktar ${minIn} TL`);
-    }
-
-    const account = "P1051197168";
-    const apiId = "1407343849";
-    const apiPass = "1234";
-    const m_shop = "1405684803";
-    const comment = ctx.from.id;
-
-    const dataInvoice = {
-      account,
-      apiId,
-      apiPass,
-      action: "invoiceCreate",
-      m_shop,
-      m_orderid: "121331",
-      m_amount: amount,
-      m_curr: "USD",
-      m_desc: comment,
-    };
-
-    const url = await req(dataInvoice);
-
-    await ctx.scene.enter("lkMenu");
-
+  if (!isNumber(ctx.update.message.text)) {
     return await ctx.reply(
-      `Oyun dengesini yenileyeceksiniz ${amount} TL.
-Lütfen yenileme sayfasına gitmek için "Doldurmak" düğmesine tıklayın.`,
-      {
-        reply_markup: {
-          inline_keyboard: [
-            [
-              {
-                text: "Doldurmak",
-                url: url,
-              },
-            ],
-          ],
-        },
-      }
+      "Uygun olmayan bir numara girdiniz. Tekrar deneyin."
+    );
+  }
+
+  const url = `https://donatty.com/zarouyntg`;
+  const { minIn, TRYRUB, orderStats, exchangeCoef } = await MainStats.findOne();
+
+  if (amount < minIn) {
+    return await ctx.reply(`Yenilecek minimum miktar ${minIn} TL`);
+  }
+
+  try {
+    await ctx.deleteMessage(ctx.session.state.activeMsg.message_id);
+  } catch (error) {}
+
+  const exchange = Math.ceil(amount * TRYRUB * (1 + 0.01 * exchangeCoef));
+
+  await ctx.scene.enter("lkMenu");
+
+  if (Boolean(+process.env.DEV)) {
+    ctx.session.state.photoMsg = await bot.telegram.sendPhoto(
+      ctx.from.id,
+      "AgACAgIAAxkBAAIJMWC_wOK5aTTde4wFb6ggU1HhcrG1AAISszEbR2sAAUpd4sWEfESsOGogA54uAAMBAAMCAANzAAMQ6AQAAR8E"
     );
   } else {
-    return await ctx.reply("Uygun olmayan bir numara girdiniz.Tekrar deneyin.");
-  }
-});
-
-function req(data) {
-  return new Promise((resolve, reject) => {
-    request(
-      {
-        method: "POST",
-        url: "https://payeer.com/ajax/api/api.php?invoiceCreate",
-        headers: {
-          "Content-Type": "application/x-www-form-urlencoded",
-        },
-        body: `account=${data.account}&apiId=${data.apiId}&apiPass=${data.apiPass}&action=invoiceCreate&m_shop=${data.m_shop}&m_orderid=${data.m_orderid}&m_amount=${data.m_amount}&m_curr=USD&m_desc=${data.m_desc}`,
-      },
-      function (error, response, body) {
-        const data = JSON.parse(body);
-        resolve(data.url);
-      }
+    ctx.session.state.photoMsg = await bot.telegram.sendPhoto(
+      ctx.from.id,
+      "AgACAgIAAxkBAAIzxmC_wKo6yL6GQ_391gE9KQjpsO9DAAKrszEbF9MAAUqQdIp60IgyE27xEqQuAAMBAAMCAANzAAM3KAIAAR8E"
     );
-  });
-}
+  }
+
+  await MainStats.updateOne({}, { $inc: { "orderStats.lastNumberOrder": 1 } });
+
+  await ctx.reply(
+    `${amount} TL tutarı hesabınıza aktarmak için aşağıdaki adımları izleyin.
+
+1) Kullanıcı adınız ➖ ${
+      ctx.from.username ? ctx.from.username : ctx.from.first_name
+    }
+2) Aktarmak istediğiniz tutar ➖ ${exchange} (Rus Rublesi)
+3) Notunuz ➖ ${
+      !ctx.from.username ? ctx.from.id : "Dilerseniz boş bırakabilirsiniz"
+    }
+
+Tutar hesabınıza 30 dakika içinde aktarılmazsa destek ekibimize yazın - @ZAR_destek
+Yazdığınız miktar güncel Rus Rublesi  döviz kuru üzerinden sayılır, ancak bankanız ek ücret uygulayabilir (genellikle %5'ten az)
+
+Ödemenizi gerçekleştirmek için 24 saatiniz olacak. Eğer ödemeniz 24 saat içinde gerçekleşmezse işleminiz iptal edilecektir.
+
+Lütfen ödemenizi gerçekleştirdikten sonra Bot'a dönüp "Ödedim"e tıklayın.👇`,
+    {
+      reply_markup: {
+        inline_keyboard: [
+          [
+            {
+              text: `Ödemeye devam et #${orderStats.lastNumberOrder + 1}`,
+              url: url,
+            },
+          ],
+          [
+            {
+              text: "Iptal",
+              callback_data: "Iptal",
+            },
+            {
+              text: "Odedim",
+              callback_data: `order:${orderStats.lastNumberOrder + 1}:${
+                ctx.from.id
+              }:${amount}:${exchange}`,
+            },
+          ],
+        ],
+      },
+    }
+  );
+
+  return;
+});
 
 module.exports = { inMoney };

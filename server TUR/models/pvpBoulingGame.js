@@ -16,4 +16,4 @@ const schema = new Schema({
   reversedResults: Object,
 });
 
-module.exports = model("PvpFootballGame", schema);
+module.exports = model("Pvpboulinggame", schema);

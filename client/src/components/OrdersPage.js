@@ -4,25 +4,45 @@ import axios from "axios";
 import NavbarMenu from "../containers/NavbarMenu";
 import GridTable from "@nadavshaar/react-grid-table";
 
+import { Container, Spinner } from "react-bootstrap";
+
 import "../styles/OrdersPage.sass";
 
 export default function OrdersPage() {
+  const [lang, setLang] = useState(null);
   const [isLoading, setLoading] = useState(false);
   const [rowsData, setRowsData] = useState([]);
 
-  const getData = async () => {
-    await axios
-      .get(`${process.env.REACT_APP_URL}/get_orders_data`)
-      .then(({ data }) => {
-        setRowsData(data.orders);
-        setLoading(false);
-      });
+  const getData = async (url) => {
+    await axios.get(`${url}/get_orders_data`).then(({ data }) => {
+      setRowsData(data.orders);
+      setLoading(false);
+    });
   };
 
   useEffect(() => {
     setLoading(true);
-    getData();
+    const lang = localStorage.getItem("lang");
+    setLang(lang);
+
+    if (!lang) {
+      localStorage.setItem("lang", "RU");
+      setLang("RU");
+    }
+
+    const url =
+      lang === "RU"
+        ? process.env.REACT_APP_URL_RU
+        : process.env.REACT_APP_URL_TUR;
+
+    getData(url);
   }, []);
+
+  const status = (data) => {
+    if (data.status === "paid") return "bg-green";
+    if (data.status === "waiting") return "bg-light3";
+    if (data.status === "passed") return "bg-red";
+  };
 
   const columns = [
     {
@@ -91,7 +111,7 @@ export default function OrdersPage() {
     {
       id: "6",
       field: "refCash",
-      label: "Кэш пригласившему",
+      label: "Кэш isRef",
       width: "200px",
       sortable: false,
       getValue: ({ value }) => {
@@ -117,16 +137,78 @@ export default function OrdersPage() {
     },
   ];
 
+  const columns_tur = [
+    {
+      id: "1",
+      field: "amount",
+      label: "Сумма",
+      width: "100px",
+      cellRenderer: ({ value, data }) => (
+        <div className={status(data)}>{data.amount.tl}</div>
+      ),
+    },
+    {
+      id: "2",
+      field: "userId",
+      label: "UID",
+      width: "180px",
+      sortable: false,
+      cellRenderer: ({ value, data }) => (
+        <div className={status(data)}>{value}</div>
+      ),
+    },
+    {
+      id: "3",
+      field: "id",
+      label: "Order id",
+      width: "180px",
+      sortable: false,
+      cellRenderer: ({ value, data }) => (
+        <div className={status(data)}>{value}</div>
+      ),
+    },
+    {
+      id: "4",
+      field: "date",
+      label: "Дата",
+      width: "130px",
+      cellRenderer: ({ value, data }) => (
+        <div className={status(data)}>{value}</div>
+      ),
+    },
+  ];
+
   const PageSize = () => {
     return "";
   };
 
+  if (isLoading) {
+    return (
+      <div id="settings-page" style={{ heigth: "100vh" }}>
+        <NavbarMenu lang={lang} pageTitle={"Orders page"} />
+        <Container
+          style={{
+            height: "calc(100vh - 56px)",
+            display: "flex",
+            flexDirection: "column",
+            justifyContent: "center",
+            alignItems: "center",
+          }}
+        >
+          <Spinner animation="border" role="status">
+            <span className="sr-only">Loading...</span>
+          </Spinner>
+        </Container>
+      </div>
+    );
+  }
+
   return (
     <div id="orders-page">
-      <NavbarMenu />
+      <NavbarMenu lang={lang} pageTitle={"Orders page"} />
       <GridTable
         rowIdField={"txnId"}
-        columns={columns}
+        columns={lang === "RU" ? columns : columns_tur}
         rows={rowsData}
         pageSize={50}
         minSearchChars={1}

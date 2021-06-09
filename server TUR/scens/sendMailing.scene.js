@@ -129,8 +129,9 @@ async function deletePostMsg(ctx) {
 }
 
 sendMailing.hears("↪️ Вернуться назад", async (ctx) => {
-  await ctx.scene.enter("lkMenu");
+  await ctx.scene.enter("moderMenu");
 });
+
 sendMailing.action(/(?:Btn start)/, async (ctx) => {
   const post = ctx.session.state.post;
   if (!post.btnStart) {
@@ -268,7 +269,7 @@ sendMailing.action("💵 Отправить пост", async (ctx) => {
 
   removeInterval();
   await ctx.reply(`Рассылка завершена.`);
-  await ctx.scene.enter("showMainMenu");
+  await ctx.scene.enter("moderMenu");
 });
 
 //

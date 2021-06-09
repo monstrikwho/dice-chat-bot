@@ -15,6 +15,8 @@ app.use("/get_stats", require("../routes/get_stats"));
 app.use("/get_user_data", require("../routes/get_user_data"));
 app.use("/get_orders_data", require("../routes/get_orders_data"));
 app.use("/get_games_data", require("../routes/get_games_data"));
+app.use("/get_pvpdice", require("../routes/pvpDiceGame"));
+app.use("/get_pvpfootball", require("../routes/pvpFootballGame"));
 app.use("/get_settings", require("../routes/get_settings"));
 app.use("/get_qiwi_balance", require("../routes/get_qiwi_balance"));
 app.use("/post_mailing", require("../routes/post_mailing"));
