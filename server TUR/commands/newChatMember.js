@@ -46,7 +46,7 @@ Abone olduktan sonra ‘kontrol et’ butonuna basın.`,
     );
   }
 
-  ctx.reply(`Добро пожаловать, ${newChatMember.first_name}!`);
+  ctx.reply(`Hoş geldiniz, ${newChatMember.first_name}!`);
 });
 
 bot.action("Kontrol et", async (ctx) => {
