@@ -80,7 +80,8 @@ export default function HomePage() {
             size="lg"
             onClick={(e) => {
               e.preventDefault();
-              setLang({ key: "RU", url: process.env.REACT_APP_URL_RU });
+              setLoading(true);
+              setLang("RU");
               getData(process.env.REACT_APP_URL_RU);
               localStorage.setItem("lang", "RU");
             }}
@@ -93,7 +94,8 @@ export default function HomePage() {
             size="lg"
             onClick={(e) => {
               e.preventDefault();
-              setLang({ key: "TUR", url: process.env.REACT_APP_URL_TUR });
+              setLoading(true);
+              setLang("TUR");
               getData(process.env.REACT_APP_URL_TUR);
               localStorage.setItem("lang", "RU");
             }}
