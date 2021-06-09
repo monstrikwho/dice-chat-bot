@@ -66,7 +66,7 @@ Yazdığınız miktar güncel Rus Rublesi  döviz kuru üzerinden sayılır, anc
 
 Ödemenizi gerçekleştirmek için 24 saatiniz olacak. Eğer ödemeniz 24 saat içinde gerçekleşmezse işleminiz iptal edilecektir.
 
-İsteğiniz alındı! Bakiyenizin hesaba aktarılması birkaç dakika sürecek. Eğer bakiyeniz hesabınıza 30 dakika içinde aktarılmazsa lütfen ödeme işleminizin ekran görüntüsünü destek ekibimize iletin. @Zar_destek
+Destek: @ZAR_destek
 
 Lütfen ödemenizi gerçekleştirdikten sonra Bot'a dönüp "Ödedim"e tıklayın.👇`,
     {
@@ -160,7 +160,7 @@ Yazdığınız miktar güncel Rus Rublesi  döviz kuru üzerinden sayılır, anc
 
 Ödemenizi gerçekleştirmek için 24 saatiniz olacak. Eğer ödemeniz 24 saat içinde gerçekleşmezse işleminiz iptal edilecektir.
 
-İsteğiniz alındı! Bakiyenizin hesaba aktarılması birkaç dakika sürecek. Eğer bakiyeniz hesabınıza 30 dakika içinde aktarılmazsa lütfen ödeme işleminizin ekran görüntüsünü destek ekibimize iletin. @Zar_destek
+Destek: @ZAR_destek
 
 Lütfen ödemenizi gerçekleştirdikten sonra Bot'a dönüp "Ödedim"e tıklayın.👇`,
     {
