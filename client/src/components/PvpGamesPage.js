@@ -4,16 +4,28 @@ import axios from "axios";
 import NavbarMenu from "../containers/NavbarMenu";
 import GridTable from "@nadavshaar/react-grid-table";
 
+import { Button } from "react-bootstrap";
+
 import "../styles/GamesPage.sass";
 
 export default function PvpGames() {
   const [lang, setLang] = useState(null);
+  const [game, setGame] = useState("🎲");
   const [isLoading, setLoading] = useState(false);
   const [rowsData, setRowsData] = useState([]);
 
-  const getData = async (url) => {
-    await axios.get(`${url}/get_pvpdice`).then(({ data }) => {
-      setRowsData(data.dice);
+  const getData = async (url, path) => {
+    if (path === "🎲") {
+      path = "get_pvpdice";
+    }
+    if (path === "⚽️") {
+      path = "get_pvpfootball";
+    }
+    if (path === "🎳") {
+      path = "get_pvpbouling";
+    }
+    await axios.get(`${url}/${path}`).then(({ data }) => {
+      setRowsData(data);
       setLoading(false);
     });
   };
@@ -32,15 +44,14 @@ export default function PvpGames() {
       lang === "RU"
         ? process.env.REACT_APP_URL_RU
         : process.env.REACT_APP_URL_TUR;
-
-    getData(url);
+    getData(url, "🎲");
   }, []);
 
   const columns = [
     {
       id: "1",
       field: "lobbyId",
-      label: "lobbyId",
+      label: "LID",
       width: "150px",
       cellRenderer: ({ value, data }) => {
         const typeGame =
@@ -51,7 +62,7 @@ export default function PvpGames() {
             : "🎳";
 
         return (
-          <div>
+          <div className="custom-cell">
             {typeGame} {value}
           </div>
         );
@@ -63,9 +74,7 @@ export default function PvpGames() {
       label: "Ставка",
       width: "150px",
       cellRenderer: ({ value, data }) => (
-        <div className={data.result === "win" ? "res-win" : "res-lose"}>
-          {value}
-        </div>
+        <div className="custom-cell">{value}</div>
       ),
     },
     {
@@ -75,9 +84,7 @@ export default function PvpGames() {
       width: "150px",
       sortable: false,
       cellRenderer: ({ value, data }) => (
-        <div className={data.result === "win" ? "res-win" : "res-lose"}>
-          {value}
-        </div>
+        <div className="custom-cell">{value}</div>
       ),
     },
     {
@@ -87,9 +94,7 @@ export default function PvpGames() {
       width: "150px",
       sortable: false,
       cellRenderer: ({ value, data }) => (
-        <div className={data.result === "win" ? "res-win" : "res-lose"}>
-          {value}
-        </div>
+        <div className="custom-cell">{value}</div>
       ),
     },
     {
@@ -98,15 +103,89 @@ export default function PvpGames() {
       label: "Дата",
       width: "150px",
       cellRenderer: ({ value, data }) => (
-        <div className={data.result === "win" ? "res-win" : "res-lose"}>
-          {value}
-        </div>
+        <div className="custom-cell">{value}</div>
       ),
     },
   ];
 
   const PageSize = () => {
     return "";
+  };
+
+  const Header = ({ tableManager }) => {
+    const { searchApi } = tableManager;
+    const { searchText, setSearchText } = searchApi;
+
+    return (
+      <div className="rgt-header-container">
+        <div class="rgt-search-container">
+          <label for="rgt-search" class="rgt-search-label">
+            <span class="rgt-search-icon">⚲</span>Search:
+          </label>
+          <input
+            name="rgt-search"
+            type="search"
+            className="rgt-search-input"
+            value={searchText}
+            onChange={(e) => setSearchText(e.target.value)}
+          />
+        </div>
+        <hr />
+        <div className="games">
+          <Button
+            variant={game === "🎲" ? "primary" : "outline-primary"}
+            size="sm"
+            onClick={(e) => {
+              e.preventDefault();
+              const url =
+                lang === "RU"
+                  ? process.env.REACT_APP_URL_RU
+                  : process.env.REACT_APP_URL_TUR;
+
+              setLoading(true);
+              setGame("🎲");
+              getData(url, "🎲");
+            }}
+          >
+            🎲 Dice
+          </Button>
+          <Button
+            variant={game === "⚽️" ? "primary" : "outline-primary"}
+            size="sm"
+            onClick={(e) => {
+              e.preventDefault();
+              const url =
+                lang === "RU"
+                  ? process.env.REACT_APP_URL_RU
+                  : process.env.REACT_APP_URL_TUR;
+
+              setLoading(true);
+              setGame("⚽️");
+              getData(url, "⚽️");
+            }}
+          >
+            ⚽️ Football
+          </Button>
+          <Button
+            variant={game === "🎳" ? "primary" : "outline-primary"}
+            size="sm"
+            onClick={(e) => {
+              e.preventDefault();
+              const url =
+                lang === "RU"
+                  ? process.env.REACT_APP_URL_RU
+                  : process.env.REACT_APP_URL_TUR;
+
+              setLoading(true);
+              setGame("🎳");
+              getData(url, "🎳");
+            }}
+          >
+            🎳 Bouling
+          </Button>
+        </div>
+      </div>
+    );
   };
 
   return (
@@ -120,7 +199,7 @@ export default function PvpGames() {
         isLoading={isLoading}
         enableColumnsReorder={false}
         showColumnVisibilityManager={false}
-        components={{ PageSize }}
+        components={{ Header, PageSize }}
       />
     </div>
   );

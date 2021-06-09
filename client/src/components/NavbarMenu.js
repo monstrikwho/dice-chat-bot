@@ -48,9 +48,9 @@ export default function NavbarMenu({ pageTitle, lang }) {
           <Link className="nav-link-c" to="/games">
             Games
           </Link>
-          {/* <Link className="nav-link-c" to="/pvp_games">
+          <Link className="nav-link-c" to="/pvp_games">
             PVP Games
-          </Link> */}
+          </Link>
           <Link className="nav-link-c" to="/settings">
             Settings
           </Link>
