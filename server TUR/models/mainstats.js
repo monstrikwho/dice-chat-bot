@@ -1,4 +1,5 @@
 const { Schema, model } = require("mongoose");
+const Double = require("@mongoosejs/double");
 
 const schema = new Schema({
   ads: Object,
@@ -16,7 +17,7 @@ const schema = new Schema({
   bonusRefFather: Number,
   startDemoBalance: Number,
   kanalBonus: Number,
-  TRYRUB: Number,
+  TRYRUB: Double,
   exchangeCoef: Number,
   moderId: Number,
   slotCoef: Object,

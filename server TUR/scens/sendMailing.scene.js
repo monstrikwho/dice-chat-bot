@@ -255,7 +255,7 @@ sendMailing.action("💵 Отправить пост", async (ctx) => {
       try {
         await bot.telegram.sendMessage(
           userId,
-          'Пожалуйста, нажмите на кнопку "start", чтобы обновить бота.',
+          'Lütfen botu başlatmak için "start" a basın.`,
           Extra.markup(Markup.keyboard([["/start"]]).resize())
         );
       } catch (error) {}
