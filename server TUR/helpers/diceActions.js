@@ -437,7 +437,7 @@ module.exports = async (game) => {
     } catch (error) {}
   });
 
-  game.action(/(?:5 TL|10 TL|50 TL|100 TL|500 TL)/, async (ctx) => {
+  game.action(/(?:5 TL|10 TL|25 TL|50 TL|100 TL)/, async (ctx) => {
     const value = ctx.update.callback_query.data
       .replace(/\D+/, "")
       .replace("₽", "");
@@ -507,14 +507,14 @@ module.exports = async (game) => {
       return await ctx.reply("Lütfen yalnızca pozitif sayılar girin.");
     }
 
-    const rate = +(+msg).toFixed(2);
+    const rate = Math.floor(+msg);
 
     if (
+      rate === 5 ||
       rate === 10 ||
+      rate === 25 ||
       rate === 50 ||
-      rate === 100 ||
-      rate === 500 ||
-      rate === 1000
+      rate === 100
     ) {
       return await ctx.reply("Bu sayı zaten seçildi. Tekrar seçemezsiniz. ");
     }
