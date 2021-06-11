@@ -31,7 +31,11 @@ inMoney.hears(/(?:25 TL|50 TL|100 TL|500 TL)/, async (ctx) => {
   const amount = +ctx.update.message.text.replace(" TL", "");
 
   const url = `https://donatty.com/zarouyntg`;
-  const { TRYRUB, orderStats, exchangeCoef } = await MainStats.findOne();
+  const { TRYRUB, orderStats, exchangeCoef } = await MainStats.findOne().catch(
+    (err) => {
+      console.log(err.message, "inMoney");
+    }
+  );
 
   const exchange = Math.ceil(amount * TRYRUB * (1 + 0.01 * exchangeCoef));
 
@@ -117,7 +121,10 @@ inMoney.on("text", async (ctx) => {
   }
 
   const url = `https://donatty.com/zarouyntg`;
-  const { minIn, TRYRUB, orderStats, exchangeCoef } = await MainStats.findOne();
+  const { minIn, TRYRUB, orderStats, exchangeCoef } =
+    await MainStats.findOne().catch((err) => {
+      console.log(err.message, "inMoney");
+    });
 
   if (amount < minIn) {
     return await ctx.reply(`Yenilecek minimum miktar ${minIn} TL`);

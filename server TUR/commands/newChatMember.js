@@ -22,8 +22,8 @@ bot.on("new_chat_members", async (ctx) => {
     await bot.telegram.sendMessage(
       newChatMember.id,
       `Aramıza katıldığınız için teşekkürler! DEMO bonusunuz için lütfen her iki sayfaya da abone olduğunuzdan emin olun:
-https://t.me/joinchat/iW9U-P6q-Z4yMGM6
-https://t.me/joinchat/wdgqdldMxj1iNTNk
+https://t.me/zar_sohbet
+https://t.me/zar_kanal
 
 Abone olduktan sonra ‘kontrol et’ butonuna basın.`,
       Extra.markup((m) =>
@@ -45,8 +45,6 @@ Abone olduktan sonra ‘kontrol et’ butonuna basın.`,
       `Abone olduğunuz için teşekkürler. Demo hesabınız için ${kanalBonus} TL hediye paranız hazır!`
     );
   }
-
-  ctx.reply(`Hoş geldiniz, ${newChatMember.first_name}!`);
 });
 
 bot.action("Kontrol et", async (ctx) => {

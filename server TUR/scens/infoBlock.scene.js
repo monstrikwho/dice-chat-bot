@@ -17,8 +17,8 @@ You can also earn money by ınvıtıng your frıends and getting 5% from all of 
 Ayrıca arkadaşlarınızı davet ederek para kazanabilirsiniz! 
     
 <a href="https://t.me/ZAR_destek">❓ Destek</a>
-<a href="https://t.me/joinchat/iW9U-P6q-Z4yMGM6">💬 Sohbet sayfamız</a>
-<a href="https://t.me/joinchat/wdgqdldMxj1iNTNk">📬 Kanalımız</a>
+<a href="https://t.me/zar_sohbet">💬 Sohbet sayfamız</a>
+<a href="https://t.me/zar_kanal">📬 Kanalımız</a>
 `,
     {
       parse_mode: "HTML",

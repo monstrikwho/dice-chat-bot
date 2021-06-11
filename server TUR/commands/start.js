@@ -177,8 +177,8 @@ ${bonusRefFather} TL DEMO hesabınıza yatırıldı`
           await ctx.reply(
             `Demo hesabında 1000 TL hediye para ile oynamaya başlamak için kanalımıza ve sohbet sayfamıza katılın.
 
-<a href="https://t.me/joinchat/iW9U-P6q-Z4yMGM6">💬 Sohbet sayfamız</a>
-<a href="https://t.me/joinchat/wdgqdldMxj1iNTNk">📬 Kanalımız</a>`,
+<a href="https://t.me/zar_sohbet">💬 Sohbet sayfamız</a>
+<a href="https://t.me/zar_kanal">📬 Kanalımız</a>`,
             {
               parse_mode: "HTML",
               disable_web_page_preview: true,
@@ -200,8 +200,8 @@ Demo hesabında ÜCRETSİZ olarak deneyin. İyi oyunlar!`);
         await ctx.reply(
           `Demo hesabında 1000 TL hediye para ile oynamaya başlamak için kanalımıza ve sohbet sayfamıza katılın.
     
-<a href="https://t.me/joinchat/iW9U-P6q-Z4yMGM6">💬 Sohbet sayfamız</a>
-<a href="https://t.me/joinchat/wdgqdldMxj1iNTNk">📬 Kanalımız</a>`,
+<a href="https://t.me/zar_sohbet">💬 Sohbet sayfamız</a>
+<a href="https://t.me/zar_kanal">📬 Kanalımız</a>`,
           {
             parse_mode: "HTML",
             disable_web_page_preview: true,

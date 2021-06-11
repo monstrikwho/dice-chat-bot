@@ -677,7 +677,9 @@ async function joinToLobby(ctx) {
   await User.updateOne(
     { userId: ctx.from.id },
     { [typeBalance]: +(user[typeBalance] - lobby.prize).toFixed(2) }
-  );
+  ).catch((err) => {
+    console.log(err.message, "pvpFootball");
+  });
 
   await ctx.reply(`Lobiye başarılı bir şekilde giriş yaptınız. 
 Bakiyenizden çekilen tutar: ${lobby.prize} TL`);
@@ -1053,7 +1055,9 @@ ${lobby.rivals
         winCash: +(pvpFootball.winCash + lobbyPrize).toFixed(2),
       },
     }
-  );
+  ).catch((err) => {
+    console.log(err.message, "pvpFootball");
+  });
 
   // Обновляем статистику игроков
   for (let i = 0; i < lobby.rivals.length; i++) {
@@ -1097,12 +1101,16 @@ async function playing2round(lobby, players, round = 2) {
         `Beraberlik! Bahis tutarınız hesabınıza geri aktarılıyor.`
       );
 
-      const { mainBalance } = await User.findOne({ userId });
+      const { mainBalance } = await User.findOne({ userId }).catch((err) => {
+        console.log(err.message, "pvpFootball");
+      });
 
       await User.updateOne(
         { userId },
         { mainBalance: +(mainBalance + lobby.prize).toFixed(2) }
-      );
+      ).catch((err) => {
+        console.log(err.message, "pvpFootball");
+      });
     }
 
     return { resLobby: lobby, winner: 0 };
@@ -1243,7 +1251,9 @@ async function createLobby(ctx) {
   await User.updateOne(
     { userId: ctx.from.id },
     { [typeBalance]: +(user[typeBalance] - createLobbyRate).toFixed(2) }
-  );
+  ).catch((err) => {
+    console.log(err.message, "pvpFootball");
+  });
 
   await ctx.reply(`Lobi başarılı bir şekilde oluşturuldu.
 
@@ -1275,7 +1285,9 @@ async function deleteLobby(ctx) {
   await User.updateOne(
     { userId: ctx.from.id },
     { [typeBalance]: +(user[typeBalance] + lobby.prize).toFixed(2) }
-  );
+  ).catch((err) => {
+    console.log(err.message, "pvpFootball");
+  });
 
   await ctx.reply(`Lobiden başarılı bir şekilde çıktınız.
 Kesilen tutarın iadesi: ${lobby.prize} TL
