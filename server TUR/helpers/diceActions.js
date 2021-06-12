@@ -580,6 +580,10 @@ module.exports = async (game) => {
       );
     }
 
+    if (!isNumber(amountRate)) {
+      return await ctx.reply("This value is not a number.");
+    }
+
     state.gameStatus = true;
     ctx.session.state = state;
 
@@ -752,6 +756,10 @@ Bakiyeniz - ${state.balance}`,
 
     if (state.gameStatus) return;
 
+    if (!isNumber(amountRate)) {
+      return await ctx.reply("This value is not a number.");
+    }
+
     if (state.balance - amountRate < 0) {
       return ctx.answerCbQuery(
         "Hesabınızda yeterli para yok. Lütfen bakiyenizi doldurun.",
@@ -889,6 +897,10 @@ Bakiyeniz - ${state.balance}`,
       state.rate["even"];
 
     if (state.gameStatus) return;
+
+    if (!isNumber(amountRate)) {
+      return await ctx.reply("This value is not a number.");
+    }
 
     if (state.rateMenu) {
       // Если бросаем после ставки

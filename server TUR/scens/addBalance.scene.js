@@ -134,7 +134,10 @@ addBalance.on("text", async (ctx) => {
     );
 
     // Отправляем сообщение юзеру
-    await bot.telegram(user.userId, `${amount} TL demo hesabınıza aktarıldı.`);
+    await bot.telegram.sendMessage(
+      user.userId,
+      `${amount} TL demo hesabınıza aktarıldı.`
+    );
 
     await ctx.reply(`Вы успешно начислили баланс!
 Игровой баланс: демо

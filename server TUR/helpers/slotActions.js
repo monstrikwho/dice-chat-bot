@@ -216,6 +216,10 @@ module.exports = async (game) => {
 
     if (state.gameStatus) return;
 
+    if (!isNumber(amountRate)) {
+      return await ctx.reply("This value is not a number.");
+    }
+
     if (state.countRate === 0) {
       return ctx.answerCbQuery(
         "Bahis oynamadınız. Lütfen çevirmek için bir bahis oynayın.",
@@ -355,6 +359,10 @@ Bakiyeniz - ${state.balance}`,
 
     if (state.gameStatus) return;
 
+    if (!isNumber(amountRate)) {
+      return await ctx.reply("This value is not a number.");
+    }
+
     if (state.balance - amountRate < 0) {
       return ctx.answerCbQuery("Bakiyenizde yeterli nakitiniz yok", true);
     }
@@ -457,6 +465,10 @@ Bakiyeniz - ${state.balance}`,
     const amountRate = state.rate["jek"];
 
     if (state.gameStatus) return;
+
+    if (!isNumber(amountRate)) {
+      return await ctx.reply("This value is not a number.");
+    }
 
     if (state.rateMenu) {
       // Если бросаем после ставки
