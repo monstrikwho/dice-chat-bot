@@ -15,16 +15,26 @@ module.exports = async (state) => {
   return Extra.markup((m) =>
     m.inlineKeyboard([
       [
+        inlineBtnHook(m, valueRate(1)),
+        inlineBtnHook(m, valueRate(3)),
         inlineBtnHook(m, valueRate(5)),
         inlineBtnHook(m, valueRate(10)),
         inlineBtnHook(m, valueRate(25)),
         inlineBtnHook(m, valueRate(50)),
-        inlineBtnHook(m, valueRate(100)),
       ],
-      [inlineBtnHook(m, valueRate(-1)), inlineBtnHook(m, `🗑 Bahisleri sıfırla`)],
       [
-        inlineBtnHook(m, `Gol  -  💰 ${state.rate["goal"]}  [x${footballCoef.goal}]`),
-        inlineBtnHook(m, `Kaçırdın  -  💰 ${state.rate["out"]}  [x${footballCoef.out}]`),
+        inlineBtnHook(m, valueRate(-1)),
+        inlineBtnHook(m, `🗑 Bahisleri sıfırla`),
+      ],
+      [
+        inlineBtnHook(
+          m,
+          `Gol  -  💰 ${state.rate["goal"]}  [x${footballCoef.goal}]`
+        ),
+        inlineBtnHook(
+          m,
+          `Kaçırdın  -  💰 ${state.rate["out"]}  [x${footballCoef.out}]`
+        ),
       ],
       [inlineBtnHook(m, `Topa vur ⚽️`)],
     ])

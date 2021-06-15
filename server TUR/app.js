@@ -24,3 +24,7 @@ updateCurrency();
 
 // Обработка колбеков (общая)
 require("./commands/cbInMoney");
+
+bot.on("video", (ctx) => {
+  console.log(ctx.update);
+});

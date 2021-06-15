@@ -437,7 +437,7 @@ module.exports = async (game) => {
     } catch (error) {}
   });
 
-  game.action(/(?:5 TL|10 TL|25 TL|50 TL|100 TL)/, async (ctx) => {
+  game.action(/(?:1 TL|3 TL|5 TL|10 TL|25 TL|50 TL)/, async (ctx) => {
     const value = ctx.update.callback_query.data
       .replace(/\D+/, "")
       .replace("₽", "");

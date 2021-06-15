@@ -42,14 +42,14 @@ inMoney.hears(/(?:25 TL|50 TL|100 TL|500 TL)/, async (ctx) => {
   await ctx.scene.enter("lkMenu");
 
   if (Boolean(+process.env.DEV)) {
-    ctx.session.state.photoMsg = await bot.telegram.sendPhoto(
+    ctx.session.state.photoMsg = await bot.telegram.sendVideo(
       ctx.from.id,
-      "AgACAgIAAxkBAAIJMWC_wOK5aTTde4wFb6ggU1HhcrG1AAISszEbR2sAAUpd4sWEfESsOGogA54uAAMBAAMCAANzAAMQ6AQAAR8E"
+      "BAACAgQAAxkBAAIUGWDIh4wK5ft2wpJ2sk80jCXQ5iADAAIICQACzMBJUlDfzi7g3E1lHwQ"
     );
   } else {
-    ctx.session.state.photoMsg = await bot.telegram.sendPhoto(
+    ctx.session.state.photoMsg = await bot.telegram.sendVideo(
       ctx.from.id,
-      "AgACAgIAAxkBAAIzxmC_wKo6yL6GQ_391gE9KQjpsO9DAAKrszEbF9MAAUqQdIp60IgyE27xEqQuAAMBAAMCAANzAAM3KAIAAR8E"
+      "BAACAgQAAxkBAAKHsmDIiCA_0Idc1CZHPxwBYSAMHw3vAAIICQACzMBJUsFUqSQL2KrAHwQ"
     );
   }
 
@@ -139,14 +139,14 @@ inMoney.on("text", async (ctx) => {
   await ctx.scene.enter("lkMenu");
 
   if (Boolean(+process.env.DEV)) {
-    ctx.session.state.photoMsg = await bot.telegram.sendPhoto(
+    ctx.session.state.photoMsg = await bot.telegram.sendVideo(
       ctx.from.id,
-      "AgACAgIAAxkBAAIJMWC_wOK5aTTde4wFb6ggU1HhcrG1AAISszEbR2sAAUpd4sWEfESsOGogA54uAAMBAAMCAANzAAMQ6AQAAR8E"
+      "BAACAgQAAxkBAAIUGWDIh4wK5ft2wpJ2sk80jCXQ5iADAAIICQACzMBJUlDfzi7g3E1lHwQ"
     );
   } else {
-    ctx.session.state.photoMsg = await bot.telegram.sendPhoto(
+    ctx.session.state.photoMsg = await bot.telegram.sendVideo(
       ctx.from.id,
-      "AgACAgIAAxkBAAIzxmC_wKo6yL6GQ_391gE9KQjpsO9DAAKrszEbF9MAAUqQdIp60IgyE27xEqQuAAMBAAMCAANzAAM3KAIAAR8E"
+      "BAACAgQAAxkBAAKHsmDIiCA_0Idc1CZHPxwBYSAMHw3vAAIICQACzMBJUsFUqSQL2KrAHwQ"
     );
   }
 
