@@ -52,49 +52,65 @@ module.exports.getProfileBalance = async () => {
 //   .then((res) => console.log(res.data.key));
 // };
 
-// module.exports.infoActiveHook = async () => {
-//   // Показать инфу активного хука
-//   await axios
-//     .get(`https://edge.qiwi.com/payment-notifier/v1/hooks/active`)
-//     .then((res) => console.log(res.data));
-// };
+module.exports.infoActiveHook = async () => {
+  const { webhook } = await MainStats.findOne({});
 
-// module.exports.setWebHook = async () => {
+  axios.defaults.headers.common[
+    "Authorization"
+  ] = `Bearer ${webhook.qiwiToken}`;
+
+  // Показать инфу активного хука
+  await axios
+    .get(`https://edge.qiwi.com/payment-notifier/v1/hooks/active`)
+    .then((res) => console.log(res.data));
+};
+
+module.exports.setWebHook = async () => {
   // Активировать вебхук
-  // await axios
-  //   .put(
-  //     `https://edge.qiwi.com/payment-notifier/v1/hooks?hookType=1&param=https%3A%2F%2Fdice-bots.ru/${process.env.HOOK_URL}%2F&txnType=2`
-  //   )
-  //   .then((res) => console.log(res.data));
-// };
+  const { webhook } = await MainStats.findOne({});
 
-// module.exports.deleteActiveHook = async () => {
+  axios.defaults.headers.common[
+    "Authorization"
+  ] = `Bearer ${webhook.qiwiToken}`;
+
+  await axios
+    .put(
+      `https://edge.qiwi.com/payment-notifier/v1/hooks?hookType=1&param=https%3A%2F%2Fdice-bots.ru/api_ru/notify_pay_orders%2F&txnType=2`
+    )
+    .then((res) => console.log(res.data));
+};
+
+module.exports.deleteActiveHook = async (HOOK_ID) => {
   // Удалить вебхук
-  // await axios
-  //   .delete(
-  //     `https://edge.qiwi.com/payment-notifier/v1/hooks/${process.env.HOOK_ID}`
-  //   )
-  //   .then((res) => console.log(res.data));
-// };
+  const { webhook } = await MainStats.findOne({});
+
+  axios.defaults.headers.common[
+    "Authorization"
+  ] = `Bearer ${webhook.qiwiToken}`;
+
+  await axios
+    .delete(`https://edge.qiwi.com/payment-notifier/v1/hooks/${HOOK_ID}`)
+    .then((res) => console.log(res.data));
+};
 
 // module.exports.checkCommission = async () => {
-  // Посмотреть комиссию перевода
-  // await axios
-  //   .post(`https://edge.qiwi.com/sinap/providers/1960/onlineCommission`, {
-  //     account: process.env.QIWI_WALLET,
-  //     paymentMethod: {
-  //       type: "Account",
-  //       accountId: "643",
-  //     },
-  //     purchaseTotals: {
-  //       total: {
-  //         amount: 1000,
-  //         currency: "643",
-  //       },
-  //     },
-  //   })
-  //   .then((res) => console.log(res.data.qwCommission.amount))
-  //   .catch((err) => console.log(err.message));
+// Посмотреть комиссию перевода
+// await axios
+//   .post(`https://edge.qiwi.com/sinap/providers/1960/onlineCommission`, {
+//     account: process.env.QIWI_WALLET,
+//     paymentMethod: {
+//       type: "Account",
+//       accountId: "643",
+//     },
+//     purchaseTotals: {
+//       total: {
+//         amount: 1000,
+//         currency: "643",
+//       },
+//     },
+//   })
+//   .then((res) => console.log(res.data.qwCommission.amount))
+//   .catch((err) => console.log(err.message));
 // };
 
 // Получить массив с объектами пополнений
