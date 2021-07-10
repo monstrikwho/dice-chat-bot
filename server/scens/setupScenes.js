@@ -6,6 +6,7 @@ const { diceGame } = require("./diceGame.scene");
 const { footballGame } = require("./football.scene");
 const { slotGame } = require("./slotGame.scene");
 const { pvpDiceGame } = require("./pvpDiceGame.scene");
+const { pvpBoulingGame } = require("./pvpBoulingGame.scene");
 const { pvpFootballGame } = require("./pvpFootballGame.scene");
 const { lkMenu } = require("./lkMenu.scene");
 const { infoBlock } = require("./infoBlock.scene");
@@ -32,6 +33,7 @@ function setupScenes(bot) {
     footballGame,
     slotGame,
     pvpDiceGame,
+    pvpBoulingGame,
     pvpFootballGame,
     lkMenu,
     infoBlock,

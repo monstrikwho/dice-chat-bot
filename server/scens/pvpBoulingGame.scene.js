@@ -1,6 +1,7 @@
 const { bot } = require("../init/startBot");
+
 const User = require("../models/user");
-const PvpGame = require("../models/pvpDiceGame");
+const PvpGame = require("../models/pvpBoulingGame");
 const MainStats = require("../models/mainstats");
 
 const Scene = require("telegraf/scenes/base");
@@ -9,8 +10,8 @@ const Markup = require("telegraf/markup");
 
 const isNumber = require("is-number");
 
-const pvpDiceGame = new Scene("pvpDiceGame");
-pvpDiceGame.enter(async (ctx) => {
+const pvpBoulingGame = new Scene("pvpBoulingGame");
+pvpBoulingGame.enter(async (ctx) => {
   await ctx.reply(
     "Вы вошли в режим pvp-игры",
     Extra.markup(Markup.keyboard([["🏡 Вернуться на главную"]]).resize())
@@ -19,7 +20,7 @@ pvpDiceGame.enter(async (ctx) => {
   await showMainView(ctx);
 });
 
-pvpDiceGame.action("Мои лобби", async (ctx) => {
+pvpBoulingGame.action("Мои лобби", async (ctx) => {
   const { actionStatus } = ctx.session.state;
 
   if (actionStatus) return;
@@ -30,7 +31,7 @@ pvpDiceGame.action("Мои лобби", async (ctx) => {
   await removeState(ctx);
 });
 
-pvpDiceGame.action(">", async (ctx) => {
+pvpBoulingGame.action(">", async (ctx) => {
   const { activeView, boardCountPage, boardMaxPages, actionStatus } =
     ctx.session.state;
 
@@ -54,7 +55,7 @@ pvpDiceGame.action(">", async (ctx) => {
   await removeState(ctx);
 });
 
-pvpDiceGame.action("<", async (ctx) => {
+pvpBoulingGame.action("<", async (ctx) => {
   const { activeView, boardCountPage, actionStatus } = ctx.session.state;
 
   if (actionStatus) return;
@@ -77,18 +78,20 @@ pvpDiceGame.action("<", async (ctx) => {
   await removeState(ctx);
 });
 
-pvpDiceGame.action("Создать лобби", async (ctx) => {
+pvpBoulingGame.action("Создать лобби", async (ctx) => {
   const { actionStatus } = ctx.session.state;
 
   if (actionStatus) return;
   await setState(ctx);
 
-  await showCreateLobbyStep1(ctx);
+  ctx.session.state.createLobbyRoomSize = 2;
+
+  await showCreateLobbyStep2(ctx);
 
   await removeState(ctx);
 });
 
-pvpDiceGame.action("Статистика", async (ctx) => {
+pvpBoulingGame.action("Статистика", async (ctx) => {
   const { actionStatus } = ctx.session.state;
 
   if (actionStatus) return;
@@ -99,7 +102,7 @@ pvpDiceGame.action("Статистика", async (ctx) => {
   await removeState(ctx);
 });
 
-pvpDiceGame.on("text", async (ctx) => {
+pvpBoulingGame.on("text", async (ctx) => {
   const msg = ctx.update.message.text;
   const { activeView, createLobbyStep, activeBoard } = ctx.session.state;
 
@@ -116,24 +119,7 @@ pvpDiceGame.on("text", async (ctx) => {
   }
 });
 
-pvpDiceGame.action(/(?:2 игрока|3 игрока|5 игроков)/, async (ctx) => {
-  const { actionStatus } = ctx.session.state;
-
-  if (actionStatus) return;
-  await setState(ctx);
-
-  const createLobbyRoomSize = +ctx.update.callback_query.data.replace(
-    /\W+/g,
-    ""
-  );
-  ctx.session.state.createLobbyRoomSize = createLobbyRoomSize;
-
-  await showCreateLobbyStep2(ctx);
-
-  await removeState(ctx);
-});
-
-pvpDiceGame.action("Вступить в лобби", async (ctx) => {
+pvpBoulingGame.action("Вступить в лобби", async (ctx) => {
   const { actionStatus } = ctx.session.state;
 
   if (actionStatus) return;
@@ -144,7 +130,7 @@ pvpDiceGame.action("Вступить в лобби", async (ctx) => {
   await removeState(ctx);
 });
 
-pvpDiceGame.action("Выйти из лобби", async (ctx) => {
+pvpBoulingGame.action("Выйти из лобби", async (ctx) => {
   const { actionStatus } = ctx.session.state;
 
   if (actionStatus) return;
@@ -155,7 +141,7 @@ pvpDiceGame.action("Выйти из лобби", async (ctx) => {
   await removeState(ctx);
 });
 
-pvpDiceGame.action("🔄 Обновить", async (ctx) => {
+pvpBoulingGame.action("🔄 Обновить", async (ctx) => {
   const { activeView, actionStatus } = ctx.session.state;
 
   if (actionStatus) return;
@@ -173,18 +159,15 @@ pvpDiceGame.action("🔄 Обновить", async (ctx) => {
   await removeState(ctx);
 });
 
-pvpDiceGame.action("Вернуться назад", async (ctx) => {
+pvpBoulingGame.action("Вернуться назад", async (ctx) => {
   const { activeView, createLobbyStep, actionStatus } = ctx.session.state;
 
   if (actionStatus) return;
   await setState(ctx);
 
-  if (activeView === "createlobby" && createLobbyStep === 1) {
+  if (activeView === "createlobby" && createLobbyStep === 2) {
     ctx.session.state.boardCountPage = 1;
     await showMyLobby(ctx);
-  }
-  if (activeView === "createlobby" && createLobbyStep === 2) {
-    await showCreateLobbyStep1(ctx);
   }
   if (
     activeView === "mylobby" ||
@@ -201,7 +184,7 @@ pvpDiceGame.action("Вернуться назад", async (ctx) => {
   await removeState(ctx);
 });
 
-pvpDiceGame.action(/./, async (ctx) => {
+pvpBoulingGame.action(/./, async (ctx) => {
   const { activeView, actionStatus } = ctx.session.state;
   const btnData = ctx.update.callback_query.data;
 
@@ -252,12 +235,17 @@ async function showMainView(ctx) {
     await ctx.deleteMessage(photoMessage.message_id);
   } catch (error) {}
 
-  const newPhotoMessage = await bot.telegram.sendPhoto(
-    ctx.from.id,
-    "AgACAgIAAxkBAAEJcGZgsJPRIlMAAbHa5iTRQDOueFU0YzkAAgizMRuAJoBJpbhNlFqOCWl2pIOfLgADAQADAgADbQADMX0EAAEfBA"
-  );
-
-  ctx.session.state.photoMessage = newPhotoMessage;
+  if (Boolean(+process.env.DEV)) {
+    ctx.session.state.photoMessage = await bot.telegram.sendPhoto(
+      ctx.from.id,
+      "AgACAgIAAxkBAAEKTPRg6U0vSrMQy7OuR4-08VRlBPwLtAACfLIxG-xMUEsHondKfMiQqAEAAwIAA3MAAyAE"
+    );
+  } else {
+    ctx.session.state.photoMessage = await bot.telegram.sendPhoto(
+      ctx.from.id,
+      "AgACAgIAAxkBAAII-GC94Paumo_BrCfVR8d5Qk0zmXwKAAIrszEb7ozwSTraTYhjH84jvbsGpC4AAwEAAwIAA3MAA28UAgABHwQ"
+    );
+  }
 
   if (pvpGames.length === 0) {
     const newActiveBoard = await ctx.reply(
@@ -294,7 +282,7 @@ async function showMainView(ctx) {
         ...boardGames[boardCountPage - 1].map((cols) =>
           cols.map((game) =>
             m.callbackButton(
-              `Lobby #${game.lobbyId} ➖ ${game.prize}р  👤 [${game.rivals.length}/${game.size}]`,
+              `Lobby #${game.lobbyId} ➖ ${game.prize} TL  👤 [${game.rivals.length}/${game.size}]`,
               `lobby_id:${game.lobbyId}`
             )
           )
@@ -352,12 +340,17 @@ async function showMyLobby(ctx) {
     await ctx.deleteMessage(photoMessage.message_id);
   } catch (error) {}
 
-  const newPhotoMessage = await bot.telegram.sendPhoto(
-    ctx.from.id,
-    "AgACAgIAAxkBAAEJcGZgsJPRIlMAAbHa5iTRQDOueFU0YzkAAgizMRuAJoBJpbhNlFqOCWl2pIOfLgADAQADAgADbQADMX0EAAEfBA"
-  );
-
-  ctx.session.state.photoMessage = newPhotoMessage;
+  if (Boolean(+process.env.DEV)) {
+    ctx.session.state.photoMessage = await bot.telegram.sendPhoto(
+      ctx.from.id,
+      "AgACAgIAAxkBAAEKTPRg6U0vSrMQy7OuR4-08VRlBPwLtAACfLIxG-xMUEsHondKfMiQqAEAAwIAA3MAAyAE"
+    );
+  } else {
+    ctx.session.state.photoMessage = await bot.telegram.sendPhoto(
+      ctx.from.id,
+      "AgACAgIAAxkBAAJB42DpTIw9nSg5TgABpUlSrdROxQkK8AACzrQxG81DSEtFYhnwplUJDgEAAwIAA3MAAyAE"
+    );
+  }
 
   if (pvpGames.length === 0) {
     const newActiveBoard = await ctx.reply(
@@ -397,7 +390,7 @@ async function showMyLobby(ctx) {
         ...boardGames[boardCountPage - 1].map((cols) =>
           cols.map((game) => {
             return m.callbackButton(
-              `Lobby #${game.lobbyId} ➖ ${game.prize}р  👤 [${game.rivals.length}/${game.size}]`,
+              `Lobby #${game.lobbyId} ➖ ${game.prize} TL  👤 [${game.rivals.length}/${game.size}]`,
               `lobby_id:${game.lobbyId}`
             );
           })
@@ -426,9 +419,9 @@ async function selectMyLobby(ctx) {
   ctx.session.state.activeView = "select-mylobby";
 
   const lobby = await PvpGame.findOne({ lobbyId });
-  const { pvpPercent } = await MainStats.findOne();
 
-  const lobbyPrize = lobby.prize * lobby.size * (1 - pvpPercent / 100);
+  // const { pvpPercent } = await MainStats.findOne();
+  // const lobbyPrize = lobby.prize * lobby.size * (1 - pvpPercent / 100);
 
   try {
     await ctx.deleteMessage(activeBoard.message_id);
@@ -439,23 +432,34 @@ async function selectMyLobby(ctx) {
       `Лобби еще не собрано, пожалуйста дождитесь остальных игроков..
 Как только лобби собирется, бот автоматически сделает бросок и пришлет вам результат игры.
 
-Призовой фонд: ${lobbyPrize.toFixed(2)}p
+Призовой фонд: ${lobby.prize} P
 
 👤 Соперники:
 ${[...lobby.rivals, ...new Array(lobby.size - lobby.rivals.length)]
   .map((item, i) => {
     if (!item) return `${i + 1}. Ожидание..`;
-    return `${i + 1}. ${item}`;
+    return `${i + 1}. ${lobby.rivalsLinks[item]}`;
   })
   .join("\n")}`,
-      Extra.markup((m) =>
-        m.inlineKeyboard([
-          [
-            m.callbackButton("Выйти из лобби", "Выйти из лобби"),
-            m.callbackButton("Вернуться назад", "Вернуться назад"),
+      {
+        parse_mode: "HTML",
+        reply_markup: {
+          inline_keyboard: [
+            [
+              {
+                text: "Выйти из лобби",
+                callback_data: "Выйти из лобби",
+              },
+            ],
+            [
+              {
+                text: "Вернуться назад",
+                callback_data: "Вернуться назад",
+              },
+            ],
           ],
-        ])
-      )
+        },
+      }
     );
     ctx.session.state.activeBoard = newActiveBoard;
   }
@@ -469,8 +473,8 @@ async function showStats(ctx) {
     await ctx.deleteMessage(activeBoard.message_id);
   } catch (error) {}
 
-  const allUsers = await User.find({ "pvpDice.count": { $gte: 1 } })
-    .sort({ "pvpDice.winCash": -1 })
+  const allUsers = await User.find({ "pvpBouling.count": { $gte: 1 } })
+    .sort({ "pvpBouling.winCash": -1 })
     .limit(10);
 
   const user = await User.findOne({ userId: ctx.from.id });
@@ -491,7 +495,11 @@ async function showStats(ctx) {
 ${allUsers
   .map(
     (item, i) =>
-      `${i + 1}. ${item.userName ? "@" + item.userName : item.userId}`
+      `${i + 1}. ${
+        item.userName
+          ? "@" + item.userName
+          : `<a href="tg://user?id=${item.userId}">@${item.userId}</a>`
+      }`
   )
   .join("\n")}
 
@@ -501,41 +509,23 @@ ${latestGames
     const status = item.winner === ctx.from.id ? "🟢" : "🔴";
     return `${status} 👤 ${item.rivals.length} 💰 ${
       item.prize * item.rivals.length
-    }p  🎲 ${item.reversedResults[ctx.from.id].join(" 🎲 ")}`;
+    } TL  🎳 ${item.reversedResults[ctx.from.id].join(" 🎳 ")}`;
   })
   .join("\n")}`,
-    Extra.markup((m) =>
-      m.inlineKeyboard([
-        [m.callbackButton("Вернуться назад", "Вернуться назад")],
-      ])
-    )
-  );
-}
-
-async function showCreateLobbyStep1(ctx) {
-  const { activeBoard } = ctx.session.state;
-  ctx.session.state.activeView = "createlobby";
-  ctx.session.state.createLobbyStep = 1;
-
-  try {
-    await ctx.deleteMessage(activeBoard.message_id);
-  } catch (error) {}
-
-  const newActiveBoard = await ctx.reply(
-    `Step 1/2 - Выберите количество игроков`,
-    Extra.markup((m) =>
-      m.inlineKeyboard([
-        [
-          m.callbackButton("2 игрока", "2 игрока"),
-          m.callbackButton("3 игрока", "3 игрока"),
-          m.callbackButton("5 игроков", "5 игроков"),
+    {
+      parse_mode: "HTML",
+      reply_markup: {
+        inline_keyboard: [
+          [
+            {
+              text: "Вернуться назад",
+              callback_data: "Вернуться назад",
+            },
+          ],
         ],
-        [m.callbackButton("Вернуться назад", "Вернуться назад")],
-      ])
-    )
+      },
+    }
   );
-
-  ctx.session.state.activeBoard = newActiveBoard;
 }
 
 async function showCreateLobbyStep2(ctx) {
@@ -550,9 +540,9 @@ async function showCreateLobbyStep2(ctx) {
   const user = await User.findOne({ userId: ctx.from.id });
 
   const newActiveBoard = await ctx.reply(
-    `Step 2/2 - Напишите в чат ставку
+    `Напишите в чат ставку
 Указанная сумма будет удержана с вашего аккаунта
-
+    
 Ваш баланс: ${user[typeBalance]} ₽`,
     Extra.markup((m) =>
       m.inlineKeyboard([m.callbackButton("Вернуться назад", "Вернуться назад")])
@@ -573,7 +563,7 @@ async function showCreateLobbyStep3(ctx) {
 
   if (createLobbyRate < minGameRate) {
     return await ctx.reply(
-      `Минимальная сумма ставки составляет ${minGameRate} ₽`
+      `Минимальная сумма ставки составляет ${minGameRate}₽`
     );
   }
 
@@ -603,9 +593,9 @@ async function showSelectRivals(ctx) {
 
   const lobby = await PvpGame.findOne({ lobbyId });
   const user = await User.findOne({ userId: ctx.from.id });
-  const { pvpPercent } = await MainStats.findOne();
 
-  const lobbyPrize = lobby.prize * lobby.size * (1 - pvpPercent / 100);
+  // const { pvpPercent } = await MainStats.findOne();
+  // const lobbyPrize = lobby.prize * lobby.size * (1 - pvpPercent / 100);
 
   if (user[typeBalance] < lobby.prize) {
     return await ctx.answerCbQuery(
@@ -621,22 +611,35 @@ async function showSelectRivals(ctx) {
   const newActiveBoard = await ctx.reply(
     `Вы успешно выбрали лобби.
 
-Призовой фонд: ${lobbyPrize.toFixed(2)} ₽
+Призовой фонд: ${lobby.prize} ₽
     
 Соперники:
 ${[...lobby.rivals, ...new Array(lobby.size - lobby.rivals.length)]
   .map((item, i) => {
     if (!item) return `${i + 1}. Ожидание..`;
-    return `${i + 1}. ${item}`;
+    return `${i + 1}. ${lobby.rivalsLinks[item]}`;
   })
   .join("\n")}
 `,
-    Extra.markup((m) =>
-      m.inlineKeyboard([
-        [m.callbackButton("Вступить в лобби", "Вступить в лобби")],
-        [m.callbackButton("Вернуться назад", "Вернуться назад")],
-      ])
-    )
+    {
+      parse_mode: "HTML",
+      reply_markup: {
+        inline_keyboard: [
+          [
+            {
+              text: "Вступить в лобби",
+              callback_data: "Вступить в лобби",
+            },
+          ],
+          [
+            {
+              text: "Вернуться назад",
+              callback_data: "Вернуться назад",
+            },
+          ],
+        ],
+      },
+    }
   );
 
   ctx.session.state = {
@@ -653,13 +656,30 @@ async function joinToLobby(ctx) {
   if (lobby.rivals.indexOf(ctx.from.id) > 0) return;
 
   lobby.rivals.push(ctx.from.id);
-  await PvpGame.updateOne({ lobbyId }, { rivals: lobby.rivals });
+  lobby.rivalsLinks[ctx.from.id] = ctx.from.username
+    ? `@${ctx.from.username}`
+    : `<a href="tg://user?id=${ctx.from.id}">@${ctx.from.id}</a>`;
+
+  await PvpGame.updateOne(
+    { lobbyId },
+    {
+      rivals: lobby.rivals,
+      rivalsLinks: {
+        ...lobby.rivalsLinks,
+        [ctx.from.id]: ctx.from.username
+          ? `@${ctx.from.username}`
+          : `<a href="tg://user?id=${ctx.from.id}">@${ctx.from.id}</a>`,
+      },
+    }
+  );
 
   const user = await User.findOne({ userId: ctx.from.id });
   await User.updateOne(
     { userId: ctx.from.id },
     { [typeBalance]: +(user[typeBalance] - lobby.prize).toFixed(2) }
-  );
+  ).catch((err) => {
+    console.log(err.message, "pvpBouling");
+  });
 
   await ctx.reply(`Вы успешно вступили в лобби.
 С вашего баланса была удержана сумма: ${lobby.prize}p`);
@@ -695,7 +715,7 @@ async function checkLastPlayer(lobby, ctx) {
     {
       $inc: { "pvpGames.dice.countLobby": 1 },
       "pvpGames.dice.countCash": +(
-        pvpGames.dice.countCash + lobbyPrize
+        pvpGames.dice.countCash + lobby.prize
       ).toFixed(2),
     }
   );
@@ -716,8 +736,8 @@ async function checkLastPlayer(lobby, ctx) {
       if (uid !== userId) {
         await bot.telegram.sendMessage(
           uid,
-          `Сейчас бросок делает игрок: ${userId}`,
-          { disable_notification: true }
+          `Сейчас бросок делает игрок: ${lobby.rivalsLinks[userId]}`,
+          { parse_mode: "HTML", disable_notification: true }
         );
       } else {
         await bot.telegram.sendMessage(uid, `Сейчас ваш бросок`, {
@@ -727,15 +747,15 @@ async function checkLastPlayer(lobby, ctx) {
     }
 
     const dice1 = await bot.telegram.sendDice(userId, {
-      emoji: "🎲",
+      emoji: "🎳",
       disable_notification: true,
     });
     const dice2 = await bot.telegram.sendDice(userId, {
-      emoji: "🎲",
+      emoji: "🎳",
       disable_notification: true,
     });
     const dice3 = await bot.telegram.sendDice(userId, {
-      emoji: "🎲",
+      emoji: "🎳",
       disable_notification: true,
     });
 
@@ -753,9 +773,9 @@ async function checkLastPlayer(lobby, ctx) {
       });
     });
 
-    const value1 = dice1.dice.value;
-    const value2 = dice2.dice.value;
-    const value3 = dice3.dice.value;
+    const value1 = dice1.dice.value === 2 ? 1 : dice1.dice.value;
+    const value2 = dice2.dice.value === 2 ? 1 : dice2.dice.value;
+    const value3 = dice3.dice.value === 2 ? 1 : dice3.dice.value;
 
     const results = [value1, value2, value3];
     const resultsSum = value1 + value2 + value3;
@@ -799,18 +819,54 @@ ${
   userId === winner
     ? `Вы выиграли!
 Ваш выигрыш: ${lobbyPrize.toFixed(2)} P`
-    : `Выиграл ${winner}
+    : `Выиграл ${winner === 0 ? "drow" : `${lobby.rivalsLinks[winner]}`}
 Выигрыш составил: ${lobbyPrize.toFixed(2)} P`
 }
    
 ${lobby.rivals
   .map(
     (item, i) =>
-      `${i + 1}. 👤 ${item} ➖ 🎲 ${reversedResults[item].join(" 🎲 ")}`
+      `${i + 1}. 👤 ${lobby.rivalsLinks[item]} ➖ 🎳 ${reversedResults[
+        item
+      ].join(" 🎳 ")}`
   )
-  .join("\n")}`
+  .join("\n")}`,
+      {
+        parse_mode: "HTML",
+      }
     )
   );
+
+  if (winner === 0) {
+    // Обновляем статус игры на "completed"
+    await PvpGame.updateOne(
+      { lobbyId: lobby.lobbyId },
+      {
+        winner,
+        statusGame: "completed",
+        results: resLobby.results,
+        resultsSum: resLobby.resultsSum,
+        reversedResults,
+      }
+    );
+
+    // Обновляем статистику игроков
+    for (let i = 0; i < lobby.rivals.length; i++) {
+      const { pvpBouling } = await User.findOne({ userId: lobby.rivals[i] });
+      await User.updateOne(
+        { userId: lobby.rivals[i] },
+        {
+          pvpBouling: {
+            ...pvpBouling,
+            count: pvpBouling.count + 1,
+            playCash: +(pvpBouling.playCash + lobby.prize).toFixed(2),
+          },
+        }
+      );
+    }
+
+    return await showMainView(ctx);
+  }
 
   // Обновляем статус игры на "completed"
   await PvpGame.updateOne(
@@ -825,29 +881,31 @@ ${lobby.rivals
   );
 
   // Начисляем выигрыш победителю
-  const { mainBalance, pvpDice } = await User.findOne({ userId: winner });
+  const { mainBalance, pvpBouling } = await User.findOne({ userId: winner });
   await User.updateOne(
     { userId: winner },
     {
       mainBalance: +(mainBalance + lobbyPrize).toFixed(2),
-      pvpDice: {
-        ...pvpDice,
-        winCount: pvpDice.winCount + 1,
-        winCash: +(pvpDice.winCash + lobbyPrize).toFixed(2),
+      pvpBouling: {
+        ...pvpBouling,
+        winCount: pvpBouling.winCount + 1,
+        winCash: +(pvpBouling.winCash + lobbyPrize).toFixed(2),
       },
     }
-  );
+  ).catch((err) => {
+    console.log(err.message, "pvpBouling");
+  });
 
   // Обновляем статистику игроков
   for (let i = 0; i < lobby.rivals.length; i++) {
-    const { pvpDice } = await User.findOne({ userId: lobby.rivals[i] });
+    const { pvpBouling } = await User.findOne({ userId: lobby.rivals[i] });
     await User.updateOne(
       { userId: lobby.rivals[i] },
       {
-        pvpDice: {
-          ...pvpDice,
-          count: pvpDice.count + 1,
-          playCash: +(pvpDice.playCash + lobby.prize).toFixed(2),
+        pvpBouling: {
+          ...pvpBouling,
+          count: pvpBouling.count + 1,
+          playCash: +(pvpBouling.playCash + lobby.prize).toFixed(2),
         },
       }
     );
@@ -871,8 +929,37 @@ async function playing2round(lobby, players, round = 2) {
     return { resLobby: lobby, winner: players[0].userId };
   }
 
+  // ВОЗВРАТ
+  if (round === 3) {
+    for (let userId of lobby.rivals) {
+      await bot.telegram.sendMessage(userId, `Ничья. Возврат вашей ставки.`);
+
+      const { mainBalance } = await User.findOne({ userId });
+
+      await User.updateOne(
+        { userId },
+        { mainBalance: +(mainBalance + lobby.prize).toFixed(2) }
+      ).catch((err) => {
+        console.log(err.message, "pvpBouling");
+      });
+    }
+
+    return { resLobby: lobby, winner: 0 };
+  }
+
   // Если несколько победителей
   if (players2round.length > 1) {
+    const reversedResults = {};
+    for (let i = 0; i < lobby.resultsSum.length; i++) {
+      for (const [key, value] of Object.entries(lobby.resultsSum[i])) {
+        if (reversedResults[key]) {
+          reversedResults[key] = [...reversedResults[key], value];
+        } else {
+          reversedResults[key] = [value];
+        }
+      }
+    }
+
     // Отправляем игрокам сообщение об втором раунде
     lobby.rivals.map((userId) =>
       bot.telegram.sendMessage(
@@ -880,8 +967,15 @@ async function playing2round(lobby, players, round = 2) {
         `Лобби #${lobby.lobbyId} ➖ ${round} раунд
 
 Играют:
-${players2round.map((item, i) => `${i + 1}. 👤 ${item.userId}`).join("\n")}`,
-        { disable_notification: true }
+${players2round
+  .map(
+    (item, i) =>
+      `${i + 1}. 👤 ${
+        lobby.rivalsLinks[item.userId]
+      } ➖ 🎳⚽️ ${reversedResults[item.userId].join(" 🎳 ")}`
+  )
+  .join("\n")}`,
+        { parse_mode: "HTML", disable_notification: true }
       )
     );
 
@@ -900,8 +994,8 @@ ${players2round.map((item, i) => `${i + 1}. 👤 ${item.userId}`).join("\n")}`,
         if (uid !== userId) {
           await bot.telegram.sendMessage(
             uid,
-            `Бросок делает игрок: ${userId}`,
-            { disable_notification: true }
+            `Сейчас бросок делает игрок: ${lobby.rivalsLinks[userId]}`,
+            { parse_mode: "HTML", disable_notification: true }
           );
         } else {
           await bot.telegram.sendMessage(uid, `Сейчас ваш бросок`, {
@@ -911,15 +1005,15 @@ ${players2round.map((item, i) => `${i + 1}. 👤 ${item.userId}`).join("\n")}`,
       }
 
       const diceMsg1 = await bot.telegram.sendDice(userId, {
-        emoji: "🎲",
+        emoji: "🎳",
         disable_notification: true,
       });
       const diceMsg2 = await bot.telegram.sendDice(userId, {
-        emoji: "🎲",
+        emoji: "🎳",
         disable_notification: true,
       });
       const diceMsg3 = await bot.telegram.sendDice(userId, {
-        emoji: "🎲",
+        emoji: "🎳",
         disable_notification: true,
       });
 
@@ -937,9 +1031,9 @@ ${players2round.map((item, i) => `${i + 1}. 👤 ${item.userId}`).join("\n")}`,
         });
       });
 
-      const value1 = diceMsg1.dice.value;
-      const value2 = diceMsg2.dice.value;
-      const value3 = diceMsg3.dice.value;
+      const value1 = diceMsg1.dice.value === 2 ? 1 : diceMsg1.dice.value;
+      const value2 = diceMsg2.dice.value === 2 ? 1 : diceMsg2.dice.value;
+      const value3 = diceMsg3.dice.value === 2 ? 1 : diceMsg3.dice.value;
 
       const results = [value1, value2, value3];
       const resultsSum = value1 + value2 + value3;
@@ -969,7 +1063,7 @@ ${players2round.map((item, i) => `${i + 1}. 👤 ${item.userId}`).join("\n")}`,
       (a, b) => b.resultsSum - a.resultsSum
     );
 
-    return await playing2round(lobby, sortedPlayers);
+    return await playing2round(lobby, sortedPlayers, round++);
   }
 }
 
@@ -988,6 +1082,11 @@ async function createLobby(ctx) {
     size: createLobbyRoomSize,
     prize: createLobbyRate,
     rivals: [ctx.from.id],
+    rivalsLinks: {
+      [ctx.from.id]: ctx.from.username
+        ? `@${ctx.from.username}`
+        : `<a href="tg://user?id=${ctx.from.id}">@${ctx.from.id}</a>`,
+    },
     creator: ctx.from.id,
   });
   await pvpGame.save();
@@ -997,11 +1096,14 @@ async function createLobby(ctx) {
   await User.updateOne(
     { userId: ctx.from.id },
     { [typeBalance]: +(user[typeBalance] - createLobbyRate).toFixed(2) }
-  );
+  ).catch((err) => {
+    console.log(err.message, "pvpBouling");
+  });
 
   await ctx.reply(`Лобби успешно созданно.
 
-С вашего баланса было удеражна сумма: ${createLobbyRate}p`);
+С вашего баланса было удеражна сумма: ${createLobbyRate} Р`);
+
   ctx.session.state.createLobbyStep = 0;
 
   await showMyLobby(ctx);
@@ -1028,11 +1130,13 @@ async function deleteLobby(ctx) {
   await User.updateOne(
     { userId: ctx.from.id },
     { [typeBalance]: +(user[typeBalance] + lobby.prize).toFixed(2) }
-  );
+  ).catch((err) => {
+    console.log(err.message, "pvpBouling");
+  });
 
   await ctx.reply(`Вы успешно вышли из лобби.
-Возврат удержанной суммы: ${lobby.prize}
-Ваш баланс: ${(user[typeBalance] + lobby.prize).toFixed(2)}`);
+Возврат удержанной суммы: ${lobby.prize} Р
+Ваш баланс: ${(user[typeBalance] + lobby.prize).toFixed(2)} Р`);
 
   await showMyLobby(ctx);
 }
@@ -1066,6 +1170,7 @@ function setState(ctx) {
     resolve();
   });
 }
+
 function removeState(ctx) {
   return new Promise((resolve) => {
     ctx.session.state.actionStatus = false;
@@ -1073,4 +1178,4 @@ function removeState(ctx) {
   });
 }
 
-module.exports = { pvpDiceGame };
+module.exports = { pvpBoulingGame };

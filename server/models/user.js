@@ -18,6 +18,7 @@ const schema = new mongoose.Schema({
   pass: Number,
   regDate: String,
   pvpDice: Object,
+  pvpBouling: Object,
   pvpFootball: Object,
 });
 

@@ -51,6 +51,11 @@ async function setupStart(bot) {
     const diceUsers = await User.find({ "pvpDice.count": { $gte: 1 } }).sort({
       "pvpDice.winCash": -1,
     });
+    const boulingUsers = await User.find({
+      "pvpBouling.count": { $gte: 1 },
+    }).sort({
+      "pvpBouling.winCash": -1,
+    });
     const footballUsers = await User.find({
       "pvpFootball.count": { $gte: 1 },
     }).sort({
@@ -70,6 +75,13 @@ async function setupStart(bot) {
       btnStart: true,
       pvpDice: {
         rating: diceUsers.length + 1,
+        count: 0,
+        winCount: 0,
+        playCash: 0,
+        winCash: 0,
+      },
+      pvpBouling: {
+        rating: boulingUsers.length + 1,
         count: 0,
         winCount: 0,
         playCash: 0,

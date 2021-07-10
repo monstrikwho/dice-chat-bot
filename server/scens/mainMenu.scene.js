@@ -9,8 +9,8 @@ showMainMenu.enter(async (ctx) => {
     Extra.markup(
       Markup.keyboard([
         ["Играть 🎲", "Играть ⚽️", "Играть 🎰"],
-        ["PvP 🎲", "PvP ⚽️"],
-        ["Личный кабинет", "Инфо"],
+        ["PvP 🎲", "PvP 🎳", "PvP ⚽️"],
+        ["Личный кабинет", "💬 Чат", "Инфо"],
       ]).resize()
     )
   );
@@ -41,6 +41,9 @@ showMainMenu.hears(/(?:PvP)/, async (ctx) => {
   }
   if (emoji === "⚽️") {
     return await ctx.scene.enter("pvpFootballGame");
+  }
+  if (emoji === "🎳") {
+    return await ctx.scene.enter("pvpBoulingGame");
   }
 });
 
@@ -82,6 +85,26 @@ showMainMenu.hears("Личный кабинет", async (ctx) => {
 
 showMainMenu.hears("Инфо", async (ctx) => {
   return await ctx.scene.enter("infoBlock");
+});
+
+showMainMenu.hears("💬 Чат", async (ctx) => {
+  ctx.reply(
+    `Вы можете общаться с игроками в нашем общем чате
+<a href="http://t.me/joinchat/P0el-xuDN6g-ZsY7decv7A">💬 Чат для общения с игроками</a>`,
+    {
+      parse_mode: "HTML",
+      reply_markup: {
+        inline_keyboard: [
+          [
+            {
+              text: "Перейти в чат",
+              url: "http://t.me/joinchat/P0el-xuDN6g-ZsY7decv7A",
+            },
+          ],
+        ],
+      },
+    }
+  );
 });
 
 showMainMenu.hears("↪️ Вернуться назад", async (ctx) => {
