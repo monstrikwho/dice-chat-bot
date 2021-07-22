@@ -106,7 +106,7 @@ ${bonusRefFather} TL DEMO hesabınıza yatırıldı`
       const userId = ctx.from.id;
 
       // Откидываем возможность запуска бота в пабликах
-      if (userId < 0) return;
+      if (+ctx.chat.id < 0) return;
 
       // ******************* RATE LIMITER *******************
       if (!rateLimmiter[userId]) {
