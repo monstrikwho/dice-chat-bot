@@ -83,7 +83,7 @@ export default function SettingsPage() {
         : process.env.REACT_APP_URL_TUR;
 
     await axios.post(`${url}/post_set_token`, { token });
-    getData();
+    getData(url);
   };
 
   useEffect(() => {

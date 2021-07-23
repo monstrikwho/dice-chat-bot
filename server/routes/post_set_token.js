@@ -19,7 +19,10 @@ const deleteActiveHook = async (hookId) => {
   return await axios
     .delete(`https://edge.qiwi.com/payment-notifier/v1/hooks/${hookId}`)
     .then((res) => res.data.response)
-    .catch((err) => console.log(err.message));
+    .catch((err) => {
+      console.log(err.message);
+      return err.response.statusText;
+    });
 };
 
 const getProfileWallet = async () => {
@@ -38,11 +41,7 @@ router.post("/", async (req, res) => {
 
   const { webhook } = await MainStats.findOne();
 
-  const deleteStatus = await deleteActiveHook(webhook.hookId); // 'Hook deleted'
-
-  if (deleteStatus !== "Hook deleted") {
-    return res.send({ status: false, message: deleteStatus });
-  }
+  await deleteActiveHook(webhook.hookId); // 'Hook deleted'
 
   const newHookId = await setWebHook(webhook.hookUrl); // bcb50cb4-157b-4554-af5b-44d31d5fad51
 
