@@ -33,11 +33,10 @@ const getProfileWallet = async () => {
 };
 
 router.post("/", async (req, res) => {
-  const token = req.body.token;
-  if (!token) return;
+  const data = req.body.webhook;
 
   axios.defaults.headers.common["Accept"] = "application/json";
-  axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+  axios.defaults.headers.common["Authorization"] = `Bearer ${data.qiwiToken}`;
 
   const { webhook } = await MainStats.findOne();
 
@@ -51,8 +50,8 @@ router.post("/", async (req, res) => {
     {},
     {
       "webhook.hookId": newHookId,
-      "webhook.qiwiToken": token,
-      "webhook.qiwiWallet": wallet,
+      "webhook.qiwiToken": data.qiwiToken,
+      "webhook.qiwiWallet": data.qiwiWallet,
     }
   );
 

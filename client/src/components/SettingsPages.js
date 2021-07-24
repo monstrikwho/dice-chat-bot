@@ -75,14 +75,12 @@ export default function SettingsPage() {
   };
 
   const changeToken = async () => {
-    const token = data.webhook.qiwiToken;
-
     const url =
       lang === "RU"
         ? process.env.REACT_APP_URL_RU
         : process.env.REACT_APP_URL_TUR;
 
-    await axios.post(`${url}/post_set_token`, { token });
+    await axios.post(`${url}/post_set_token`, { webhook: data.webhook });
     getData(url);
   };
 
@@ -529,7 +527,19 @@ export default function SettingsPage() {
                 />
 
                 <label>qiwiWallet</label>
-                <Form.Control value={data.webhook.qiwiWallet} disabled />
+                <Form.Control
+                  type="text"
+                  onChange={(e) => {
+                    setData({
+                      ...data,
+                      webhook: {
+                        ...data.webhook,
+                        qiwiWallet: e.target.value,
+                      },
+                    });
+                  }}
+                  value={data.webhook.qiwiWallet}
+                />
 
                 <label>Webhook Uri</label>
                 <Form.Control value={data.webhook.hookUrl} disabled />
