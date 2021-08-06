@@ -15,17 +15,19 @@ outMoney.enter(async (ctx) => {
     prizeFound,
   };
 
-  return await ctx.reply(
-    `Ваш баланс: ${mainBalance} ₽`,
-    Extra.markup(
-      Markup.keyboard([
-        ["Qiwi кошелек"],
-        ["Visa (RU)", "MC (RU)"],
-        ["Visa (Other)", "MC (Other)"],
-        ["↪️ Вернуться назад"],
-      ]).resize()
-    )
-  );
+  try {
+    await ctx.reply(
+      `Ваш баланс: ${mainBalance} ₽`,
+      Extra.markup(
+        Markup.keyboard([
+          ["Qiwi кошелек"],
+          ["Visa (RU)", "MC (RU)"],
+          ["Visa (Other)", "MC (Other)"],
+          ["↪️ Вернуться назад"],
+        ]).resize()
+      )
+    );
+  } catch (error) {}
 });
 
 outMoney.hears("Qiwi кошелек", async (ctx) => {

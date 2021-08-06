@@ -21,7 +21,6 @@ const deleteActiveHook = async (hookId) => {
     .then((res) => res.data.response)
     .catch((err) => {
       console.log(err.message);
-      return err.response.statusText;
     });
 };
 
@@ -51,7 +50,7 @@ router.post("/", async (req, res) => {
     {
       "webhook.hookId": newHookId,
       "webhook.qiwiToken": data.qiwiToken,
-      "webhook.qiwiWallet": data.qiwiWallet,
+      "webhook.qiwiWallet": wallet,
     }
   );
 

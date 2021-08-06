@@ -1,10 +1,10 @@
 const { Router } = require("express");
 const router = Router();
 
-const PvpDiceGame = require("../models/pvpDiceGame");
+const PvpModel = require("../models/pvpAllGames");
 
 router.get("/", async (req, res) => {
-  const dice = await PvpDiceGame.find().sort({ _id: -1 });
+  const dice = await PvpModel.find().sort({ _id: -1 });
   res.send(dice);
 });
 

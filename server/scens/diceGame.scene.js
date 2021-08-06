@@ -2,8 +2,6 @@ const { bot } = require("../init/startBot");
 const User = require("../models/user");
 
 const Scene = require("telegraf/scenes/base");
-const Extra = require("telegraf/extra");
-const Markup = require("telegraf/markup");
 
 const extraBoard = require("../helpers/diceExtra");
 const actionsBord = require("../helpers/diceActions");
@@ -14,10 +12,9 @@ diceGame.enter(async (ctx) => {
     userId: ctx.from.id,
   });
 
-  const activeGame = ctx.session.state.activeGame;
-
   // Записываем в стейт начальный стейт и баланс игрока
   const initState = {
+    ...ctx.session.state,
     rate: {
       1: 0,
       2: 0,
@@ -32,40 +29,39 @@ diceGame.enter(async (ctx) => {
       odd: 0,
     },
     valueRate: 10,
-    otherRate: 0,
     countRate: 0,
-    activeGame,
     rateMenu: true,
-    balance: activeGame === "mainGame" ? mainBalance : demoBalance,
+    demoBalance,
+    mainBalance,
   };
   ctx.session.state = initState;
 
-  // Отправляем первое сообщение с пустой клавиатурой
-  try {
-    await bot.telegram.sendMessage(
-      ctx.from.id,
-      "Делайте ваши ставки",
-      Extra.markup(Markup.keyboard([["🏡 Вернуться на главную"]]).resize())
-    );
+  const extra = await extraBoard(initState);
 
-    let message = ({ balance }) => `Ваш баланс: ${balance} ₽`;
-
-    const extra = await extraBoard(initState);
-
-    // Отправляем init board
-    ctx.session.state.activeBoard = await ctx.reply(message(initState), extra);
-  } catch (error) {}
-});
-
-diceGame.hears(
-  "🏡 Вернуться на главную",
-  async ({ scene, deleteMessage, session }) => {
+  if (process.env.DEV !== "true") {
     try {
-      await deleteMessage(session.state.activeBoard.message_id);
+      ctx.session.state.activeBoard = await bot.telegram.sendPhoto(
+        ctx.from.id,
+        "AgACAgIAAxkBAAELz79hDPGuFqx3mgMfflJ26-8unGYkuwACzLUxG9FSaEiIso4qsA3wJAEAAwIAA3MAAyAE",
+        {
+          caption: `🎲 SOLOGAME`,
+          reply_markup: extra,
+        }
+      );
     } catch (error) {}
-    await scene.enter("showMainMenu");
+  } else {
+    try {
+      ctx.session.state.activeBoard = await bot.telegram.sendPhoto(
+        ctx.from.id,
+        "AgACAgIAAxkBAAJFQmEKQEnKpAhODrELdR9KrJyUK3E5AAJCtDEbwjVRSGX1h1IAAfjqPwEAAwIAA3MAAyAE",
+        {
+          caption: `🎲 SOLOGAME`,
+          reply_markup: extra,
+        }
+      );
+    } catch (error) {}
   }
-);
+});
 
 // Подключаем actions
 actionsBord(diceGame);

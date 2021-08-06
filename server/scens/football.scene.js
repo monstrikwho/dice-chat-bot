@@ -14,49 +14,47 @@ footballGame.enter(async (ctx) => {
     userId: ctx.from.id,
   });
 
-  const activeGame = ctx.session.state.activeGame;
-
   // Записываем в стейт начальный стейт и баланс игрока
   const initState = {
+    ...ctx.session.state,
     rate: {
       goal: 0,
       out: 0,
     },
     valueRate: 10,
-    otherRate: 0,
     countRate: 0,
-    activeGame,
     rateMenu: true,
-    balance: activeGame === "mainGame" ? mainBalance : demoBalance,
+    demoBalance,
+    mainBalance,
   };
   ctx.session.state = initState;
 
-  // Отправляем первое сообщение с пустой клавиатурой
-  try {
-    await bot.telegram.sendMessage(
-      ctx.from.id,
-      "Делайте ваши ставки",
-      Extra.markup(Markup.keyboard([["🏡 Вернуться на главную"]]).resize())
-    );
+  const extra = await extraBoard(initState);
 
-    let message = ({ balance }) => `Ваш баланс: ${balance} ₽`;
-
-    const extra = await extraBoard(initState);
-
-    // Отправляем init board
-    ctx.session.state.activeBoard = await ctx.reply(message(initState), extra);
-  } catch (error) {}
-});
-
-footballGame.hears(
-  "🏡 Вернуться на главную",
-  async ({ scene, deleteMessage, session }) => {
+  if (process.env.DEV !== "true") {
     try {
-      await deleteMessage(session.state.activeBoard.message_id);
+      ctx.session.state.activeBoard = await bot.telegram.sendPhoto(
+        ctx.from.id,
+        "AgACAgIAAxkBAAELz75hDPFbFqOoq19HcyfQRZxetgYazAACyrUxG9FSaEhnM091tDxpEwEAAwIAA3MAAyAE",
+        {
+          caption: `⚽️ SOLOGAME`,
+          reply_markup: extra,
+        }
+      );
     } catch (error) {}
-    await scene.enter("showMainMenu");
+  } else {
+    try {
+      ctx.session.state.activeBoard = await bot.telegram.sendPhoto(
+        ctx.from.id,
+        "AgACAgIAAxkBAAJGiGEKjSkKqf8KXfroKBeNfKzvJO9kAAJJtDEbwjVRSJSFOM7nIvVTAQADAgADcwADIAQ",
+        {
+          caption: `⚽️ SOLOGAME`,
+          reply_markup: extra,
+        }
+      );
+    } catch (error) {}
   }
-);
+});
 
 // Подключаем actions
 actionsBord(footballGame);

@@ -1,114 +1,157 @@
 const Scene = require("telegraf/scenes/base");
 const Extra = require("telegraf/extra");
 const Markup = require("telegraf/markup");
+const { bot } = require("../init/startBot");
 
 const showMainMenu = new Scene("showMainMenu");
 showMainMenu.enter(async (ctx) => {
-  return await ctx.reply(
-    "Вы вошли в главное меню",
-    Extra.markup(
-      Markup.keyboard([
-        ["Играть 🎲", "Играть ⚽️", "Играть 🎰"],
-        ["PvP 🎲", "PvP 🎳", "PvP ⚽️"],
-        ["Личный кабинет", "💬 Чат", "Инфо"],
-      ]).resize()
-    )
-  );
+  ctx.session.state = {};
+  try {
+    await ctx.reply(
+      "Вы вошли в главное меню",
+      Extra.markup(
+        Markup.keyboard([
+          ["Соло", "ПвП"],
+          ["Личный кабинет", "💬 Чат", "Инфо"],
+        ]).resize()
+      )
+    );
+  } catch (error) {}
 });
 
-showMainMenu.hears(/(?:Играть)/, async (ctx) => {
-  const emoji = ctx.update.message.text.replace("Играть ", "");
-  ctx.session.state = { game: emoji };
+mainMenuActions(showMainMenu);
 
-  await ctx.reply(
-    "Выберите счет с которым вы хотите играть.",
-    Extra.markup(
-      Markup.keyboard([
-        ["Основной счет", "Демо счет"],
-        ["↪️ Вернуться назад"],
-      ]).resize()
-    )
-  );
-});
+function mainMenuActions(scene) {
+  scene.hears("Соло", async (ctx) => {
+    const activeBoard = ctx.session.state.activeBoard;
+    try {
+      await ctx.deleteMessage(activeBoard.message_id);
+    } catch (error) {}
 
-showMainMenu.hears(/(?:PvP)/, async (ctx) => {
-  const emoji = ctx.update.message.text.replace("PvP ", "");
+    try {
+      ctx.session.state.activeBoard = await ctx.reply(
+        "Выберите solo игру",
+        Extra.markup((m) =>
+          m.inlineKeyboard([
+            [
+              m.callbackButton("Играть 🎲", "playGame 🎲"),
+              m.callbackButton("Играть ⚽️", "playGame ⚽️"),
+              m.callbackButton("Играть 🎰", "playGame 🎰"),
+            ],
+          ])
+        )
+      );
+    } catch (error) {}
+  });
 
-  ctx.session.state = { typeGame: emoji, typeBalance: "mainBalance" };
+  scene.hears("ПвП", async (ctx) => {
+    const activeBoard = ctx.session.state.activeBoard;
+    try {
+      await ctx.deleteMessage(activeBoard.message_id);
+    } catch (error) {}
 
-  if (emoji === "🎲") {
-    return await ctx.scene.enter("pvpDiceGame");
-  }
-  if (emoji === "⚽️") {
-    return await ctx.scene.enter("pvpFootballGame");
-  }
-  if (emoji === "🎳") {
-    return await ctx.scene.enter("pvpBoulingGame");
-  }
-});
+    await ctx.scene.enter("pvpAllGames");
+  });
 
-showMainMenu.hears("Основной счет", async (ctx) => {
-  const diceGame = ctx.session.state.game;
+  scene.action(/(?:playGame)/, async (ctx) => {
+    const emoji = ctx.update.callback_query.data.split(" ")[1];
 
-  ctx.session.state.activeGame = "mainGame";
+    ctx.session.state = {
+      ...ctx.session.state,
+      typeGame: emoji,
+      typeBalance: "mainBalance",
+    };
 
-  if (diceGame === "🎲") {
-    return await ctx.scene.enter("diceGame");
-  }
-  if (diceGame === "⚽️") {
-    return await ctx.scene.enter("footballGame");
-  }
-  if (diceGame === "🎰") {
-    return await ctx.scene.enter("slotGame");
-  }
-});
+    const activeBoard = ctx.session.state?.activeBoard;
+    try {
+      await ctx.deleteMessage(activeBoard.message_id);
+    } catch (error) {}
 
-showMainMenu.hears("Демо счет", async (ctx) => {
-  const diceGame = ctx.session.state.game;
-
-  ctx.session.state.activeGame = "demoGame";
-
-  if (diceGame === "🎲") {
-    return await ctx.scene.enter("diceGame");
-  }
-  if (diceGame === "⚽️") {
-    return await ctx.scene.enter("footballGame");
-  }
-  if (diceGame === "🎰") {
-    return await ctx.scene.enter("slotGame");
-  }
-});
-
-showMainMenu.hears("Личный кабинет", async (ctx) => {
-  return await ctx.scene.enter("lkMenu");
-});
-
-showMainMenu.hears("Инфо", async (ctx) => {
-  return await ctx.scene.enter("infoBlock");
-});
-
-showMainMenu.hears("💬 Чат", async (ctx) => {
-  ctx.reply(
-    `Вы можете общаться с игроками в нашем общем чате
-<a href="http://t.me/joinchat/P0el-xuDN6g-ZsY7decv7A">💬 Чат для общения с игроками</a>`,
-    {
-      parse_mode: "HTML",
-      reply_markup: {
-        inline_keyboard: [
-          [
-            {
-              text: "Перейти в чат",
-              url: "http://t.me/joinchat/P0el-xuDN6g-ZsY7decv7A",
-            },
-          ],
-        ],
-      },
+    if (emoji === "🎲") {
+      return await ctx.scene.enter("diceGame");
     }
-  );
-});
+    if (emoji === "⚽️") {
+      return await ctx.scene.enter("footballGame");
+    }
+    if (emoji === "🎰") {
+      return await ctx.scene.enter("slotGame");
+    }
+  });
 
-showMainMenu.hears("↪️ Вернуться назад", async (ctx) => {
-  return await ctx.scene.enter("showMainMenu");
-});
+  scene.hears("Личный кабинет", async (ctx) => {
+    const activeBoard = ctx.session.state?.activeBoard;
+    try {
+      await ctx.deleteMessage(activeBoard.message_id);
+    } catch (error) {}
+    return await ctx.scene.enter("lkMenu");
+  });
 
-module.exports = { showMainMenu };
+  // scene.hears("Спорт", async (ctx) => {
+  //   const activeBoard = ctx.session.state?.activeBoard;
+  //   try {
+  //     await ctx.deleteMessage(activeBoard.message_id);
+  //   } catch (error) {}
+  //   return await ctx.scene.enter("sportMenu");
+  // });
+
+  scene.hears("Инфо", async (ctx) => {
+    const activeBoard = ctx.session.state?.activeBoard;
+    try {
+      await ctx.deleteMessage(activeBoard.message_id);
+    } catch (error) {}
+
+    try {
+      await bot.telegram.sendMessage(
+        ctx.from.id,
+        `Lucky Cat Games - бот с мини-играми основанный на механике смайлов от телеграмм.
+  Именно по-этому Вы можете сразу исключить вероятность каких-либо накруток или мошенничества с нашей стороны, так как мы не можем влиять на то что вам выпадет. Вы просто отправляете нам смайл (можно вручную, но для Вашего удобства сделана кнопка) а по результатам случайного выпадения - мы выплачиваем Вам выигрыш. 
+  
+  💦 Вы можете играть на демо счете БЕСПЛАТНО.
+  🔥 Моментальный вывод средств на кошелек QIWI, карты российских и банков других стран.
+  ⚠️ Деньги с демо-счета не выводятся. 
+  
+  Как играть?
+  1) Выбираете размер ставки;
+  2) Делаете ставку;
+  3) Отправляете смайлик.
+  
+  <a href="http://t.me/LuckyCatGames">❓ Поддержка</a>
+  <a href="http://t.me/joinchat/P0el-xuDN6g-ZsY7decv7A">💬 Чат для общения с игроками</a>
+  <a href="http://t.me/luckycat_orders">💳 Чат, в котором публикуются платежи</a>`,
+        {
+          parse_mode: "HTML",
+          disable_web_page_preview: true,
+        }
+      );
+    } catch (error) {}
+  });
+
+  scene.hears("💬 Чат", async (ctx) => {
+    const activeBoard = ctx.session.state?.activeBoard;
+    try {
+      await ctx.deleteMessage(activeBoard.message_id);
+    } catch (error) {}
+
+    try {
+      ctx.reply(
+        `Вы можете общаться с игроками в нашем общем чате
+    <a href="http://t.me/joinchat/P0el-xuDN6g-ZsY7decv7A">💬 Чат для общения с игроками</a>`,
+        {
+          parse_mode: "HTML",
+          reply_markup: {
+            inline_keyboard: [
+              [
+                {
+                  text: "Перейти в чат",
+                  url: "http://t.me/joinchat/P0el-xuDN6g-ZsY7decv7A",
+                },
+              ],
+            ],
+          },
+        }
+      );
+    } catch (error) {}
+  });
+}
+
+module.exports = { showMainMenu, mainMenuActions };

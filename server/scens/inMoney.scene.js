@@ -10,19 +10,21 @@ const inMoney = new Scene("inMoney");
 inMoney.enter(async (ctx) => {
   const { minIn } = await MainStats.findOne({});
 
-  return await ctx.reply(
-    `Выберите либо введите в чат сумму пополнения
-Минимальная сумма для пополнения: ${minIn}₽
+  try {
+    await ctx.reply(
+      `Выберите либо введите в чат сумму пополнения
+Минимальная сумма для пополнения: ${minIn} ₽
 Пополнение начисляется автоматически
 
 Для пополнение через Banker напишите - @LuckyCatGames`,
-    Extra.markup(
-      Markup.keyboard([
-        ["50₽", "100₽", "500₽", "1000₽"],
-        ["↪️ Вернуться назад"],
-      ]).resize()
-    )
-  );
+      Extra.markup(
+        Markup.keyboard([
+          ["50₽", "100₽", "500₽", "1000₽"],
+          ["↪️ Вернуться назад"],
+        ]).resize()
+      )
+    );
+  } catch (error) {}
 });
 
 inMoney.hears(/(?:50₽|100₽|500₽|1000₽)/, async (ctx) => {
@@ -86,30 +88,32 @@ inMoney.hears(/(?:50₽|100₽|500₽|1000₽)/, async (ctx) => {
   //   console.log(data);
   // });
 
-  return await ctx.reply(
-    `Вы собираетесь пополнить игровой баланс на сумму ${amount}₽.
+  try {
+    await ctx.reply(
+      `Вы собираетесь пополнить игровой баланс на сумму ${amount} ₽.
 Пожалуйста, нажмите "Пополнить", чтобы перейти на страницу пополнения.
 
 Что бы пополнить баланс бота совершите рублёвый перевод на желанную сумму по указанным реквизитам ниже с указанием заданного коментария:
 ▪️ Кошелёк: +${webhook.qiwiWallet}
 ▪️ Комментарий к переводу: ${comment}`,
-    {
-      reply_markup: {
-        inline_keyboard: [
-          [
-            {
-              text: "Пополнить QIWI",
-              url: urlQiwi,
-            },
-            // {
-            //   text: "Пополнить PAYEER",
-            //   url: urlPayeer,
-            // },
+      {
+        reply_markup: {
+          inline_keyboard: [
+            [
+              {
+                text: "Пополнить QIWI",
+                url: urlQiwi,
+              },
+              // {
+              //   text: "Пополнить PAYEER",
+              //   url: urlPayeer,
+              // },
+            ],
           ],
-        ],
-      },
-    }
-  );
+        },
+      }
+    );
+  } catch (error) {}
 });
 
 inMoney.on("text", async (ctx) => {
@@ -122,37 +126,45 @@ inMoney.on("text", async (ctx) => {
   const amount = +ctx.update.message.text.replace(/\D+/, "").trim();
 
   if (!isNumber(amount)) {
-    return ctx.reply("Вы ввели некоректное число. Попробуйте еще раз.");
+    try {
+      await ctx.reply("Вы ввели некоректное число. Попробуйте еще раз.");
+    } catch (error) {}
+    return;
   }
 
   const { minIn, webhook } = await MainStats.findOne({});
 
   if (amount < minIn) {
-    return await ctx.reply(`Минимальная сумма для пополнения ${minIn}₽`);
+    try {
+      await ctx.reply(`Минимальная сумма для пополнения ${minIn} ₽`);
+    } catch (error) {}
+    return;
   }
 
   const url = `https://qiwi.com/payment/form/99?extra%5B%27account%27%5D=${webhook.qiwiWallet}&amountInteger=${amount}&amountFraction=0&extra%5B%27comment%27%5D=${ctx.from.id}&currency=643&blocked[0]=sum&blocked[1]=account&blocked[2]=comment`;
 
-  return await ctx.reply(
-    `Вы собираетесь пополнить игровой баланс на сумму ${amount}₽.
+  try {
+    await ctx.reply(
+      `Вы собираетесь пополнить игровой баланс на сумму ${amount} ₽.
 Пожалуйста, нажмите "Пополнить", чтобы перейти на страницу пополнения.
 
 Что бы пополнить баланс бота совершите рублёвый перевод на желанную сумму по указанным реквизитам ниже с указанием заданного коментария:
 ▪️ Кошелёк: +${webhook.qiwiWallet}
 ▪️ Комментарий к переводу: ${ctx.from.id}`,
-    {
-      reply_markup: {
-        inline_keyboard: [
-          [
-            {
-              text: "Пополнить",
-              url: url,
-            },
+      {
+        reply_markup: {
+          inline_keyboard: [
+            [
+              {
+                text: "Пополнить",
+                url: url,
+              },
+            ],
           ],
-        ],
-      },
-    }
-  );
+        },
+      }
+    );
+  } catch (error) {}
 });
 
 module.exports = { inMoney };

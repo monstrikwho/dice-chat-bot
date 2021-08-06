@@ -10,12 +10,14 @@ const outQiwi = new Scene("outQiwi");
 outQiwi.enter(async (ctx) => {
   const { minOut, outPercent } = await MainStats.findOne({});
 
-  return await ctx.reply(
-    `Минимальная сумма вывода: ${minOut.qiwi}p
+  try {
+    await ctx.reply(
+      `Минимальная сумма вывода: ${minOut.qiwi} P
 Коммиссия: ${outPercent}%. 
 Пожалуйста, введите сумму.`,
-    Extra.markup(Markup.keyboard([["↪️ Вернуться назад"]]).resize())
-  );
+      Extra.markup(Markup.keyboard([["↪️ Вернуться назад"]]).resize())
+    );
+  } catch (error) {}
 });
 
 outQiwi.on("text", async (ctx) => {
@@ -51,9 +53,12 @@ outQiwi.on("text", async (ctx) => {
   }
 
   if (ctx.session.state.activeMsg) {
-    return ctx.reply(
-      'Пожалуйста, напишите в чат слово "Подтвердить", чтобы произвести операцию.'
-    );
+    try {
+      await ctx.reply(
+        'Пожалуйста, напишите в чат слово "Подтвердить", чтобы произвести операцию.'
+      );
+    } catch (error) {}
+    return;
   }
 
   // Если не ввели сумму
@@ -62,44 +67,68 @@ outQiwi.on("text", async (ctx) => {
     const balance = ctx.session.state.mainBalance;
     const prizeFound = ctx.session.state.prizeFound;
     if (!isNumber(amount)) {
-      return await ctx.reply("Пожалуйста, введите только цифры.");
+      try {
+        await ctx.reply("Пожалуйста, введите только цифры.");
+      } catch (error) {}
+      return;
     }
     if (amount < minOut.qiwi) {
-      return await ctx.reply(
-        `Минимальная сумма вывода ${minOut.qiwi}р. Пожалуйста, введите другую сумму.`
-      );
+      try {
+        await ctx.reply(
+          `Минимальная сумма вывода ${minOut.qiwi} P. Пожалуйста, введите другую сумму.`
+        );
+      } catch (error) {}
+      return;
     }
     if (amount * (1 + outPercent / 100) > balance) {
-      return await ctx.reply("У вас недостаточно средств на балансе.");
+      try {
+        await ctx.reply("У вас недостаточно средств на балансе.");
+      } catch (error) {}
+      return;
     }
     if (amount > prizeFound) {
-      return await ctx.reply(
-        "На данный момент мы столкнулись с проблемой автоматического вывода. Пожалуйста, напишите в поддержку для вывода в ручном режиме. @LuckyCatGames"
-      );
+      try {
+        await ctx.reply(
+          "На данный момент мы столкнулись с проблемой автоматического вывода. Пожалуйста, напишите в поддержку для вывода в ручном режиме. @LuckyCatGames"
+        );
+      } catch (error) {}
+      return;
     }
+
+    try {
+      await ctx.reply("Пожалуйста, введите номер QIWI кошелька.");
+    } catch (error) {}
 
     ctx.session.state = {
       ...ctx.session.state,
       amount,
     };
-    return await ctx.reply("Пожалуйста, введите номер QIWI кошелька.");
+    return;
   }
 
   // Если не ввели номер кошелька
   if (!isNumber(+msg.trim())) {
-    return await ctx.reply("Пожалуйста, введите только цифры.");
+    try {
+      await ctx.reply("Пожалуйста, введите только цифры.");
+    } catch (error) {}
+    return;
   }
 
-  ctx.session.state = {
-    ...ctx.session.state,
-    wallet: msg,
-    activeMsg: await ctx.reply(
+  let activeMsg = null;
+  try {
+    activeMsg = await ctx.reply(
       `Вы собираетесь вывести сумму ${
         ctx.session.state.amount
       }P на номер кошелька +${msg}.
 C вашего баланса спишеться: ${ctx.session.state.amount * (1 + outPercent / 100)}
 ❕ Пожалуйста, напишите в чат "Подтвердить", чтобы произвести выплату.`
-    ),
+    );
+  } catch (error) {}
+
+  ctx.session.state = {
+    ...ctx.session.state,
+    wallet: msg,
+    activeMsg,
   };
 });
 

@@ -1,236 +1,233 @@
-const { bot } = require("../init/startBot");
-const Extra = require("telegraf/extra");
-const isNumber = require("is-number");
 const moment = require("moment");
+const isNumber = require("is-number");
+const Extra = require("telegraf/extra");
+
+const { bot } = require("../init/startBot");
+const { mainMenuActions } = require("../scens/mainMenu.scene");
 
 const User = require("../models/user");
 const MainStats = require("../models/mainstats");
-const Error = require("../models/errors");
 
 const { saveGames } = require("./saveData");
 const extraBoard = require("./slotExtra");
 
-let message = ({ balance }) => `Делайте ваши ставки.
-Ваш баланс: ${balance} ₽`;
-
 module.exports = async (game) => {
-  try {
-    game.action("🗑 Очистить ставки", async (ctx) => {
-      let state = ctx.session.state;
+  mainMenuActions(game);
 
-      // Если ставок не было сделано, выбрасываем уведомление
-      if (state.countRate === 0) {
-        return await ctx.answerCbQuery("Ставко не было", true);
-      }
+  game.leave(async (ctx) => {
+    const activeBoard = ctx.session.state.activeBoard;
+    try {
+      await ctx.deleteMessage(activeBoard.message_id);
+    } catch (error) {}
+  });
 
-      const { mainBalance, demoBalance } = await User.findOne({
-        userId: ctx.from.id,
-      });
+  game.action("🗑 Очистить ставки", async (ctx) => {
+    const state = ctx.session.state;
 
-      // Записываем в стейт начальный стейт и баланс игрока
-      state.rate = {
+    if (state.countRate === 0) {
+      return await ctx.answerCbQuery("Ставко не было", true);
+    }
+
+    const { mainBalance, demoBalance } = await User.findOne({
+      userId: ctx.from.id,
+    });
+
+    // Записываем в стейт начальный стейт и баланс игрока
+    ctx.session.state = {
+      ...state,
+      rate: {
         jek: 0,
-      };
-      state.countRate = 0;
-      state.balance =
-        state.activeGame === "mainGame" ? mainBalance : demoBalance;
-      ctx.session.state = state;
+      },
+      countRate: 0,
+      mainBalance,
+      demoBalance,
+    };
 
-      const extra = await extraBoard(state);
+    const extra = await extraBoard(ctx.session.state);
 
-      // Чистим активный board
-      try {
-        await bot.telegram.editMessageText(
-          ctx.from.id,
-          state.activeBoard.message_id,
-          null,
-          message(state),
-          extra
-        );
-      } catch (error) {}
-    });
+    // Чистим активный board
+    try {
+      await bot.telegram.editMessageReplyMarkup(
+        ctx.from.id,
+        state.activeBoard.message_id,
+        null,
+        extra
+      );
+    } catch (error) {}
+  });
 
-    game.action(/Поставить/, async (ctx) => {
-      let state = ctx.session.state;
+  game.action(/Поставить/, async (ctx) => {
+    const state = ctx.session.state;
+    const { valueRate, typeBalance } = state;
 
-      const amountRate = state.otherRateActive
-        ? +state.otherRate
-        : +state.valueRate;
-
-      if (state.balance - amountRate < 0) {
-        return await ctx.answerCbQuery(
-          "У вас недостаточно средств на балансе",
-          true
-        );
-      }
-
-      if (amountRate === 0) {
-        return await ctx.answerCbQuery(
-          "Вы не можете поставить ставку 0Р",
-          true
-        );
-      }
-
-      state.balance -= amountRate;
-      state.rate["jek"] += amountRate;
-      state.countRate += 1;
-      ctx.session.state = state;
-
-      state.rate["jek"] = +state.rate["jek"].toFixed(2);
-      state.balance = +state.balance.toFixed(2);
-
-      const extra = await extraBoard(state);
-
-      // Изменяем активный board
-      try {
-        await bot.telegram.editMessageText(
-          ctx.from.id,
-          state.activeBoard.message_id,
-          null,
-          message(state),
-          extra
-        );
-      } catch (error) {}
-    });
-
-    game.action(/(?:10₽|50₽|100₽|500₽|1000₽)/, async (ctx) => {
-      const value = ctx.update.callback_query.data
-        .replace(/\D+/, "")
-        .replace("₽", "");
-      let state = ctx.session.state;
-
-      if (state.valueRate === +value) {
-        return await ctx.answerCbQuery("Размер ставки уже выбран", true);
-      }
-
-      state.valueRate = +value;
-      state.otherRateActive = false;
-      ctx.session.state = state;
-
-      const extra = await extraBoard(state);
-
-      // Изменяем активный board
-      try {
-        await bot.telegram.editMessageText(
-          ctx.from.id,
-          state.activeBoard.message_id,
-          null,
-          message(state),
-          extra
-        );
-      } catch (error) {}
-    });
-
-    game.action(/Другая сумма/, async (ctx) => {
-      if (
-        ctx.session.state.otherRateActive &&
-        ctx.session.state.otherRate < 1
-      ) {
-        return await ctx.answerCbQuery(
-          "Вы не написали в чат размер ставки.",
-          true
-        );
-      }
-
-      ctx.session.state = {
-        ...ctx.session.state,
-        valueRate: 0,
-        otherRate: 0,
-        otherRateActive: true,
-      };
-
-      const state = ctx.session.state;
-
-      await ctx.answerCbQuery(
-        "Пожалуйста, напишите в чат размер ставки, чтобы изменить ее.",
+    if (state[typeBalance] - valueRate < 0) {
+      return await ctx.answerCbQuery(
+        "У вас недостаточно средств на балансе",
         true
       );
+    }
 
-      const extra = await extraBoard(state);
+    state[typeBalance] = +(state[typeBalance] - valueRate).toFixed(2);
+    state.rate["jek"] = +(state.rate["jek"] + valueRate).toFixed(2);
+    state.countRate += 1;
+    ctx.session.state = { ...state };
 
-      // Изменяем активный board
-      try {
-        await bot.telegram.editMessageText(
-          ctx.from.id,
-          state.activeBoard.message_id,
-          null,
-          message(state),
-          extra
-        );
-      } catch (error) {}
+    const extra = await extraBoard(ctx.session.state);
+
+    // Изменяем активный board
+    try {
+      await bot.telegram.editMessageReplyMarkup(
+        ctx.from.id,
+        state.activeBoard.message_id,
+        null,
+        extra
+      );
+    } catch (error) {}
+  });
+
+  game.action(/(?:10₽|50₽|100₽|500₽|1000₽)/, async (ctx) => {
+    const state = ctx.session.state;
+    const value = +ctx.update.callback_query.data.match(/\d+/g)[0];
+
+    if (state.valueRate === value) {
+      if (ctx.update.callback_query) {
+        await ctx.answerCbQuery();
+      }
+      return;
+    }
+
+    ctx.session.state.valueRate = value;
+
+    const extra = await extraBoard(ctx.session.state);
+
+    // Изменяем активный board
+    try {
+      await bot.telegram.editMessageReplyMarkup(
+        ctx.from.id,
+        state.activeBoard.message_id,
+        null,
+        extra
+      );
+    } catch (error) {}
+  });
+
+  game.action(/(?:\[Main]|\[Demo])/, async (ctx) => {
+    const state = ctx.session.state;
+
+    const value = ctx.update.callback_query.data.match(/(?:Main|Demo)/)[0];
+    const type = value === "Main" ? "mainBalance" : "demoBalance";
+
+    if (state.typeBalance === type) {
+      if (ctx.update.callback_query) {
+        await ctx.answerCbQuery();
+      }
+      return;
+    }
+
+    const { mainBalance, demoBalance } = await User.findOne({
+      userId: ctx.from.id,
     });
 
-    game.on("text", async (ctx) => {
-      const msg = ctx.update.message.text;
+    ctx.session.state = {
+      ...state,
+      rate: {
+        jek: 0,
+      },
+      countRate: 0,
+      demoBalance,
+      mainBalance,
+      typeBalance: type,
+    };
 
-      if (!ctx.session.state.otherRateActive) return;
+    const extra = await extraBoard(ctx.session.state);
 
-      if (!isNumber(msg)) {
-        return await ctx.reply(
+    // Изменяем активный board
+    try {
+      await bot.telegram.editMessageReplyMarkup(
+        ctx.from.id,
+        state.activeBoard.message_id,
+        null,
+        extra
+      );
+    } catch (error) {}
+  });
+
+  game.on("text", async (ctx) => {
+    const state = ctx.session.state;
+    const msg = +ctx.update.message.text;
+
+    if (!isNumber(msg)) {
+      try {
+        await ctx.reply(
           "Пожалуйста, введите только положительные цифры цифры."
         );
-      }
+      } catch (error) {}
+      return;
+    }
 
-      const rate = +(+msg).toFixed(2);
+    const rate = +msg.toFixed(2);
 
-      if (
-        rate === 10 ||
-        rate === 50 ||
-        rate === 100 ||
-        rate === 500 ||
-        rate === 1000
-      ) {
-        return await ctx.reply(
-          "Вы не можете выбрать сумму из уже имеющихся в борде."
-        );
-      }
-
-      if (ctx.session.state.balance < rate) {
-        return await ctx.reply(
+    if (state[state.typeBalance] < rate) {
+      try {
+        await ctx.reply(
           "Вы не можете выбрать размер ставки превышающий ваш игровой баланс."
         );
-      }
-
-      const { minGameRate } = await MainStats.findOne();
-
-      if (rate < minGameRate) {
-        return await ctx.reply(
-          `Минимальная сумма ставки составляет ${minGameRate}₽`
-        );
-      }
-
-      ctx.session.state = {
-        ...ctx.session.state,
-        valueRate: 0,
-        otherRate: rate,
-      };
-
-      await ctx.reply(`Вы успешно выбрали размер ставки: ${rate}₽`);
-
-      const state = ctx.session.state;
-
-      // Удаляем сообщение "Сделать еще одну ставку"
-      try {
-        await ctx.deleteMessage(state.activeBoard.message_id);
       } catch (error) {}
+      return;
+    }
 
-      const extra = await extraBoard(state);
+    const { minGameRate } = await MainStats.findOne();
 
-      // Изменяем активный board
+    if (rate < minGameRate) {
       try {
-        ctx.session.state.activeBoard = await bot.telegram.sendMessage(
+        await ctx.reply(`Минимальная сумма ставки составляет ${minGameRate}₽`);
+      } catch (error) {}
+      return;
+    }
+
+    ctx.session.state.valueRate = rate;
+
+    try {
+      await ctx.reply(`Вы успешно выбрали размер ставки: ${rate} ₽`);
+    } catch (error) {}
+
+    try {
+      await ctx.deleteMessage(state.activeBoard.message_id);
+    } catch (error) {}
+
+    const extra = await extraBoard(ctx.session.state);
+
+    // Изменяем активный board
+    if (process.env.DEV !== "true") {
+      try {
+        ctx.session.state.activeBoard = await bot.telegram.sendPhoto(
           ctx.from.id,
-          message(state),
-          extra
+          "AgACAgIAAxkBAAELz8BhDPHr5BzdYkeMyS3w27Z_jbb7NwAC0LUxG9FSaEiPNb0zl31QeAEAAwIAA3MAAyAE",
+          {
+            caption: `🎰 SOLOGAME
+Выигрышными комбинациями считаются: BBB, GGG, LLL, 777`,
+            reply_markup: extra,
+          }
         );
       } catch (error) {}
-    });
+    } else {
+      try {
+        ctx.session.state.activeBoard = await bot.telegram.sendPhoto(
+          ctx.from.id,
+          "AgACAgIAAxkBAAJGP2EKgoiW-VUkZVWZioc6VzBl3sgvAAKmtDEbwjVRSB0Lf_qKVpvAAQADAgADcwADIAQ",
+          {
+            caption: `🎰 SOLOGAME
+Выигрышными комбинациями считаются: BBB, GGG, LLL, 777`,
+            reply_markup: extra,
+          }
+        );
+      } catch (error) {}
+    }
+  });
 
-    game.action("Крутить барабан 🎰", async (ctx) => {
+  game.action("Крутить барабан 🎰", async (ctx) => {
+    try {
       const state = ctx.session.state;
-      const amountRate = state.rate["jek"];
-
-      if (state.gameStatus) return;
 
       if (state.countRate === 0) {
         return ctx.answerCbQuery(
@@ -239,10 +236,12 @@ module.exports = async (game) => {
         );
       }
 
-      state.gameStatus = true;
-      ctx.session.state = state;
+      if (state.gameStatus) return;
+      ctx.session.state.gameStatus = true;
+      ctx.session.state.rateMenu = false;
 
       const { slotCoef } = await MainStats.findOne();
+      const amountRate = state.rate["jek"];
 
       try {
         await ctx.deleteMessage(state.activeBoard.message_id);
@@ -252,23 +251,23 @@ module.exports = async (game) => {
       const value = diceMsg.dice.value;
 
       let winSum = 0;
-      let resMsg = "Вы были близко! Не сдавайесь, в следующий раз повезет!";
+      let resMsg = "Вы были близко! Не сдавайтесь, в следующий раз повезет!";
 
       if (value === 1 || value === 22 || value === 43 || value === 64) {
         winSum = amountRate * slotCoef;
         resMsg = "Поздравляем! Вы выиграли 🎉";
       }
 
-      state.rateMenu = false;
-      state.balance = +(state.balance + winSum).toFixed(2);
-      ctx.session.state = state;
+      ctx.session.state[state.typeBalance] = +(
+        state[state.typeBalance] + winSum
+      ).toFixed(2);
 
       setTimeout(async () => {
         ctx.session.state.activeBoard = await ctx.reply(
           `${resMsg}
-          
-Ваш выигрыш - ${winSum.toFixed(2)}
-Ваш баланс - ${state.balance}`,
+        
+Ваш выигрыш - ${winSum.toFixed(2)} P
+Ваш баланс - ${state[state.typeBalance]} P`,
           Extra.markup((m) =>
             m.inlineKeyboard([
               [
@@ -281,105 +280,133 @@ module.exports = async (game) => {
             ])
           )
         );
-        state.gameStatus = false;
-        ctx.session.state = state;
+        ctx.session.state.gameStatus = false;
       }, 2000);
 
-      if (state.activeGame === "mainGame") {
+      if (state.typeBalance === "mainBalance") {
         await User.updateOne(
           { userId: ctx.from.id },
-          { mainBalance: state.balance }
+          { mainBalance: state.mainBalance }
         );
       }
-      if (state.activeGame === "demoGame") {
+      if (state.typeBalance === "demoBalance") {
         await User.updateOne(
           { userId: ctx.from.id },
-          { demoBalance: state.balance }
+          { demoBalance: state.demoBalance }
         );
       }
 
       saveGames({
         typeGame: "slot",
-        typeBalance: state.activeGame,
+        typeBalance: state.typeBalance,
         result: winSum > 0 ? "win" : "lose",
         rateAmount: amountRate,
-        rateWinAmount: winSum.toFixed(2),
+        rateWinAmount: +winSum.toFixed(2),
         rateValue: value,
         rate: state.rate,
         userId: ctx.from.id,
-        date: moment().format("YYYY-MM-DD"),
+        date: moment().format("YYYY-MM-DD HH:mm:ss"),
       });
+    } catch (error) {}
+  });
+
+  game.action(/Сделать другую ставку/, async (ctx) => {
+    const state = ctx.session.state;
+
+    try {
+      await ctx.deleteMessage(state.activeBoard.message_id);
+    } catch (error) {}
+
+    const { mainBalance, demoBalance } = await User.findOne({
+      userId: ctx.from.id,
     });
 
-    game.action(/Сделать другую ставку/, async (ctx) => {
-      let state = ctx.session.state;
-
-      // Удаляем сообщение "Сделать еще одну ставку"
-      try {
-        await ctx.deleteMessage(state.activeBoard.message_id);
-      } catch (error) {}
-
-      const { mainBalance, demoBalance } = await User.findOne({
-        userId: ctx.from.id,
-      });
-
-      state.rate = {
+    ctx.session.state = {
+      ...state,
+      rate: {
         jek: 0,
-      };
-      state.countRate = 0;
-      state.balance =
-        state.activeGame === "mainGame" ? mainBalance : demoBalance;
-      state.rateMenu = true;
-      ctx.session.state = state;
+      },
+      countRate: 0,
+      rateMenu: true,
+      mainBalance,
+      demoBalance,
+    };
 
-      const extra = await extraBoard(state);
+    const extra = await extraBoard(ctx.session.state);
 
-      ctx.session.state.activeBoard = await ctx.reply(message(state), extra);
-    });
+    if (process.env.DEV !== "true") {
+      try {
+        ctx.session.state.activeBoard = await bot.telegram.sendPhoto(
+          ctx.from.id,
+          "AgACAgIAAxkBAAELz8BhDPHr5BzdYkeMyS3w27Z_jbb7NwAC0LUxG9FSaEiPNb0zl31QeAEAAwIAA3MAAyAE",
+          {
+            caption: `🎰 SOLOGAME
+Выигрышными комбинациями считаются: BBB, GGG, LLL, 777`,
+            reply_markup: extra,
+          }
+        );
+      } catch (error) {}
+    } else {
+      try {
+        ctx.session.state.activeBoard = await bot.telegram.sendPhoto(
+          ctx.from.id,
+          "AgACAgIAAxkBAAJGP2EKgoiW-VUkZVWZioc6VzBl3sgvAAKmtDEbwjVRSB0Lf_qKVpvAAQADAgADcwADIAQ",
+          {
+            caption: `🎰 SOLOGAME
+Выигрышными комбинациями считаются: BBB, GGG, LLL, 777`,
+            reply_markup: extra,
+          }
+        );
+      } catch (error) {}
+    }
+  });
 
-    game.action(/Крутить еще раз/, async (ctx) => {
+  game.action(/Крутить еще раз/, async (ctx) => {
+    try {
       const state = ctx.session.state;
-      const amountRate = state.rate["jek"];
 
       if (state.gameStatus) return;
+      ctx.session.state.gameStatus = true;
+      ctx.session.state.rateMenu = false;
 
-      if (state.balance - amountRate < 0) {
+      const { slotCoef } = await MainStats.findOne();
+
+      const amountRate = state.rate["jek"];
+
+      if (state[state.typeBalance] - amountRate < 0) {
         return ctx.answerCbQuery(
           "У вас недостаточно средств на счету. Пожалуйста, пополните баланс, либо сделайте другую ставку.",
           true
         );
       }
 
-      state.gameStatus = true;
-      ctx.session.state = state;
-
-      const { slotCoef } = await MainStats.findOne();
-
       try {
-        await ctx.deleteMessage(ctx.session.state.activeBoard.message_id);
+        await ctx.deleteMessage(state.activeBoard.message_id);
       } catch (error) {}
 
       const diceMsg = await bot.telegram.sendDice(ctx.from.id, { emoji: "🎰" });
       const value = diceMsg.dice.value;
 
       let winSum = 0;
-      let resMsg = "Вы были близко! Не сдавайесь, в следующий раз повезет!";
+      let resMsg = "Вы были близко! Не сдавайтесь, в следующий раз повезет!";
 
       if (value === 1 || value === 64 || value === 22 || value === 43) {
         winSum = amountRate * slotCoef;
         resMsg = "Поздравляем! Вы выиграли 🎉";
       }
 
-      state.rateMenu = false;
-      state.balance = +(state.balance - amountRate + winSum).toFixed(2);
-      ctx.session.state = state;
+      ctx.session.state[state.typeBalance] = +(
+        state[state.typeBalance] -
+        amountRate +
+        winSum
+      ).toFixed(2);
 
       setTimeout(async () => {
         ctx.session.state.activeBoard = await ctx.reply(
           `${resMsg}
-          
-Ваш выигрыш - ${winSum.toFixed(2)}
-Ваш баланс - ${state.balance}`,
+        
+Ваш выигрыш - ${winSum.toFixed(2)} P
+Ваш баланс - ${state[state.typeBalance]} P`,
           Extra.markup((m) =>
             m.inlineKeyboard([
               [
@@ -392,47 +419,50 @@ module.exports = async (game) => {
             ])
           )
         );
-        state.gameStatus = false;
-        ctx.session.state = state;
+        ctx.session.state.gameStatus = false;
       }, 2000);
 
-      if (state.activeGame === "mainGame") {
+      if (state.typeBalance === "mainBalance") {
         await User.updateOne(
           { userId: ctx.from.id },
-          { mainBalance: state.balance }
+          { mainBalance: state.mainBalance }
         );
       }
-      if (state.activeGame === "demoGame") {
+      if (state.typeBalance === "demoBalance") {
         await User.updateOne(
           { userId: ctx.from.id },
-          { demoBalance: state.balance }
+          { demoBalance: state.demoBalance }
         );
       }
 
       saveGames({
         typeGame: "slot",
-        typeBalance: state.activeGame,
+        typeBalance: state.typeBalance,
         result: winSum > 0 ? "win" : "lose",
         rateAmount: amountRate,
-        rateWinAmount: winSum.toFixed(2),
+        rateWinAmount: +winSum.toFixed(2),
         rateValue: value,
         rate: state.rate,
         userId: ctx.from.id,
-        date: moment().format("YYYY-MM-DD"),
+        date: moment().format("YYYY-MM-DD HH:mm:ss"),
       });
-    });
+    } catch (error) {}
+  });
 
-    game.on("dice", async (ctx) => {
+  game.on("dice", async (ctx) => {
+    try {
       if (ctx.update.message.forward_date) return;
 
       const dice = ctx.update.message.dice;
       if (dice.emoji !== "🎰") return;
 
-      const value = dice.value;
       const state = ctx.session.state;
-      const amountRate = state.rate["jek"];
 
       if (state.gameStatus) return;
+      ctx.session.state.gameStatus = true;
+
+      const value = dice.value;
+      const amountRate = state.rate["jek"];
 
       if (state.rateMenu) {
         // Если бросаем после ставки
@@ -441,19 +471,17 @@ module.exports = async (game) => {
             "Вы не сделали ставку. Пожалуйста сделайте ставку, чтобы крутить барабан."
           );
         }
-        state.rateMenu = false;
+        ctx.session.state.rateMenu = false;
       } else {
         // Если хотим бросить еще раз с той же ставкой
-        if (state.balance - amountRate < 0) {
+        if (state[state.typeBalance] - amountRate < 0) {
           return ctx.reply(
             "У вас недостаточно средств на счету. Пожалуйста, пополните баланс, либо сделайте ставку меньшим размером."
           );
         }
-        state.balance -= amountRate;
+        ctx.session.state[state.typeBalance] =
+          state[state.typeBalance] - amountRate;
       }
-
-      state.gameStatus = true;
-      ctx.session.state = state;
 
       const { slotCoef } = await MainStats.findOne();
 
@@ -462,22 +490,23 @@ module.exports = async (game) => {
       } catch (error) {}
 
       let winSum = 0;
-      let resMsg = "Вы были близко! Не сдавайесь, в следующий раз повезет!";
+      let resMsg = "Вы были близко! Не сдавайтесь, в следующий раз повезет!";
 
       if (value === 1 || value === 22 || value === 43 || value === 64) {
         winSum = amountRate * slotCoef;
         resMsg = "Поздравляем! Вы выиграли 🎉";
       }
 
-      state.balance = +(state.balance + winSum).toFixed(2);
-      ctx.session.state = state;
+      ctx.session.state[state.typeBalance] = +(
+        state[state.typeBalance] + winSum
+      ).toFixed(2);
 
       setTimeout(async () => {
         ctx.session.state.activeBoard = await ctx.reply(
           `${resMsg}
-          
-Ваш выигрыш - ${winSum.toFixed(2)}
-Ваш баланс - ${state.balance}`,
+        
+Ваш выигрыш - ${winSum.toFixed(2)} P
+Ваш баланс - ${state[state.typeBalance]} P`,
           Extra.markup((m) =>
             m.inlineKeyboard([
               [
@@ -490,40 +519,33 @@ module.exports = async (game) => {
             ])
           )
         );
-        state.gameStatus = false;
-        ctx.session.state = state;
+        ctx.session.state.gameStatus = false;
       }, 2000);
 
-      if (state.activeGame === "mainGame") {
+      if (state.typeBalance === "mainBalance") {
         await User.updateOne(
           { userId: ctx.from.id },
-          { mainBalance: state.balance }
+          { mainBalance: state.mainBalance }
         );
       }
-      if (state.activeGame === "demoGame") {
+      if (state.typeBalance === "demoBalance") {
         await User.updateOne(
           { userId: ctx.from.id },
-          { demoBalance: state.balance }
+          { demoBalance: state.demoBalance }
         );
       }
 
       saveGames({
         typeGame: "slot",
-        typeBalance: state.activeGame,
+        typeBalance: state.typeBalance,
         result: winSum > 0 ? "win" : "lose",
         rateAmount: amountRate,
-        rateWinAmount: winSum.toFixed(2),
+        rateWinAmount: +winSum.toFixed(2),
         rateValue: value,
         rate: state.rate,
         userId: ctx.from.id,
-        date: moment().format("YYYY-MM-DD"),
+        date: moment().format("YYYY-MM-DD HH:mm:ss"),
       });
-    });
-  } catch (error) {
-    const err = new Error({
-      message: error.message,
-      err: error,
-    });
-    await err.save();
-  }
+    } catch (error) {}
+  });
 };

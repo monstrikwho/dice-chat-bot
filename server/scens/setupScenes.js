@@ -2,14 +2,12 @@ const session = require("telegraf/session");
 const Stage = require("telegraf/stage");
 
 const { showMainMenu } = require("./mainMenu.scene");
+const { sportMenu } = require("./sportMenu.scene");
 const { diceGame } = require("./diceGame.scene");
 const { footballGame } = require("./football.scene");
 const { slotGame } = require("./slotGame.scene");
-const { pvpDiceGame } = require("./pvpDiceGame.scene");
-const { pvpBoulingGame } = require("./pvpBoulingGame.scene");
-const { pvpFootballGame } = require("./pvpFootballGame.scene");
+const { pvpAllGames } = require("./pvpAllGames.scene");
 const { lkMenu } = require("./lkMenu.scene");
-const { infoBlock } = require("./infoBlock.scene");
 const { outMoney } = require("./outMoney.scene");
 const {
   sendMailing,
@@ -29,14 +27,12 @@ const { outCardOther } = require("./outMoney/cardOther");
 function setupScenes(bot) {
   const stage = new Stage([
     showMainMenu,
+    sportMenu,
     diceGame,
     footballGame,
     slotGame,
-    pvpDiceGame,
-    pvpBoulingGame,
-    pvpFootballGame,
+    pvpAllGames,
     lkMenu,
-    infoBlock,
     outMoney,
     inMoney,
     sendMailing,

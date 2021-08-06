@@ -1,7 +1,7 @@
 const { Router } = require("express");
 const router = Router();
 
-const PvpFootballGame = require("../models/pvpFootballGame");
+const PvpFootballGame = require("../models/pvpAllGames");
 
 router.get("/", async (req, res) => {
   const football = await PvpFootballGame.find().sort({ _id: -1 });

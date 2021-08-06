@@ -27,11 +27,12 @@ lkMenu.enter(async (ctx) => {
           ]).resize()
         );
 
-  await ctx.reply(
-    `Ваш личный номер: ${ctx.from.id}
+  try {
+    await ctx.reply(
+      `Ваш личный номер: ${ctx.from.id}
 
-Ваш ОСНОВНОЙ счет: ${user.mainBalance}₽
-Ваш ДЕМО-счет: ${user.demoBalance}₽
+Ваш ОСНОВНОЙ счет: ${user.mainBalance} ₽
+Ваш ДЕМО-счет: ${user.demoBalance} ₽
 
 Кол-во рефералов: ${user.countRef}
 Кеш с рефералов: ${user.refCash}
@@ -41,8 +42,9 @@ lkMenu.enter(async (ctx) => {
 2) +${bonusRefFather} демо-баланаса на Ваш счет;
 3) +${bonusRefDaughter} демо-баланаса на счет реферала.
 Ваша реферальная ссылка: t.me/luckycat_bot?start=ref${ctx.from.id}`,
-    extra
-  );
+      extra
+    );
+  } catch (error) {}
 });
 
 lkMenu.hears("Пополнить", async ({ scene }) => {
@@ -68,9 +70,9 @@ lkMenu.hears("Сделать рассылку", async (ctx) => {
 lkMenu.command("crashbot", async (ctx) => {
   const user = await User.findOne({ userId: ctx.from.id });
 
-  if (user.userRights === "admin") {
-    throw new Error(`${user.userId} положил бота`);
-  }
+  // if (user.userRights === "admin") {
+  //   throw new Error(`${user.userId} положил бота`);
+  // }
 });
 
 module.exports = { lkMenu };

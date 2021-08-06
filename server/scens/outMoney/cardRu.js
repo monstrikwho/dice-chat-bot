@@ -10,12 +10,14 @@ const outCardRu = new Scene("outCardRu");
 outCardRu.enter(async (ctx) => {
   const { minOut, outPercent } = await MainStats.findOne({});
 
-  return await ctx.reply(
-    `Минимальная сумма вывода: ${minOut.card}р.
-Комиссия: ${2 + outPercent}% + 50P. 
-Пожалуйста, введите сумму.`,
-    Extra.markup(Markup.keyboard([["↪️ Вернуться назад"]]).resize())
-  );
+  try {
+    await ctx.reply(
+      `Минимальная сумма вывода: ${minOut.card}р.
+ Комиссия: ${2 + outPercent}% + 50P. 
+ Пожалуйста, введите сумму.`,
+      Extra.markup(Markup.keyboard([["↪️ Вернуться назад"]]).resize())
+    );
+  } catch (error) {}
 });
 
 outCardRu.on("text", async (ctx) => {
@@ -51,9 +53,12 @@ outCardRu.on("text", async (ctx) => {
   }
 
   if (ctx.session.state.activeMsg) {
-    return ctx.reply(
-      'Пожалуйста, напишите в чат слово "Подтвердить", чтобы произвести операцию.'
-    );
+    try {
+      await ctx.reply(
+        'Пожалуйста, напишите в чат слово "Подтвердить", чтобы произвести операцию.'
+      );
+    } catch (error) {}
+    return;
   }
 
   // Если не ввели сумму
@@ -62,36 +67,55 @@ outCardRu.on("text", async (ctx) => {
     const balance = ctx.session.state.mainBalance;
     const prizeFound = ctx.session.state.prizeFound;
     if (!isNumber(amount)) {
-      return await ctx.reply("Пожалуйста, введите только цифры.");
+      try {
+        await ctx.reply("Пожалуйста, введите только цифры.");
+      } catch (error) {}
+      return;
     }
     if (amount < minOut.card) {
-      return await ctx.reply(
-        `Минимальная сумма вывода ${minOut.card}р. Пожалуйста, введите другую сумму.`
-      );
+      try {
+        await ctx.reply(
+          `Минимальная сумма вывода ${minOut.card} P. Пожалуйста, введите другую сумму.`
+        );
+      } catch (error) {}
+      return;
     }
     if (amount * (1.02 + outPercent / 100) + 50 > balance) {
-      return await ctx.reply("У вас недостаточно средств на балансе.");
+      try {
+        await ctx.reply("У вас недостаточно средств на балансе.");
+      } catch (error) {}
+      return;
     }
     if (amount > prizeFound) {
-      return await ctx.reply(
-        "На данный момент мы столкнулись с проблемой автоматического вывода. Пожалуйста, напишите в поддержку для вывода в ручном режиме. @LuckyCatGames"
-      );
+      try {
+        await ctx.reply(
+          "На данный момент мы столкнулись с проблемой автоматического вывода. Пожалуйста, напишите в поддержку для вывода в ручном режиме. @LuckyCatGames"
+        );
+      } catch (error) {}
+      return;
     }
+
+    try {
+      await ctx.reply("Пожалуйста, введите номер карты.");
+    } catch (error) {}
 
     ctx.session.state = {
       ...ctx.session.state,
       amount,
     };
-    return await ctx.reply("Пожалуйста, введите номер карты.");
+    return;
   }
 
-  if (!isNumber(+msg.trim()))
-    return await ctx.reply("Пожалуйста, введите только цифры.");
+  if (!isNumber(+msg.trim())) {
+    try {
+      await ctx.reply("Пожалуйста, введите только цифры.");
+    } catch (error) {}
+    return;
+  }
 
-  ctx.session.state = {
-    ...ctx.session.state,
-    wallet: +msg.trim(),
-    activeMsg: await ctx.reply(
+  let activeMsg = null;
+  try {
+    activeMsg = await ctx.reply(
       `Вы собираетесь вывести сумму ${
         ctx.session.state.amount
       }P на номер карты ${msg}.
@@ -99,7 +123,13 @@ C вашего баланса спишется: ${
         ctx.session.state.amount * (1.02 + outPercent / 100) + 50
       }
 ❕ Пожалуйста, напишите в чат "Подтвердить", чтобы произвести выплату.`
-    ),
+    );
+  } catch (error) {}
+
+  ctx.session.state = {
+    ...ctx.session.state,
+    wallet: +msg.trim(),
+    activeMsg,
   };
 });
 

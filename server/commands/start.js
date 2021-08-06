@@ -3,7 +3,6 @@ const moment = require("moment");
 
 const User = require("../models/user");
 const MainStats = require("../models/mainstats");
-const Error = require("../models/errors");
 
 async function setupStart(bot) {
   // Setup scens
@@ -24,11 +23,13 @@ async function setupStart(bot) {
       { userId: isRef },
       { $inc: { countRef: 1, demoBalance: bonusRefFather } }
     );
-    await bot.telegram.sendMessage(
-      isRef,
-      `По вашей реферальной ссылке зарегистрировался пользователь.
+    try {
+      await bot.telegram.sendMessage(
+        isRef,
+        `По вашей реферальной ссылке зарегистрировался пользователь.
 На Ваш ДЕМО-счет было зачислено ${bonusRefFather}P`
-    );
+      );
+    } catch (error) {}
   }
 
   async function updateUser(ctx, user) {
@@ -48,18 +49,8 @@ async function setupStart(bot) {
   }
 
   async function saveUser(ctx, startDemoBalance, bonus, isRef, constRef) {
-    const diceUsers = await User.find({ "pvpDice.count": { $gte: 1 } }).sort({
-      "pvpDice.winCash": -1,
-    });
-    const boulingUsers = await User.find({
-      "pvpBouling.count": { $gte: 1 },
-    }).sort({
-      "pvpBouling.winCash": -1,
-    });
-    const footballUsers = await User.find({
-      "pvpFootball.count": { $gte: 1 },
-    }).sort({
-      "pvpDice.winCash": -1,
+    const pvpUsers = await User.find({ "pvp.count": { $gte: 1 } }).sort({
+      "pvp.winCash": -1,
     });
 
     const user = new User({
@@ -73,22 +64,8 @@ async function setupStart(bot) {
       countRef: 0,
       isBlocked: false,
       btnStart: true,
-      pvpDice: {
-        rating: diceUsers.length + 1,
-        count: 0,
-        winCount: 0,
-        playCash: 0,
-        winCash: 0,
-      },
-      pvpBouling: {
-        rating: boulingUsers.length + 1,
-        count: 0,
-        winCount: 0,
-        playCash: 0,
-        winCash: 0,
-      },
-      pvpFootball: {
-        rating: footballUsers.length + 1,
+      pvp: {
+        rating: pvpUsers.length + 1,
         count: 0,
         winCount: 0,
         playCash: 0,
@@ -108,101 +85,76 @@ async function setupStart(bot) {
       }
     );
   }
-  try {
-    // Start command
-    bot.start(async (ctx) => {
-      // Откидываем возможность запуска бота в пабликах
-      if (+ctx.chat.id < 0) return;
 
-      const startPayload = ctx.startPayload;
+  // Start command
+  bot.start(async (ctx) => {
+    // Откидываем возможность запуска бота в пабликах
+    if (+ctx.chat.id < 0) return;
 
-      const { constRef, bonusRefDaughter, bonusRefFather, startDemoBalance } =
-        await MainStats.findOne({});
+    const startPayload = ctx.startPayload;
 
-      let isRef = constRef;
-      let bonus = 0;
+    const { constRef, bonusRefDaughter, bonusRefFather, startDemoBalance } =
+      await MainStats.findOne({});
 
-      // Определяем тип ссылки
-      let payloadType =
-        startPayload.indexOf("ref") !== -1
-          ? "ref"
-          : startPayload.indexOf("ads") !== -1
-          ? "ads"
-          : "other";
+    let isRef = constRef;
+    let bonus = 0;
 
-      // Если переход был по реф. ссылке
-      if (payloadType !== "other") {
-        // Если это реферальная ссылка
-        if (payloadType === "ref") {
-          try {
-            const refUserId = startPayload.replace("ref", "");
-            if (+refUserId === ctx.from.id) return;
-            const status = await User.findOne({ userId: refUserId });
-            if (status) {
-              isRef = refUserId;
-              bonus = bonusRefDaughter;
-              updateRefUsers(isRef, bonusRefFather);
-            }
-          } catch (error) {
-            const err = new Error({
-              message: error.message,
-              err: error,
-            });
-            await err.save();
-          }
-        }
+    // Определяем тип ссылки
+    let payloadType =
+      startPayload.indexOf("ref") !== -1
+        ? "ref"
+        : startPayload.indexOf("ads") !== -1
+        ? "ads"
+        : "other";
 
-        // Сохраняем статистику рекламыы
-        if (payloadType === "ads") {
-          try {
-            const { ads } = await MainStats.findOne({});
-            const adsName = startPayload.replace("ads-", "");
-            // Save ads stats
-            saveAdsStats(ads, adsName);
-          } catch (error) {
-            const err = new Error({
-              message: error.message,
-              err: error,
-            });
-            await err.save();
-          }
+    // Если переход был по реф. ссылке
+    if (payloadType !== "other") {
+      // Если это реферальная ссылка
+      if (payloadType === "ref") {
+        const refUserId = startPayload.replace("ref", "");
+        if (+refUserId === ctx.from.id) return;
+        const status = await User.findOne({ userId: refUserId });
+        if (status) {
+          isRef = refUserId;
+          bonus = bonusRefDaughter;
+          updateRefUsers(isRef, bonusRefFather);
         }
       }
 
-      try {
-        const selectUser = await User.findOne({ userId: ctx.from.id });
-
-        if (!selectUser) {
-          saveUser(ctx, startDemoBalance, bonus, isRef, constRef);
-        } else {
-          updateUser(ctx, selectUser);
-          return await ctx.scene.enter("showMainMenu");
-        }
-
-        await ctx.reply(`Добро пожаловать в бот честных онлайн игр!
-  Здесь удача зависит только от вас!🌈
-  
-  Вы сами отправляете нам игровой стикер от телеграмм, а мы считываем его результат и платим Вам деньги! 💸
-  
-  Попробуйте БЕСПЛАТНО на демо-счете. Приятной игры!🎉`);
-
-        if (isRef !== constRef) {
-          await ctx.reply(`Вы зарегистрировались по пригласительной ссылке. 
-  Ваш бонус: +${bonusRefDaughter} на ДЕМО-счет.`);
-        }
-
-        return await ctx.scene.enter("showMainMenu");
-      } catch (error) {
-        console.log(error);
+      // Сохраняем статистику рекламыы
+      if (payloadType === "ads") {
+        const { ads } = await MainStats.findOne({});
+        const adsName = startPayload.replace("ads-", "");
+        // Save ads stats
+        saveAdsStats(ads, adsName);
       }
-    });
-  } catch (error) {
-    const err = new Error({
-      message: error.message,
-      err: error,
-    });
-    await err.save();
-  }
+    }
+
+    const selectUser = await User.findOne({ userId: ctx.from.id });
+
+    if (!selectUser) {
+      saveUser(ctx, startDemoBalance, bonus, isRef, constRef);
+    } else {
+      updateUser(ctx, selectUser);
+      return await ctx.scene.enter("showMainMenu");
+    }
+
+    try {
+      await ctx.reply(`Добро пожаловать в бот честных онлайн игр!
+Здесь удача зависит только от вас!🌈
+
+Вы сами отправляете нам игровой стикер от телеграмм, а мы считываем его результат и платим Вам деньги! 💸
+
+Попробуйте БЕСПЛАТНО на демо-счете. Приятной игры!🎉`);
+
+      if (isRef !== constRef) {
+        await ctx.reply(`Вы зарегистрировались по пригласительной ссылке. 
+Ваш бонус: +${bonusRefDaughter} на ДЕМО-счет.`);
+      }
+    } catch (error) {}
+
+    return await ctx.scene.enter("showMainMenu");
+  });
 }
 
 module.exports = setupStart;

@@ -1,32 +1,84 @@
-const Extra = require("telegraf/extra");
 const MainStats = require("../models/mainstats");
 
 module.exports = async (state) => {
   const { footballCoef } = await MainStats.findOne();
-  const inlineBtnHook = (m, name) => m.callbackButton(name, name);
+
   const valueRate = (count) => {
-    if (count === -1 && state.otherRateActive)
-      return `💰 Другая сумма - ${state.otherRate}₽`;
-    if (count === -1) return `✏️ Другая сумма - ${state.otherRate}₽`;
-    if (state.valueRate === count) return `💰 ${count}₽`;
+    if (state.valueRate === count) {
+      return `✅ ${count}₽`;
+    }
     return `${count}₽`;
   };
 
-  return Extra.markup((m) =>
-    m.inlineKeyboard([
+  const statusBalance = (type) => {
+    if (type === "main" && state.typeBalance === "mainBalance") {
+      return `✅ ${state.mainBalance} ₽ [Main]`;
+    }
+    if (type === "demo" && state.typeBalance === "demoBalance") {
+      return `✅ ${state.demoBalance} ₽ [Demo]`;
+    }
+    if (type === "main") {
+      return `${state.mainBalance} ₽ [Main]`;
+    }
+    if (type === "demo") {
+      return `${state.demoBalance} ₽ [Demo]`;
+    }
+  };
+
+  return {
+    inline_keyboard: [
       [
-        inlineBtnHook(m, valueRate(10)),
-        inlineBtnHook(m, valueRate(50)),
-        inlineBtnHook(m, valueRate(100)),
-        inlineBtnHook(m, valueRate(500)),
-        inlineBtnHook(m, valueRate(1000)),
+        {
+          text: valueRate(10),
+          callback_data: valueRate(10),
+        },
+        {
+          text: valueRate(50),
+          callback_data: valueRate(50),
+        },
+        {
+          text: valueRate(100),
+          callback_data: valueRate(100),
+        },
+        {
+          text: valueRate(500),
+          callback_data: valueRate(500),
+        },
+        {
+          text: valueRate(1000),
+          callback_data: valueRate(1000),
+        },
       ],
-      [inlineBtnHook(m, valueRate(-1)), inlineBtnHook(m, `🗑 Очистить ставки`)],
       [
-        inlineBtnHook(m, `Забил  -  💰 ${state.rate["goal"]}  [x${footballCoef.goal}]`),
-        inlineBtnHook(m, `Промах  -  💰 ${state.rate["out"]}  [x${footballCoef.out}]`),
+        {
+          text: `Забил  -  💰 ${state.rate["goal"]}  [x${footballCoef.goal}]`,
+          callback_data: `Забил  -  💰 ${state.rate["goal"]}  [x${footballCoef.goal}]`,
+        },
+        {
+          text: `Промах  -  💰 ${state.rate["out"]}  [x${footballCoef.out}]`,
+          callback_data: `Промах  -  💰 ${state.rate["out"]}  [x${footballCoef.out}]`,
+        },
       ],
-      [inlineBtnHook(m, `Ударить по воротам ⚽️`)],
-    ])
-  );
+      [
+        {
+          text: statusBalance("main"),
+          callback_data: statusBalance("main"),
+        },
+        {
+          text: statusBalance("demo"),
+          callback_data: statusBalance("demo"),
+        },
+      ],
+      [
+        {
+          text: `🗑 Очистить ставки`,
+          callback_data: `🗑 Очистить ставки`,
+        },
+        {
+          text: `Ударить по воротам ⚽️`,
+          callback_data: `Ударить по воротам ⚽️`,
+        },
+      ],
+    ],
+  };
 };
