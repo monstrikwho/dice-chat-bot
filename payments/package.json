@@ -1,0 +1,26 @@
+{
+  "name": "lucky_cat_bot",
+  "version": "1.0.0",
+  "description": "",
+  "main": "app.js",
+  "scripts": {
+    "dev": "cross-env NODE_ENV=development npm run start",
+    "start": "nodemon app.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@mongoosejs/double": "^0.2.0",
+    "axios": "^0.21.0",
+    "cluster": "^0.7.7",
+    "cors": "^2.8.5",
+    "cross-env": "^7.0.2",
+    "dotenv": "^8.2.0",
+    "express": "^4.17.1",
+    "is-number": "^7.0.0",
+    "moment": "^2.29.1",
+    "mongoose": "^5.11.15",
+    "nodemon": "^2.0.4",
+    "telegraf": "^3.38.0"
+  }
+}

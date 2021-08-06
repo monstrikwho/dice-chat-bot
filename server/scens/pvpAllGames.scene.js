@@ -193,7 +193,11 @@ pvpAllGames.action("📈 Статистика", async (ctx) => {
 });
 
 function mainExtra(boardGames, boardCountPage, uid) {
-  if (boardGames.length === 0) {
+  if (
+    boardGames.length === 0 ||
+    !boardGames ||
+    !boardGames[boardCountPage - 1]
+  ) {
     return {
       inline_keyboard: [
         [
