@@ -13,6 +13,7 @@ const Markup = require("telegraf/markup");
 
 const pvpAllGames = new Scene("pvpAllGames");
 pvpAllGames.enter(async (ctx) => {
+  ctx.session.state.boardCountPage = 1;
   await showMainView(ctx);
 });
 
@@ -421,7 +422,7 @@ function clssExtra() {
 }
 
 async function showMainView(ctx) {
-  const { activeBoard, boardCountPage = 1 } = ctx.session.state;
+  const { activeBoard, boardCountPage } = ctx.session.state;
   ctx.session.state.activeView = "main";
 
   const user = await User.findOne({ userId: ctx.from.id });
