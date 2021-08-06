@@ -11,8 +11,8 @@ showMainMenu.enter(async (ctx) => {
       "Вы вошли в главное меню",
       Extra.markup(
         Markup.keyboard([
-          ["Соло", "ПвП"],
-          ["Личный кабинет", "💬 Чат", "Инфо"],
+          ["👤 Соло", "👥 ПвП"],
+          ["📱 Личный кабинет", "💬 Чат", "ℹ️ Инфо"],
         ]).resize()
       )
     );
@@ -22,7 +22,7 @@ showMainMenu.enter(async (ctx) => {
 mainMenuActions(showMainMenu);
 
 function mainMenuActions(scene) {
-  scene.hears("Соло", async (ctx) => {
+  scene.hears("👤 Соло", async (ctx) => {
     const activeBoard = ctx.session.state.activeBoard;
     try {
       await ctx.deleteMessage(activeBoard.message_id);
@@ -44,7 +44,7 @@ function mainMenuActions(scene) {
     } catch (error) {}
   });
 
-  scene.hears("ПвП", async (ctx) => {
+  scene.hears("👥 ПвП", async (ctx) => {
     const activeBoard = ctx.session.state.activeBoard;
     try {
       await ctx.deleteMessage(activeBoard.message_id);
@@ -78,7 +78,7 @@ function mainMenuActions(scene) {
     }
   });
 
-  scene.hears("Личный кабинет", async (ctx) => {
+  scene.hears("📱 Личный кабинет", async (ctx) => {
     const activeBoard = ctx.session.state.activeBoard;
     try {
       await ctx.deleteMessage(activeBoard.message_id);
@@ -94,7 +94,7 @@ function mainMenuActions(scene) {
   //   return await ctx.scene.enter("sportMenu");
   // });
 
-  scene.hears("Инфо", async (ctx) => {
+  scene.hears("ℹ️ Инфо", async (ctx) => {
     const activeBoard = ctx.session.state.activeBoard;
     try {
       await ctx.deleteMessage(activeBoard.message_id);

@@ -173,6 +173,22 @@ pvpAllGames.action("Вернуться назад", async (ctx) => {
     await showMainView(ctx);
   }
 
+  if (activeView === "statsView") {
+    ctx.session.state.boardCountPage = 1;
+    await showMainView(ctx);
+  }
+
+  await removeState(ctx);
+});
+
+pvpAllGames.action("📈 Статистика", async (ctx) => {
+  const { actionStatus } = ctx.session.state;
+
+  if (actionStatus) return;
+  await setState(ctx);
+
+  await showStatsView(ctx);
+
   await removeState(ctx);
 });
 
@@ -222,65 +238,62 @@ function mainExtra(boardGames, boardCountPage, uid) {
     };
   }
 
-  const flatSingle = (arr) => [].concat(...arr);
+  const rows = boardGames[boardCountPage - 1].map((game) => [
+    {
+      text: `${game.typeGame} Lobby #${game.lobbyId} ➖ ${game.prize} P  👤 [${
+        game.rivals.length
+      }/${game.size}] ${game.creator === uid ? "⏳" : ""}`,
+      callback_data: `lobby_id:${game.lobbyId}`,
+    },
+  ]);
 
-  const row = flatSingle(
-    ...boardGames[boardCountPage - 1].map((cols) =>
-      cols.map((game) => [
-        {
-          text: `${game.typeGame} Lobby #${game.lobbyId} ➖ ${
-            game.prize
-          } P  👤 [${game.rivals.length}/${game.size}] ${
-            game.creator === uid ? "⏳" : ""
-          }`,
-          callback_data: `lobby_id:${game.lobbyId}`,
-        },
-      ])
-    )
+  rows.push(
+    [
+      {
+        text: "<",
+        callback_data: "<",
+      },
+      {
+        text: "🔄 Обновить",
+        callback_data: "🔄 Обновить",
+      },
+      {
+        text: ">",
+        callback_data: ">",
+      },
+    ],
+    [
+      {
+        text: "Создать 🎲",
+        callback_data: "Создать 🎲",
+      },
+      {
+        text: "Создать ⚽️",
+        callback_data: "Создать ⚽️",
+      },
+      {
+        text: "Создать 🎳",
+        callback_data: "Создать 🎳",
+      },
+    ],
+    [
+      {
+        text: "Создать 🏀",
+        callback_data: "Создать 🏀",
+      },
+      {
+        text: "Создать 🎯",
+        callback_data: "Создать 🎯",
+      },
+      {
+        text: "📈 Статистика",
+        callback_data: "📈 Статистика",
+      },
+    ]
   );
 
   return {
-    inline_keyboard: [
-      row,
-      [
-        {
-          text: "<",
-          callback_data: "<",
-        },
-        {
-          text: "🔄 Обновить",
-          callback_data: "🔄 Обновить",
-        },
-        {
-          text: ">",
-          callback_data: ">",
-        },
-      ],
-      [
-        {
-          text: "Создать 🎲",
-          callback_data: "Создать 🎲",
-        },
-        {
-          text: "Создать ⚽️",
-          callback_data: "Создать ⚽️",
-        },
-        {
-          text: "Создать 🎳",
-          callback_data: "Создать 🎳",
-        },
-      ],
-      [
-        {
-          text: "Создать 🏀",
-          callback_data: "Создать 🏀",
-        },
-        {
-          text: "Создать 🎯",
-          callback_data: "Создать 🎯",
-        },
-      ],
-    ],
+    inline_keyboard: rows,
   };
 }
 
@@ -426,18 +439,7 @@ async function showMainView(ctx) {
   const { activeBoard, boardCountPage } = ctx.session.state;
   ctx.session.state.activeView = "main";
 
-  const user = await User.findOne({ userId: ctx.from.id });
   const games = await PvpModel.find({ statusGame: "waiting" });
-  const top10 = await User.find({ "pvp.count": { $gte: 1 } })
-    .sort({ "pvp.winCash": -1 })
-    .limit(10);
-  const latestGames = await PvpModel.find({
-    rivals: ctx.from.id,
-    statusGame: "completed",
-  })
-    .sort({ _id: -1 })
-    .limit(10);
-  const { pvpPercent } = await MainStats.findOne();
 
   try {
     await ctx.deleteMessage(activeBoard.message_id);
@@ -451,12 +453,69 @@ async function showMainView(ctx) {
   const extra = mainExtra(boardGames, boardCountPage, ctx.from.id);
   const message = `PVP GAMES
 
-Ваш рейтинг: №${user.pvp.rating}
+Страница: ${boardGames.length === 0 ? 0 : boardCountPage}/${boardMaxPages}`;
+
+  if (process.env.DEV !== "true") {
+    try {
+      ctx.session.state.activeBoard = await bot.telegram.sendPhoto(
+        ctx.from.id,
+        "AgACAgIAAxkBAAELz71hDPEBIJb6BTXwrjuedla1dnMEDgACyLUxG9FSaEj-twyihsA0_wEAAwIAA3MAAyAE",
+        {
+          caption: message,
+          reply_markup: extra,
+        }
+      );
+    } catch (error) {}
+  } else {
+    try {
+      ctx.session.state.activeBoard = await bot.telegram.sendPhoto(
+        ctx.from.id,
+        "AgACAgIAAxkBAAJG82ELh0OKxZcqOBcPuKViCYfQcEtqAAJntjEbwjVZSDynD3HIHdqBAQADAgADcwADIAQ",
+        {
+          caption: message,
+          reply_markup: extra,
+        }
+      );
+    } catch (error) {}
+  }
+
+  ctx.session.state = {
+    ...ctx.session.state,
+    boardGames,
+    boardCountPage,
+    boardMaxPages,
+  };
+}
+
+async function showStatsView(ctx) {
+  const { activeBoard } = ctx.session.state;
+  ctx.session.state.activeView = "statsView";
+
+  const user = await User.findOne({ userId: ctx.from.id });
+  const top10 = await User.find({ "pvp.count": { $gte: 1 } })
+    .sort({ "pvp.winCash": -1 })
+    .limit(10);
+  const latestGames = await PvpModel.find({
+    rivals: ctx.from.id,
+    statusGame: "completed",
+  })
+    .sort({ _id: -1 })
+    .limit(10);
+  const { pvpPercent } = await MainStats.findOne();
+
+  try {
+    await bot.telegram.editMessageCaption(
+      ctx.from.id,
+      activeBoard.message_id,
+      null,
+      `Ваш рейтинг: №${user.pvp.rating}
 Ваш баланс: ${user.mainBalance} P
 Ваш общий выигрыш: ${user.pvp.winCash} P
 Кол-во побед: ${user.pvp.winCount}/${user.pvp.count} [${
-    user.pvp.count ? ((user.pvp.winCount / user.pvp.count) * 100).toFixed(0) : 0
-  }%]
+        user.pvp.count
+          ? ((user.pvp.winCount / user.pvp.count) * 100).toFixed(0)
+          : 0
+      }%]
 
 ТОП-10 игроков:
 ${top10
@@ -487,44 +546,22 @@ ${
         })
         .join("\n")
     : "- у вас нету сыгранных игр"
-}
-
-Страница: ${boardGames.length === 0 ? 0 : boardCountPage}/${boardMaxPages}`;
-
-  if (process.env.DEV !== "true") {
-    try {
-      ctx.session.state.activeBoard = await bot.telegram.sendPhoto(
-        ctx.from.id,
-        "AgACAgIAAxkBAAELz71hDPEBIJb6BTXwrjuedla1dnMEDgACyLUxG9FSaEj-twyihsA0_wEAAwIAA3MAAyAE",
-        {
-          caption: message,
-          reply_markup: extra,
-          parse_mode: "HTML",
-        }
-      );
-    } catch (error) {}
-  } else {
-    try {
-      ctx.session.state.activeBoard = await bot.telegram.sendPhoto(
-        ctx.from.id,
-        "AgACAgIAAxkBAAJG82ELh0OKxZcqOBcPuKViCYfQcEtqAAJntjEbwjVZSDynD3HIHdqBAQADAgADcwADIAQ",
-        {
-          caption: message,
-          reply_markup: extra,
-          parse_mode: "HTML",
-        }
-      );
-    } catch (error) {
-      console.log(error.message);
-    }
-  }
-
-  ctx.session.state = {
-    ...ctx.session.state,
-    boardGames,
-    boardCountPage,
-    boardMaxPages,
-  };
+}`,
+      {
+        parse_mode: "HTML",
+        reply_markup: {
+          inline_keyboard: [
+            [
+              {
+                text: `Вернуться назад`,
+                callback_data: `Вернуться назад`,
+              },
+            ],
+          ],
+        },
+      }
+    );
+  } catch (error) {}
 }
 
 async function showCreateLobbyStep1(ctx) {
@@ -1917,7 +1954,7 @@ function separate(arr) {
   const rowsItems = [];
   for (let i = 0, j = arr.length; i < j; i += cols) {
     const row = arr.slice(i, i + cols);
-    rowsItems.push(row);
+    rowsItems.push(...row);
   }
 
   const pagesItems = [];

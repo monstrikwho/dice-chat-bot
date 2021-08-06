@@ -17,7 +17,7 @@ const schema = new Schema({
   bonusRefDaughter: Number,
   bonusRefFather: Number,
   startDemoBalance: Number,
-  slotCoef: Number,
+  slotCoef: Object,
   footballCoef: Object,
   diceCoef: Object,
   webhook: Object,

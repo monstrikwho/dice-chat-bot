@@ -253,8 +253,23 @@ module.exports = async (game) => {
       let winSum = 0;
       let resMsg = "Вы были близко! Не сдавайтесь, в следующий раз повезет!";
 
-      if (value === 1 || value === 22 || value === 43 || value === 64) {
-        winSum = amountRate * slotCoef;
+      if (value === 64) {
+        winSum = amountRate * slotCoef.x3_7;
+        resMsg = "Поздравляем! Вы выиграли 🎉";
+      }
+
+      if (value === 1 || value === 22 || value === 43) {
+        winSum = amountRate * slotCoef.x3;
+        resMsg = "Поздравляем! Вы выиграли 🎉";
+      }
+
+      const value_x2 = [
+        2, 3, 4, 6, 11, 16, 17, 21, 23, 24, 27, 32, 33, 38, 41, 42, 44, 48, 49,
+        54, 59, 61, 62, 63,
+      ];
+
+      if (value_x2.indexOf(value) !== -1) {
+        winSum = amountRate * slotCoef.x2;
         resMsg = "Поздравляем! Вы выиграли 🎉";
       }
 
@@ -390,8 +405,23 @@ module.exports = async (game) => {
       let winSum = 0;
       let resMsg = "Вы были близко! Не сдавайтесь, в следующий раз повезет!";
 
-      if (value === 1 || value === 64 || value === 22 || value === 43) {
-        winSum = amountRate * slotCoef;
+      if (value === 64) {
+        winSum = amountRate * slotCoef.x3_7;
+        resMsg = "Поздравляем! Вы выиграли 🎉";
+      }
+
+      if (value === 1 || value === 22 || value === 43) {
+        winSum = amountRate * slotCoef.x3;
+        resMsg = "Поздравляем! Вы выиграли 🎉";
+      }
+
+      const value_x2 = [
+        2, 3, 4, 6, 11, 16, 17, 21, 23, 24, 27, 32, 33, 38, 41, 42, 44, 48, 49,
+        54, 59, 61, 62, 63,
+      ];
+
+      if (value_x2.indexOf(value) !== -1) {
+        winSum = amountRate * slotCoef.x2;
         resMsg = "Поздравляем! Вы выиграли 🎉";
       }
 
@@ -492,8 +522,23 @@ module.exports = async (game) => {
       let winSum = 0;
       let resMsg = "Вы были близко! Не сдавайтесь, в следующий раз повезет!";
 
-      if (value === 1 || value === 22 || value === 43 || value === 64) {
-        winSum = amountRate * slotCoef;
+      if (value === 64) {
+        winSum = amountRate * slotCoef.x3_7;
+        resMsg = "Поздравляем! Вы выиграли 🎉";
+      }
+
+      if (value === 1 || value === 22 || value === 43) {
+        winSum = amountRate * slotCoef.x3;
+        resMsg = "Поздравляем! Вы выиграли 🎉";
+      }
+
+      const value_x2 = [
+        2, 3, 4, 6, 11, 16, 17, 21, 23, 24, 27, 32, 33, 38, 41, 42, 44, 48, 49,
+        54, 59, 61, 62, 63,
+      ];
+
+      if (value_x2.indexOf(value) !== -1) {
+        winSum = amountRate * slotCoef.x2;
         resMsg = "Поздравляем! Вы выиграли 🎉";
       }
 
