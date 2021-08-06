@@ -1,8 +1,4 @@
-const MainStats = require("../models/mainstats");
-
 module.exports = async (state) => {
-  const { slotCoef } = await MainStats.findOne();
-
   const valueRate = (count) => {
     if (state.valueRate === count) {
       return `✅ ${count}₽`;
@@ -51,8 +47,8 @@ module.exports = async (state) => {
       ],
       [
         {
-          text: `Поставить  -  💰 ${state.rate["jek"]}  [x${slotCoef}]`,
-          callback_data: `Поставить  -  💰 ${state.rate["jek"]}  [x${slotCoef}]`,
+          text: `Поставить  -  💰 ${state.rate["jek"]}`,
+          callback_data: `Поставить  -  💰 ${state.rate["jek"]}`,
         },
       ],
       [

@@ -176,11 +176,11 @@ module.exports = async (game) => {
       return;
     }
 
-    const { minGameRate } = await MainStats.findOne();
+    const { minGameRate, slotCoef } = await MainStats.findOne();
 
     if (rate < minGameRate) {
       try {
-        await ctx.reply(`Минимальная сумма ставки составляет ${minGameRate}₽`);
+        await ctx.reply(`Минимальная сумма ставки составляет ${minGameRate} ₽`);
       } catch (error) {}
       return;
     }
@@ -205,7 +205,10 @@ module.exports = async (game) => {
           "AgACAgIAAxkBAAELz8BhDPHr5BzdYkeMyS3w27Z_jbb7NwAC0LUxG9FSaEiPNb0zl31QeAEAAwIAA3MAAyAE",
           {
             caption: `🎰 SOLOGAME
-Выигрышными комбинациями считаются: BBB, GGG, LLL, 777`,
+Выигрышными комбинациями считаются:
+- 777 [x${slotCoef.x3_7}]
+- BBB, GGG, LLL [x${slotCoef.x3}]
+- XXY или YXX [x${slotCoef.x2}]`,
             reply_markup: extra,
           }
         );
@@ -217,7 +220,10 @@ module.exports = async (game) => {
           "AgACAgIAAxkBAAJGP2EKgoiW-VUkZVWZioc6VzBl3sgvAAKmtDEbwjVRSB0Lf_qKVpvAAQADAgADcwADIAQ",
           {
             caption: `🎰 SOLOGAME
-Выигрышными комбинациями считаются: BBB, GGG, LLL, 777`,
+Выигрышными комбинациями считаются:
+- 777 [x${slotCoef.x3_7}]
+- BBB, GGG, LLL [x${slotCoef.x3}]
+- XXY или YXX [x${slotCoef.x2}]`,
             reply_markup: extra,
           }
         );
@@ -335,6 +341,7 @@ module.exports = async (game) => {
     const { mainBalance, demoBalance } = await User.findOne({
       userId: ctx.from.id,
     });
+    const { slotCoef } = await MainStats.findOne();
 
     ctx.session.state = {
       ...state,
@@ -356,7 +363,10 @@ module.exports = async (game) => {
           "AgACAgIAAxkBAAELz8BhDPHr5BzdYkeMyS3w27Z_jbb7NwAC0LUxG9FSaEiPNb0zl31QeAEAAwIAA3MAAyAE",
           {
             caption: `🎰 SOLOGAME
-Выигрышными комбинациями считаются: BBB, GGG, LLL, 777`,
+Выигрышными комбинациями считаются:
+- 777 [x${slotCoef.x3_7}]
+- BBB, GGG, LLL [x${slotCoef.x3}]
+- XXY или YXX [x${slotCoef.x2}]`,
             reply_markup: extra,
           }
         );
@@ -368,7 +378,10 @@ module.exports = async (game) => {
           "AgACAgIAAxkBAAJGP2EKgoiW-VUkZVWZioc6VzBl3sgvAAKmtDEbwjVRSB0Lf_qKVpvAAQADAgADcwADIAQ",
           {
             caption: `🎰 SOLOGAME
-Выигрышными комбинациями считаются: BBB, GGG, LLL, 777`,
+Выигрышными комбинациями считаются:
+- 777 [x${slotCoef.x3_7}]
+- BBB, GGG, LLL [x${slotCoef.x3}]
+- XXY или YXX [x${slotCoef.x2}]`,
             reply_markup: extra,
           }
         );
