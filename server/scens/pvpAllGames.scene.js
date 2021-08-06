@@ -1,4 +1,5 @@
 const isNumber = require("is-number");
+const Scene = require("telegraf/scenes/base");
 
 const { bot } = require("../init/startBot");
 const { mainMenuActions } = require("./mainMenu.scene");
@@ -6,10 +7,6 @@ const { mainMenuActions } = require("./mainMenu.scene");
 const User = require("../models/user");
 const PvpModel = require("../models/pvpAllGames");
 const MainStats = require("../models/mainstats");
-
-const Scene = require("telegraf/scenes/base");
-const Extra = require("telegraf/extra");
-const Markup = require("telegraf/markup");
 
 const pvpAllGames = new Scene("pvpAllGames");
 pvpAllGames.enter(async (ctx) => {
@@ -225,22 +222,26 @@ function mainExtra(boardGames, boardCountPage, uid) {
     };
   }
 
+  const flatSingle = (arr) => [].concat(...arr);
+
+  const row = flatSingle(
+    ...boardGames[boardCountPage - 1].map((cols) =>
+      cols.map((game) => [
+        {
+          text: `${game.typeGame} Lobby #${game.lobbyId} ➖ ${
+            game.prize
+          } P  👤 [${game.rivals.length}/${game.size}] ${
+            game.creator === uid ? "⏳" : ""
+          }`,
+          callback_data: `lobby_id:${game.lobbyId}`,
+        },
+      ])
+    )
+  );
+
   return {
     inline_keyboard: [
-      ...boardGames[boardCountPage - 1]
-        .map((cols) =>
-          cols.map((game) => [
-            {
-              text: `${game.typeGame} Lobby #${game.lobbyId} ➖ ${
-                game.prize
-              } P  👤 [${game.rivals.length}/${game.size}] ${
-                game.creator === uid ? "⏳" : ""
-              }`,
-              callback_data: `lobby_id:${game.lobbyId}`,
-            },
-          ])
-        )
-        .flat(),
+      row,
       [
         {
           text: "<",
