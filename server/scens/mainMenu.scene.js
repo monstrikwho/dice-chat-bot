@@ -62,7 +62,7 @@ function mainMenuActions(scene) {
       typeBalance: "mainBalance",
     };
 
-    const activeBoard = ctx.session.state?.activeBoard;
+    const activeBoard = ctx.session.state.activeBoard;
     try {
       await ctx.deleteMessage(activeBoard.message_id);
     } catch (error) {}
@@ -79,7 +79,7 @@ function mainMenuActions(scene) {
   });
 
   scene.hears("Личный кабинет", async (ctx) => {
-    const activeBoard = ctx.session.state?.activeBoard;
+    const activeBoard = ctx.session.state.activeBoard;
     try {
       await ctx.deleteMessage(activeBoard.message_id);
     } catch (error) {}
@@ -87,7 +87,7 @@ function mainMenuActions(scene) {
   });
 
   // scene.hears("Спорт", async (ctx) => {
-  //   const activeBoard = ctx.session.state?.activeBoard;
+  //   const activeBoard = ctx.session.state.activeBoard;
   //   try {
   //     await ctx.deleteMessage(activeBoard.message_id);
   //   } catch (error) {}
@@ -95,7 +95,7 @@ function mainMenuActions(scene) {
   // });
 
   scene.hears("Инфо", async (ctx) => {
-    const activeBoard = ctx.session.state?.activeBoard;
+    const activeBoard = ctx.session.state.activeBoard;
     try {
       await ctx.deleteMessage(activeBoard.message_id);
     } catch (error) {}
@@ -127,7 +127,7 @@ function mainMenuActions(scene) {
   });
 
   scene.hears("💬 Чат", async (ctx) => {
-    const activeBoard = ctx.session.state?.activeBoard;
+    const activeBoard = ctx.session.state.activeBoard;
     try {
       await ctx.deleteMessage(activeBoard.message_id);
     } catch (error) {}
