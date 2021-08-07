@@ -765,8 +765,23 @@ async function joinToLobby(ctx) {
   const { lobbyId } = ctx.session.state;
 
   const lobby = await PvpModel.findOne({ lobbyId });
+  const user = await User.findOne({ userId: ctx.from.id });
 
   if (lobby.rivals.indexOf(ctx.from.id) > 0) return;
+  if (user.mainBalance - lobby.prize < 0) {
+    try {
+      await ctx.reply(
+        `У вас недостаточно баланса, чтобы присоединиться в лобби.
+Ваш баланс: ${user.mainBalance}`
+      );
+    } catch (error) {}
+    return;
+  }
+
+  await User.updateOne(
+    { userId: ctx.from.id },
+    { mainBalance: +(user.mainBalance - lobby.prize).toFixed(2) }
+  );
 
   lobby.rivals.push(ctx.from.id);
   lobby.rivalsLinks[ctx.from.id] = ctx.from.username
@@ -779,12 +794,6 @@ async function joinToLobby(ctx) {
       rivals: lobby.rivals,
       rivalsLinks: lobby.rivalsLinks,
     }
-  );
-
-  const user = await User.findOne({ userId: ctx.from.id });
-  await User.updateOne(
-    { userId: ctx.from.id },
-    { mainBalance: +(user.mainBalance - lobby.prize).toFixed(2) }
   );
 
   try {
