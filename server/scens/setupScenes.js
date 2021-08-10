@@ -19,10 +19,6 @@ const {
   editDocument,
   editMessage,
 } = require("./sendMailing.scene");
-const { inMoney } = require("./inMoney.scene");
-const { outQiwi } = require("./outMoney/qiwi");
-const { outCardRu } = require("./outMoney/cardRu");
-const { outCardOther } = require("./outMoney/cardOther");
 
 function setupScenes(bot) {
   const stage = new Stage([
@@ -34,7 +30,6 @@ function setupScenes(bot) {
     pvpAllGames,
     lkMenu,
     outMoney,
-    inMoney,
     sendMailing,
     editPhoto,
     editVideo,
@@ -43,9 +38,6 @@ function setupScenes(bot) {
     editVoice,
     editDocument,
     editMessage,
-    outQiwi,
-    outCardRu,
-    outCardOther,
   ]);
   bot.use(session());
   bot.use(stage.middleware());

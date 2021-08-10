@@ -66,7 +66,7 @@ lkMenu.action("Пополнить", async (ctx) => {
 Минимальная сумма для пополнения: ${minIn} ₽
 
 ❕Пополнение начисляется автоматически
-❕Для пополнение через Banker, отправьте чек в чат`,
+❕Для пополнение через Banker, свяжитесь с поддержкой @LuckyCatGames`,
       extra
     );
   } catch (error) {}
@@ -159,6 +159,10 @@ lkMenu.action(/(?:in50₽|in100₽|in250₽|in500₽)/, async (ctx) => {
     .catch((err) => console.log(err.message));
 
   try {
+    await ctx.deleteMessage(ctx.session.state.activeBoard.message_id);
+  } catch (error) {}
+
+  try {
     await ctx.reply(
       `Вы собираетесь пополнить игровой баланс на сумму ${amount} ₽.
 Пожалуйста, нажмите "Пополнить", чтобы перейти на страницу пополнения.
@@ -184,8 +188,6 @@ lkMenu.action(/(?:in50₽|in100₽|in250₽|in500₽)/, async (ctx) => {
       }
     );
   } catch (error) {}
-
-  await MainMenu(ctx);
 });
 
 lkMenu.on("text", async (ctx) => {
@@ -237,6 +239,10 @@ lkMenu.on("text", async (ctx) => {
       )
       .then((res) => res.data.url)
       .catch((err) => console.log(err.message));
+
+    try {
+      await ctx.deleteMessage(activeBoard.message_id);
+    } catch (error) {}
 
     try {
       await ctx.reply(
