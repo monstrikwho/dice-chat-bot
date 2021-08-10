@@ -1,34 +1,626 @@
 const Scene = require("telegraf/scenes/base");
-const Extra = require("telegraf/extra");
-const Markup = require("telegraf/markup");
 
 const User = require("../models/user");
 const MainStats = require("../models/mainstats");
 
+const { bot } = require("../init/startBot");
+const { mainMenuActions } = require("./mainMenu.scene");
+const { getProfileBalance, outMoney } = require("../helpers/qiwiMethods");
+
+const axios = require("axios");
+const isNumber = require("is-number");
+axios.defaults.headers.common["Content-Type"] =
+  "application/x-www-form-urlencoded";
+const querystring = require("querystring");
+
 const lkMenu = new Scene("lkMenu");
+mainMenuActions(lkMenu);
+
 lkMenu.enter(async (ctx) => {
+  await MainMenu(ctx);
+});
+
+lkMenu.action("Пополнить", async (ctx) => {
+  ctx.session.state.activeView = "inMoney";
+  const { activeBoard } = ctx.session.state;
+
+  const { minIn } = await MainStats.findOne({});
+
+  const extra = {
+    reply_markup: {
+      inline_keyboard: [
+        [
+          {
+            text: "50₽",
+            callback_data: "in50₽",
+          },
+          {
+            text: "100₽",
+            callback_data: "in100₽",
+          },
+          {
+            text: "250₽",
+            callback_data: "in250₽",
+          },
+          {
+            text: "500₽",
+            callback_data: "in500₽",
+          },
+        ],
+        [
+          {
+            text: "↪️ Вернуться назад",
+            callback_data: "↪️ Вернуться назад",
+          },
+        ],
+      ],
+    },
+  };
+
+  try {
+    await bot.telegram.editMessageText(
+      ctx.from.id,
+      activeBoard.message_id,
+      null,
+      `Выберите либо введите в чат сумму пополнения
+Минимальная сумма для пополнения: ${minIn} ₽
+
+❕Пополнение начисляется автоматически
+❕Для пополнение через Banker, отправьте чек в чат`,
+      extra
+    );
+  } catch (error) {}
+});
+
+lkMenu.action("Вывести", async (ctx) => {
+  await OutMoneyMenu(ctx);
+});
+
+const regex =
+  /(?:Qiwi кошелек|Visa \(RU\)|Visa \(Other\)|MC \(RU\)|MC \(Other\))/;
+lkMenu.action(regex, async (ctx) => {
+  ctx.session.state.activeView = "outMoney";
+  const { activeBoard, accessibleBalance } = ctx.session.state;
+  const type = ctx.update.callback_query.data;
+  ctx.session.state.type = type;
+
+  let balance = null;
+
+  if (type === "Qiwi кошелек") {
+    ctx.session.state.idProvider = 99;
+    balance = accessibleBalance.qiwi;
+  }
+  if (type === "Visa (RU)") {
+    ctx.session.state.idProvider = 1963;
+    balance = accessibleBalance.cardsRu;
+  }
+  if (type === "Visa (Other)") {
+    ctx.session.state.idProvider = 1960;
+    balance = accessibleBalance.cardsOther;
+  }
+  if (type === "MC (RU)") {
+    ctx.session.state.idProvider = 21013;
+    balance = accessibleBalance.cardsRu;
+  }
+  if (type === "MC (Other)") {
+    ctx.session.state.idProvider = 21012;
+    balance = accessibleBalance.cardsOther;
+  }
+  ctx.session.state.selectBalance = balance;
+
+  try {
+    await bot.telegram.editMessageText(
+      ctx.from.id,
+      activeBoard.message_id,
+      null,
+      `Напишите в чат сумму
+
+Вывод на ${type}
+Ваш доступный для вывода баланс: ${balance}`,
+      {
+        reply_markup: {
+          inline_keyboard: [
+            [
+              {
+                text: "↪️ Вернуться назад",
+                callback_data: "↪️ Вернуться назад",
+              },
+            ],
+          ],
+        },
+      }
+    );
+  } catch (error) {}
+});
+
+lkMenu.action(/(?:in50₽|in100₽|in250₽|in500₽)/, async (ctx) => {
+  const amount = +ctx.update.callback_query.data.replace(/\D+/g, "");
+  const comment = ctx.from.id;
+
+  const { webhook, orderStats } = await MainStats.findOne({});
+
+  const urlQiwi = `https://qiwi.com/payment/form/99?extra%5B%27account%27%5D=${webhook.qiwiWallet}&amountInteger=${amount}&amountFraction=0&extra%5B%27comment%27%5D=${comment}&currency=643&blocked[0]=sum&blocked[1]=account&blocked[2]=comment`;
+  const urlPayeer = await axios
+    .post(
+      "https://payeer.com/ajax/api/api.php?invoiceCreate",
+      querystring.stringify({
+        account: "P1051197168",
+        apiId: 1407343849,
+        apiPass: 1234,
+        action: "invoiceCreate",
+        m_shop: 1405684803,
+        m_orderid: orderStats.lastNumberOrder + 222,
+        m_amount: amount,
+        m_curr: "RUB",
+        m_desc: ctx.from.id,
+      })
+    )
+    .then((res) => res.data.url)
+    .catch((err) => console.log(err.message));
+
+  try {
+    await ctx.reply(
+      `Вы собираетесь пополнить игровой баланс на сумму ${amount} ₽.
+Пожалуйста, нажмите "Пополнить", чтобы перейти на страницу пополнения.
+
+Что бы пополнить баланс, совершите рублёвый перевод на желанную сумму (QIWI)
+▪️ Кошелёк: +${webhook.qiwiWallet}
+▪️ Комментарий к переводу: ${comment}`,
+      {
+        reply_markup: {
+          inline_keyboard: [
+            [
+              {
+                text: "Пополнить QIWI",
+                url: urlQiwi,
+              },
+              {
+                text: "Пополнить PAYEER",
+                url: urlPayeer,
+              },
+            ],
+          ],
+        },
+      }
+    );
+  } catch (error) {}
+
+  await MainMenu(ctx);
+});
+
+lkMenu.on("text", async (ctx) => {
+  const {
+    activeView,
+    activeBoard,
+    selectBalance,
+    idProvider,
+    userBio,
+    userCard,
+    type,
+    outAmount,
+  } = ctx.session.state;
+  const amount = +ctx.update.message.text.replace(/\D+/g, "").trim();
+  const msg = ctx.update.message.text.trim();
+
+  if (activeView === "inMoney") {
+    if (!isNumber(amount)) {
+      try {
+        return await ctx.reply(
+          "Вы ввели некоректное число. Попробуйте еще раз."
+        );
+      } catch (error) {}
+    }
+
+    const { minIn, webhook, orderStats } = await MainStats.findOne();
+
+    if (amount < minIn) {
+      try {
+        return await ctx.reply(`Минимальная сумма для пополнения ${minIn} ₽`);
+      } catch (error) {}
+    }
+
+    const url = `https://qiwi.com/payment/form/99?extra%5B%27account%27%5D=${webhook.qiwiWallet}&amountInteger=${amount}&amountFraction=0&extra%5B%27comment%27%5D=${ctx.from.id}&currency=643&blocked[0]=sum&blocked[1]=account&blocked[2]=comment`;
+    const urlPayeer = await axios
+      .post(
+        "https://payeer.com/ajax/api/api.php?invoiceCreate",
+        querystring.stringify({
+          account: "P1051197168",
+          apiId: 1407343849,
+          apiPass: 1234,
+          action: "invoiceCreate",
+          m_shop: 1405684803,
+          m_orderid: orderStats.lastNumberOrder + 222,
+          m_amount: amount,
+          m_curr: "RUB",
+          m_desc: ctx.from.id,
+        })
+      )
+      .then((res) => res.data.url)
+      .catch((err) => console.log(err.message));
+
+    try {
+      await ctx.reply(
+        `Вы собираетесь пополнить игровой баланс на сумму ${amount} ₽.
+Пожалуйста, нажмите "Пополнить", чтобы перейти на страницу пополнения.
+
+Что бы пополнить баланс, совершите рублёвый перевод на желанную сумму (QIWI)
+▪️ Кошелёк: +${webhook.qiwiWallet}
+▪️ Комментарий к переводу: ${ctx.from.id}`,
+        {
+          reply_markup: {
+            inline_keyboard: [
+              [
+                {
+                  text: "Пополнить QIWI",
+                  url: url,
+                },
+                {
+                  text: "Пополнить Payeer",
+                  url: urlPayeer,
+                },
+              ],
+            ],
+          },
+        }
+      );
+    } catch (error) {}
+  }
+
+  if (activeView === "outMoney" && !outAmount) {
+    if (!isNumber(amount)) {
+      try {
+        return await ctx.reply(
+          "Вы ввели некоректное число. Попробуйте еще раз."
+        );
+      } catch (error) {}
+    }
+
+    if (amount > selectBalance) {
+      try {
+        return await ctx.reply(
+          `У вас не хватает баланса! Ваш доступный баланс: ${selectBalance} P`
+        );
+      } catch (error) {}
+    }
+
+    const prizeFound = await getProfileBalance();
+    if (amount > prizeFound) {
+      try {
+        return await bot.telegram.editMessageText(
+          ctx.from.id,
+          activeBoard.message_id,
+          null,
+          `На данный момент мы столкнулись с проблемой автоматического вывода. 
+  Пожалуйста, напишите в поддержку для вывода в ручном режиме. @LuckyCatGames`,
+          {
+            reply_markup: {
+              inline_keyboard: [
+                [
+                  {
+                    text: "↪️ Вернуться назад",
+                    callback_data: "↪️ Вернуться назад",
+                  },
+                ],
+              ],
+            },
+          }
+        );
+      } catch (error) {}
+    }
+
+    ctx.session.state.outAmount = amount;
+
+    try {
+      await ctx.deleteMessage(activeBoard.message_id);
+    } catch (error) {}
+
+    try {
+      ctx.session.state.activeBoard = await bot.telegram.sendMessage(
+        ctx.from.id,
+        `${
+          idProvider === 99
+            ? "Напишите в чат номер кошелька"
+            : "Напишите в чат номер карты"
+        }
+  
+Вывод на ${type}
+Сумма: ${amount} P
+${
+  idProvider === 99
+    ? "Кошелек: ***"
+    : `Карта: ***
+Держатель: ***`
+}`,
+        {
+          reply_markup: {
+            inline_keyboard: [
+              [
+                {
+                  text: "↪️ Вернуться назад",
+                  callback_data: "↪️ Вернуться назад",
+                },
+              ],
+            ],
+          },
+        }
+      );
+    } catch (error) {}
+  }
+
+  if (activeView === "outMoney" && outAmount && idProvider === 99) {
+    if (!isNumber(msg)) {
+      try {
+        return await ctx.reply("Введите только цифры.");
+      } catch (error) {}
+    }
+
+    try {
+      await ctx.deleteMessage(activeBoard.message_id);
+    } catch (error) {}
+
+    ctx.session.state.qiwiWallet = `+${msg}`;
+
+    try {
+      ctx.session.state.activeBoard = await bot.telegram.sendMessage(
+        ctx.from.id,
+        `Подтвердите вывод
+
+Вывод на ${type}
+Сумма: ${outAmount} P
+Кошелек: ${msg}`,
+        {
+          reply_markup: {
+            inline_keyboard: [
+              [
+                {
+                  text: "↪️ Вернуться назад",
+                  callback_data: "↪️ Вернуться назад",
+                },
+                {
+                  text: "✅ Подтвердить",
+                  callback_data: "✅ Подтвердить",
+                },
+              ],
+            ],
+          },
+        }
+      );
+    } catch (error) {}
+  }
+
+  if (
+    activeView === "outMoney" &&
+    outAmount &&
+    idProvider !== 99 &&
+    !userCard
+  ) {
+    if (!isNumber(msg)) {
+      try {
+        return await ctx.reply("Введите только цифры.");
+      } catch (error) {}
+    }
+
+    ctx.session.state.userCard = +msg;
+
+    try {
+      await ctx.deleteMessage(activeBoard.message_id);
+    } catch (error) {}
+
+    try {
+      ctx.session.state.activeBoard = await bot.telegram.sendMessage(
+        ctx.from.id,
+        `Напишите в чат ИМЯ ФАМИЛИЯ держателя карты (требуется платежной системой).
+
+Вывод на ${type}
+Сумма: ${outAmount} P
+Карта: ${msg}
+Держатель: ***`,
+        {
+          reply_markup: {
+            inline_keyboard: [
+              [
+                {
+                  text: "↪️ Вернуться назад",
+                  callback_data: "↪️ Вернуться назад",
+                },
+              ],
+            ],
+          },
+        }
+      );
+    } catch (error) {}
+  }
+
+  if (
+    activeView === "outMoney" &&
+    outAmount &&
+    idProvider !== 99 &&
+    userCard &&
+    !userBio
+  ) {
+    ctx.session.state.userBio = msg;
+
+    try {
+      await ctx.deleteMessage(activeBoard.message_id);
+    } catch (error) {}
+
+    try {
+      ctx.session.state.activeBoard = await bot.telegram.sendMessage(
+        ctx.from.id,
+        `Подтвердите вывод
+
+Вывод на ${type}
+Сумма: ${outAmount} P
+Карта: ${userCard}
+Держатель: ${msg}`,
+        {
+          reply_markup: {
+            inline_keyboard: [
+              [
+                {
+                  text: "↪️ Вернуться назад",
+                  callback_data: "↪️ Вернуться назад",
+                },
+                {
+                  text: "✅ Подтвердить",
+                  callback_data: "✅ Подтвердить",
+                },
+              ],
+            ],
+          },
+        }
+      );
+    } catch (error) {}
+  }
+});
+
+lkMenu.action("↪️ Вернуться назад", async (ctx) => {
+  try {
+    const { activeView } = ctx.session.state;
+
+    if (activeView === "inMoney") {
+      return await MainMenu(ctx);
+    }
+    if (activeView === "preOutMoney") {
+      return await MainMenu(ctx);
+    }
+    if (activeView === "outMoney") {
+      ctx.session.state = {
+        ...ctx.session.state,
+        selectBalance: null,
+        outAmount: null,
+        idProvider: null,
+        userCard: null,
+        userBio: null,
+        type: null,
+      };
+      return await OutMoneyMenu(ctx);
+    }
+  } catch (error) {}
+});
+
+lkMenu.action("✅ Подтвердить", async (ctx) => {
+  const { confirmStatus } = ctx.session.state;
+
+  if (confirmStatus) return;
+  ctx.session.state.confirmStatus = true;
+
+  const { outAmount, idProvider, qiwiWallet, userCard, userBio } =
+    ctx.session.state;
+
+  if (idProvider === 99) {
+    await outMoney(outAmount, qiwiWallet, ctx.from.id, 99);
+  }
+
+  if (idProvider !== 99) {
+    await outMoney(
+      outAmount,
+      userCard.toString(),
+      ctx.from.id,
+      idProvider,
+      userBio
+    );
+  }
+
+  await ctx.scene.enter("showMainMenu");
+  ctx.session.state.confirmStatus = false;
+});
+
+lkMenu.action("Сделать рассылку", async (ctx) => {
+  ctx.session.state = { post: { text: "Всем хорошего дня!" } };
+  await ctx.scene.enter("sendMailing");
+});
+
+lkMenu.action("Положить бота", async (ctx) => {
+  const { activeBoard } = ctx.session.state;
+  await bot.telegram.editMessageText(
+    ctx.from.id,
+    activeBoard.message_id,
+    null,
+    "Уверен?",
+    {
+      reply_markup: {
+        inline_keyboard: [
+          [
+            {
+              text: "✅ Да",
+              callback_data: "✅ Да",
+            },
+            {
+              text: "❌Нет",
+              callback_data: "❌Нет",
+            },
+          ],
+        ],
+      },
+    }
+  );
+});
+
+lkMenu.action("✅ Да", (ctx) => {
+  ctx.reply("Оп ля (");
+  throw new Error("Уупс!");
+});
+
+lkMenu.action("❌Нет", async (ctx) => {
+  await ctx.scene.enter("lkMenu");
+});
+
+async function MainMenu(ctx) {
+  ctx.session.state.activeView = "mainMenu";
+  const activeBoard = ctx.session.state.activeBoard;
+
   const user = await User.findOne({ userId: ctx.from.id });
   const { bonusRefDaughter, bonusRefFather, bonusRefPercent } =
     await MainStats.findOne({});
 
+  try {
+    await ctx.deleteMessage(activeBoard.message_id);
+  } catch (error) {}
+
   const extra =
     user.userRights === "admin"
-      ? Extra.markup(
-          Markup.keyboard([
-            ["Пополнить", "Вывести"],
-            ["Сделать рассылку"],
-            ["↪️ Вернуться назад"],
-          ]).resize()
-        )
-      : Extra.markup(
-          Markup.keyboard([
-            ["Пополнить", "Вывести"],
-            ["↪️ Вернуться назад"],
-          ]).resize()
-        );
+      ? {
+          inline_keyboard: [
+            [
+              {
+                text: "Пополнить",
+                callback_data: "Пополнить",
+              },
+              {
+                text: "Вывести",
+                callback_data: "Вывести",
+              },
+            ],
+            [
+              {
+                text: "Сделать рассылку",
+                callback_data: "Сделать рассылку",
+              },
+              {
+                text: "Положить бота",
+                callback_data: "Положить бота",
+              },
+            ],
+          ],
+        }
+      : {
+          inline_keyboard: [
+            [
+              {
+                text: "Пополнить",
+                callback_data: "Пополнить",
+              },
+              {
+                text: "Вывести",
+                callback_data: "Вывести",
+              },
+            ],
+          ],
+        };
 
   try {
-    await ctx.reply(
+    ctx.session.state.activeBoard = await ctx.reply(
       `Ваш личный номер: ${ctx.from.id}
 
 Ваш ОСНОВНОЙ счет: ${user.mainBalance} ₽
@@ -42,37 +634,112 @@ lkMenu.enter(async (ctx) => {
 2) +${bonusRefFather} демо-баланаса на Ваш счет;
 3) +${bonusRefDaughter} демо-баланаса на счет реферала.
 Ваша реферальная ссылка: t.me/luckycat_bot?start=ref${ctx.from.id}`,
+      { reply_markup: extra }
+    );
+  } catch (error) {}
+}
+
+async function OutMoneyMenu(ctx) {
+  ctx.session.state.activeView = "preOutMoney";
+  const { activeBoard } = ctx.session.state;
+
+  const { mainBalance } = await User.findOne({ userId: ctx.from.id });
+  const { minOut, outPercent } = await MainStats.findOne();
+
+  const accessibleBalance = +(mainBalance * (1 - outPercent / 100)).toFixed(2);
+
+  if (accessibleBalance < minOut.qiwi) {
+    try {
+      return await bot.telegram.editMessageText(
+        ctx.from.id,
+        activeBoard.message_id,
+        null,
+        `Вывод невозможен, у вас недостаточно баланса!
+Ваш доступный для вывода баланс: ${accessibleBalance} ₽
+Минимальный сумма для вывода: ${minOut.qiwi} ₽`,
+        {
+          reply_markup: {
+            inline_keyboard: [
+              [
+                {
+                  text: "↪️ Вернуться назад",
+                  callback_data: "↪️ Вернуться назад",
+                },
+              ],
+            ],
+          },
+        }
+      );
+    } catch (error) {}
+  }
+
+  const cardsRu =
+    accessibleBalance > minOut.card + 50 ? accessibleBalance - 50 : "❌";
+  const cardsOther =
+    accessibleBalance > minOut.card + 100 ? accessibleBalance - 100 : "❌";
+  ctx.session.state.accessibleBalance = {
+    qiwi: accessibleBalance,
+    cardsRu,
+    cardsOther,
+  };
+
+  const extra = {
+    reply_markup: {
+      inline_keyboard: [
+        [
+          {
+            text: "Qiwi кошелек",
+            callback_data: "Qiwi кошелек",
+          },
+        ],
+      ],
+    },
+  };
+
+  if (cardsRu !== "❌") {
+    extra.reply_markup.inline_keyboard.push([
+      {
+        text: "Visa (RU)",
+        callback_data: "Visa (RU)",
+      },
+      {
+        text: "Visa (Other)",
+        callback_data: "Visa (Other)",
+      },
+    ]);
+  }
+  if (cardsOther !== "❌") {
+    extra.reply_markup.inline_keyboard.push([
+      {
+        text: "MC (RU)",
+        callback_data: "MC (RU)",
+      },
+      {
+        text: "MC (Other)",
+        callback_data: "MC (Other)",
+      },
+    ]);
+  }
+
+  extra.reply_markup.inline_keyboard.push([
+    {
+      text: "↪️ Вернуться назад",
+      callback_data: "↪️ Вернуться назад",
+    },
+  ]);
+
+  try {
+    await bot.telegram.editMessageText(
+      ctx.from.id,
+      activeBoard.message_id,
+      null,
+      `Ваши доступные способы для вывода:
+QIWI - ${accessibleBalance} ₽
+Cards (RU) - ${cardsRu} ₽
+Cards (Other) - ${cardsOther} ₽`,
       extra
     );
   } catch (error) {}
-});
-
-lkMenu.hears("Пополнить", async ({ scene }) => {
-  return await scene.enter("inMoney");
-});
-
-lkMenu.hears("Вывести", async ({ scene }) => {
-  return await scene.enter("outMoney");
-});
-
-lkMenu.hears("↪️ Вернуться назад", async ({ scene }) => {
-  return await scene.enter("showMainMenu");
-});
-
-lkMenu.hears("Сделать рассылку", async (ctx) => {
-  const user = await User.findOne({ userId: ctx.from.id });
-
-  if (user.userRights === "admin") {
-    ctx.session.state = { post: { text: "Всем хорошего дня!" } };
-    return await ctx.scene.enter("sendMailing");
-  }
-});
-lkMenu.command("crashbot", async (ctx) => {
-  const user = await User.findOne({ userId: ctx.from.id });
-
-  // if (user.userRights === "admin") {
-  //   throw new Error(`${user.userId} положил бота`);
-  // }
-});
+}
 
 module.exports = { lkMenu };

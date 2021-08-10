@@ -31,44 +31,44 @@ inMoney.hears(/(?:50₽|100₽|500₽|1000₽)/, async (ctx) => {
   const amount = +ctx.update.message.text.replace(/\D+/, "").replace("₽", "");
   const comment = ctx.from.id;
 
-  const { webhook } = await MainStats.findOne({});
+  const { webhook, orderStats } = await MainStats.findOne({});
 
   const urlQiwi = `https://qiwi.com/payment/form/99?extra%5B%27account%27%5D=${webhook.qiwiWallet}&amountInteger=${amount}&amountFraction=0&extra%5B%27comment%27%5D=${comment}&currency=643&blocked[0]=sum&blocked[1]=account&blocked[2]=comment`;
 
-  // const data = JSON.stringify({
-  //   account: "P1051197168",
-  //   apiId: 1407343849,
-  //   apiPass: "1234",
-  //   action: "invoiceCreate",
-  //   m_shop: 1405684803,
-  //   m_orderid: 14234,
-  //   m_amount: 20,
-  //   m_curr: "RUB",
-  //   m_desc: 23442,
-  // });
+  const data = JSON.stringify({
+    account: "P1051197168",
+    apiId: 1407343849,
+    apiPass: "1234",
+    action: "invoiceCreate",
+    m_shop: 1405684803,
+    m_orderid: orderStats + 222,
+    m_amount: 20,
+    m_curr: "RUB",
+    m_desc: 23442,
+  });
 
-  // const request = require("request");
-  // let urlPayeer = null;
+  const request = require("request");
+  let urlPayeer = null;
 
-  // function req(data) {
-  //   return new Promise((resolve) => {
-  //     request(
-  //       {
-  //         method: "POST",
-  //         url: "https://payeer.com/ajax/api/api.php?invoiceCreate",
-  //         headers: {
-  //           "Content-Type": "application/x-www-form-urlencoded",
-  //         },
-  //         body: "account=P1051197168&apiId=1407343849&apiPass=1234&action=invoiceCreate&m_shop=1405684803&m_orderid=test&m_amount=10&m_curr=USD&m_desc=Test%20Invoice",
-  //       },
-  //       function (error, response, body) {
-  //         const data = JSON.parse(body);
-  //         urlPayeer = data.url;
-  //         resolve();
-  //       }
-  //     );
-  //   });
-  // }
+  (function req() {
+    return new Promise((resolve) => {
+      request(
+        {
+          method: "POST",
+          url: "https://payeer.com/ajax/api/api.php?invoiceCreate",
+          headers: {
+            "Content-Type": "application/x-www-form-urlencoded",
+          },
+          body: "account=P1051197168&apiId=1407343849&apiPass=1234&action=invoiceCreate&m_shop=1405684803&m_orderid=test&m_amount=10&m_curr=USD&m_desc=Test%20Invoice",
+        },
+        function (error, response, body) {
+          const data = JSON.parse(body);
+          urlPayeer = data.url;
+          resolve();
+        }
+      );
+    });
+  })();
 
   // await req(data);
 

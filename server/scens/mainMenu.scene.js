@@ -79,10 +79,6 @@ function mainMenuActions(scene) {
   });
 
   scene.hears("📱 Личный кабинет", async (ctx) => {
-    const activeBoard = ctx.session.state.activeBoard;
-    try {
-      await ctx.deleteMessage(activeBoard.message_id);
-    } catch (error) {}
     return await ctx.scene.enter("lkMenu");
   });
 

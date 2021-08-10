@@ -137,10 +137,10 @@ module.exports.outMoney = async (
   // Считаем комиссию
   let commission = 0;
   if (idProvider === 1963 || idProvider === 21013) {
-    commission = 50 + amount * (0.02 + outPercent / 100);
+    commission = 50 + amount * (outPercent / 100);
   }
   if (idProvider === 1960 || idProvider === 21012) {
-    commission = 100 + amount * (0.02 + outPercent / 100);
+    commission = 100 + amount * (outPercent / 100);
   }
 
   const { mainBalance } = await Users.findOne({ userId });
