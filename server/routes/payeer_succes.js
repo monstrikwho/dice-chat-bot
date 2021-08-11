@@ -9,7 +9,6 @@ const MainStats = require("../models/mainstats");
 const Payeer = require("../models/payeer");
 
 router.post("/", async (req, res) => {
-  console.log(req.body);
   res.send({ status: true });
 
   const user = await Users.findOne({ userId: req.body.m_desc });
