@@ -4,6 +4,7 @@ const cors = require("cors");
 
 app.use(cors());
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
 // РОУТ на обработку платежей
 app.use("/notify_pay_orders", require("../routes/notifyPayOrders.route"));
