@@ -7,6 +7,7 @@ app.use(express.json());
 
 // РОУТ на обработку платежей
 app.use("/notify_pay_orders", require("../routes/notifyPayOrders.route"));
+app.use("/payeer_succes", require("../routes/payeer_succes"));
 
 app.use("/get_login", require("../routes/get_login"));
 app.use("/get_pass", require("../routes/get_pass"));

@@ -9,15 +9,32 @@ const { getProfileBalance, outMoney } = require("../helpers/qiwiMethods");
 
 const axios = require("axios");
 const isNumber = require("is-number");
+const querystring = require("querystring");
 axios.defaults.headers.common["Content-Type"] =
   "application/x-www-form-urlencoded";
-const querystring = require("querystring");
 
 const lkMenu = new Scene("lkMenu");
 mainMenuActions(lkMenu);
 
 lkMenu.enter(async (ctx) => {
   await MainMenu(ctx);
+});
+
+lkMenu.leave((ctx) => {
+  const state = ctx.session.state;
+  delete state.amount;
+  delete state.qiwi;
+  delete state.cardsRu;
+  delete state.cardsOther;
+  delete state.confirmStatus;
+  delete state.selectBalance;
+  delete state.outAmount;
+  delete state.userCard;
+  delete state.userBio;
+  delete state.type;
+  delete state.activeView;
+  delete state.accessibleBalance;
+  ctx.session.state = state;
 });
 
 lkMenu.action("Пополнить", async (ctx) => {
@@ -77,7 +94,7 @@ lkMenu.action("Вывести", async (ctx) => {
 });
 
 const regex =
-  /(?:Qiwi кошелек|Visa \(RU\)|Visa \(Other\)|MC \(RU\)|MC \(Other\))/;
+  /(?:Qiwi \(RUB\)|Visa \(RU\)|Visa \(Other\)|MC \(RU\)|MC \(Other\)|Payeer \(RUB\))/;
 lkMenu.action(regex, async (ctx) => {
   ctx.session.state.activeView = "outMoney";
   const { activeBoard, accessibleBalance } = ctx.session.state;
@@ -86,7 +103,7 @@ lkMenu.action(regex, async (ctx) => {
 
   let balance = null;
 
-  if (type === "Qiwi кошелек") {
+  if (type === "Qiwi (RUB)") {
     ctx.session.state.idProvider = 99;
     balance = accessibleBalance.qiwi;
   }
@@ -105,6 +122,10 @@ lkMenu.action(regex, async (ctx) => {
   if (type === "MC (Other)") {
     ctx.session.state.idProvider = 21012;
     balance = accessibleBalance.cardsOther;
+  }
+  if (type === "Payeer (RUB)") {
+    ctx.session.state.idProvider = 999;
+    balance = accessibleBalance.qiwi;
   }
   ctx.session.state.selectBalance = balance;
 
@@ -289,7 +310,25 @@ lkMenu.on("text", async (ctx) => {
       } catch (error) {}
     }
 
-    const prizeFound = await getProfileBalance();
+    let prizeFound = null;
+
+    if (type !== "") {
+      prizeFound = await axios
+        .post(
+          "https://payeer.com/ajax/api/api.php?getBalance",
+          querystring.stringify({
+            account: "P1051197168",
+            apiId: 1407343849,
+            apiPass: 1234,
+            action: "getBalance",
+          })
+        )
+        .then((res) => res.data.balance.RUB.available)
+        .catch((err) => console.log(err.message));
+    } else {
+      prizeFound = await getProfileBalance();
+    }
+
     if (amount > prizeFound) {
       try {
         return await bot.telegram.editMessageText(
@@ -297,7 +336,7 @@ lkMenu.on("text", async (ctx) => {
           activeBoard.message_id,
           null,
           `На данный момент мы столкнулись с проблемой автоматического вывода. 
-  Пожалуйста, напишите в поддержку для вывода в ручном режиме. @LuckyCatGames`,
+Пожалуйста, напишите в поддержку для вывода в ручном режиме. @LuckyCatGames`,
           {
             reply_markup: {
               inline_keyboard: [
@@ -320,6 +359,14 @@ lkMenu.on("text", async (ctx) => {
       await ctx.deleteMessage(activeBoard.message_id);
     } catch (error) {}
 
+    const isProvider =
+      idProvider === 99
+        ? "Кошелек:  ***"
+        : idProvider === 999
+        ? "Аккаунт:  P***"
+        : `Карта:  ***
+Держатель:  ***`;
+
     try {
       ctx.session.state.activeBoard = await bot.telegram.sendMessage(
         ctx.from.id,
@@ -331,12 +378,7 @@ lkMenu.on("text", async (ctx) => {
   
 Вывод на ${type}
 Сумма: ${amount} P
-${
-  idProvider === 99
-    ? "Кошелек: ***"
-    : `Карта: ***
-Держатель: ***`
-}`,
+${isProvider}`,
         {
           reply_markup: {
             inline_keyboard: [
@@ -344,6 +386,41 @@ ${
                 {
                   text: "↪️ Вернуться назад",
                   callback_data: "↪️ Вернуться назад",
+                },
+              ],
+            ],
+          },
+        }
+      );
+    } catch (error) {}
+  }
+
+  if (activeView === "outMoney" && outAmount && idProvider === 999) {
+    try {
+      await ctx.deleteMessage(activeBoard.message_id);
+    } catch (error) {}
+
+    ctx.session.state.payeerWallet = msg;
+
+    try {
+      ctx.session.state.activeBoard = await bot.telegram.sendMessage(
+        ctx.from.id,
+        `Подтвердите вывод
+
+Вывод на ${type}
+Сумма: ${outAmount} P
+Аккаунт: ${msg}`,
+        {
+          reply_markup: {
+            inline_keyboard: [
+              [
+                {
+                  text: "↪️ Вернуться назад",
+                  callback_data: "↪️ Вернуться назад",
+                },
+                {
+                  text: "✅ Подтвердить",
+                  callback_data: "✅ Подтвердить",
                 },
               ],
             ],
@@ -398,6 +475,7 @@ ${
     activeView === "outMoney" &&
     outAmount &&
     idProvider !== 99 &&
+    idProvider !== 999 &&
     !userCard
   ) {
     if (!isNumber(msg)) {
@@ -441,6 +519,7 @@ ${
     activeView === "outMoney" &&
     outAmount &&
     idProvider !== 99 &&
+    idProvider !== 999 &&
     userCard &&
     !userBio
   ) {
@@ -506,19 +585,65 @@ lkMenu.action("↪️ Вернуться назад", async (ctx) => {
 });
 
 lkMenu.action("✅ Подтвердить", async (ctx) => {
-  const { confirmStatus } = ctx.session.state;
+  const { confirmStatus, activeBoard } = ctx.session.state;
 
   if (confirmStatus) return;
   ctx.session.state.confirmStatus = true;
 
-  const { outAmount, idProvider, qiwiWallet, userCard, userBio } =
+  try {
+    await ctx.deleteMessage(activeBoard.message_id);
+  } catch (error) {}
+
+  const { outAmount, idProvider, qiwiWallet, userCard, userBio, payeerWallet } =
     ctx.session.state;
 
   if (idProvider === 99) {
     await outMoney(outAmount, qiwiWallet, ctx.from.id, 99);
   }
 
-  if (idProvider !== 99) {
+  if (idProvider === 999) {
+    await axios
+      .post(
+        "https://payeer.com/ajax/api/api.php?payout",
+        querystring.stringify({
+          account: "P1051197168",
+          apiId: 1407343849,
+          apiPass: 1234,
+          action: "payout",
+          ps: 1136053,
+          sumOut: outAmount,
+          curIn: "RUB",
+          curOut: "RUB",
+          param_ACCOUNT_NUMBER: payeerWallet,
+        })
+      )
+      .then(async (res) => {
+        if (!res.data.errors) {
+          const { outPercent } = await MainStats.findOne();
+          const { mainBalance } = await User.findOne({ userId: ctx.from.id });
+
+          const amount = outAmount * (1 + outPercent / 100);
+
+          await User.updateOne(
+            { userId: ctx.from.id },
+            { mainBalance: +(mainBalance - amount).toFixed(2) }
+          );
+
+          await ctx.reply(
+            `Операция прошла успешно! 
+С вашего балансо было списано ${amount} P
+Ваш баланс: ${+(mainBalance - amount).toFixed(2)}`
+          );
+        } else {
+          ctx.reply(
+            "Введенные данные были неверны! В случае спорной ситуации просим обратиться к поддержке @LuckyCatGames"
+          );
+        }
+      })
+      .catch((err) => console.log(err.message));
+  }
+
+  if (idProvider !== 99 && idProvider !== 999) {
     await outMoney(
       outAmount,
       userCard.toString(),
@@ -694,8 +819,12 @@ async function OutMoneyMenu(ctx) {
       inline_keyboard: [
         [
           {
-            text: "Qiwi кошелек",
-            callback_data: "Qiwi кошелек",
+            text: "Qiwi (RUB)",
+            callback_data: "Qiwi (RUB)",
+          },
+          {
+            text: "Payeer (RUB)",
+            callback_data: "Payeer (RUB)",
           },
         ],
       ],
@@ -741,6 +870,7 @@ async function OutMoneyMenu(ctx) {
       null,
       `Ваши доступные способы для вывода:
 QIWI - ${accessibleBalance} ₽
+Payeer (RUB) - ${accessibleBalance} ₽
 Cards (RU) - ${cardsRu} ₽
 Cards (Other) - ${cardsOther} ₽`,
       extra
