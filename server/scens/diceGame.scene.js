@@ -44,7 +44,7 @@ diceGame.enter(async (ctx) => {
         ctx.from.id,
         "AgACAgIAAxkBAAELz79hDPGuFqx3mgMfflJ26-8unGYkuwACzLUxG9FSaEiIso4qsA3wJAEAAwIAA3MAAyAE",
         {
-          caption: `🎲 SOLOGAME`,
+          caption: `🎲 Кости`,
           reply_markup: extra,
         }
       );
@@ -55,7 +55,7 @@ diceGame.enter(async (ctx) => {
         ctx.from.id,
         "AgACAgIAAxkBAAJFQmEKQEnKpAhODrELdR9KrJyUK3E5AAJCtDEbwjVRSGX1h1IAAfjqPwEAAwIAA3MAAyAE",
         {
-          caption: `🎲 SOLOGAME`,
+          caption: `🎲 Кости`,
           reply_markup: extra,
         }
       );

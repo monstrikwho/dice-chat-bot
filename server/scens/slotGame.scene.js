@@ -37,10 +37,10 @@ slotGame.enter(async (ctx) => {
         ctx.from.id,
         "AgACAgIAAxkBAAELz8BhDPHr5BzdYkeMyS3w27Z_jbb7NwAC0LUxG9FSaEiPNb0zl31QeAEAAwIAA3MAAyAE",
         {
-          caption: `🎰 SOLOGAME
-Выигрышными комбинациями считаются:
+          caption: `🎰 Автоматы
+Выигрышные комбинации:
 - 777 [x${slotCoef.x3_7}]
-- BBB, GGG, LLL [x${slotCoef.x3}]
+- 3 в ряд [x${slotCoef.x3}]
 - XXY или YXX [x${slotCoef.x2}]`,
           reply_markup: extra,
         }
@@ -52,11 +52,11 @@ slotGame.enter(async (ctx) => {
         ctx.from.id,
         "AgACAgIAAxkBAAJGP2EKgoiW-VUkZVWZioc6VzBl3sgvAAKmtDEbwjVRSB0Lf_qKVpvAAQADAgADcwADIAQ",
         {
-          caption: `🎰 SOLOGAME
-Выигрышными комбинациями считаются:
+          caption: `🎰 Автоматы
+Выигрышные комбинации:
 - 777 [x${slotCoef.x3_7}]
-- BBB, GGG, LLL [x${slotCoef.x3}]
-- XXY или YXX [x${slotCoef.x2}]`,
+- 3 в ряд [x${slotCoef.x3}]
+- 2 в ряд [x${slotCoef.x2}]`,
           reply_markup: extra,
         }
       );

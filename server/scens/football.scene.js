@@ -37,7 +37,7 @@ footballGame.enter(async (ctx) => {
         ctx.from.id,
         "AgACAgIAAxkBAAELz75hDPFbFqOoq19HcyfQRZxetgYazAACyrUxG9FSaEhnM091tDxpEwEAAwIAA3MAAyAE",
         {
-          caption: `⚽️ SOLOGAME`,
+          caption: `⚽️ Футбол`,
           reply_markup: extra,
         }
       );
@@ -48,7 +48,7 @@ footballGame.enter(async (ctx) => {
         ctx.from.id,
         "AgACAgIAAxkBAAJGiGEKjSkKqf8KXfroKBeNfKzvJO9kAAJJtDEbwjVRSJSFOM7nIvVTAQADAgADcwADIAQ",
         {
-          caption: `⚽️ SOLOGAME`,
+          caption: `⚽️ Футбол`,
           reply_markup: extra,
         }
       );

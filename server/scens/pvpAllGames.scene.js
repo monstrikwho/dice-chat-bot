@@ -455,7 +455,9 @@ async function showMainView(ctx) {
   const boardMaxPages = boardGames.length;
 
   const extra = mainExtra(boardGames, boardCountPage, ctx.from.id);
-  const message = `PVP GAMES
+  const message = `Добро пожаловать в ПвП игры! 
+Присоединитесь к существующему лобби или создайте свое.
+Так же заходите в наш чат с игроками - @luckycatchat
 
 Страница: ${boardGames.length === 0 ? 0 : boardCountPage}/${boardMaxPages}`;
 
@@ -463,7 +465,7 @@ async function showMainView(ctx) {
     try {
       ctx.session.state.activeBoard = await bot.telegram.sendPhoto(
         ctx.from.id,
-        "AgACAgIAAxkBAAELz71hDPEBIJb6BTXwrjuedla1dnMEDgACyLUxG9FSaEj-twyihsA0_wEAAwIAA3MAAyAE",
+        "AgACAgIAAxkBAAEL9HVhFB5W9ILOCVJFT-gson8OqqhtlgACirYxG5IOoUj2Qmct7xCdOAEAAwIAA3MAAyAE",
         {
           caption: message,
           reply_markup: extra,
@@ -474,7 +476,7 @@ async function showMainView(ctx) {
     try {
       ctx.session.state.activeBoard = await bot.telegram.sendPhoto(
         ctx.from.id,
-        "AgACAgIAAxkBAAJG82ELh0OKxZcqOBcPuKViCYfQcEtqAAJntjEbwjVZSDynD3HIHdqBAQADAgADcwADIAQ",
+        "AgACAgIAAxkBAAJNtmEUHiXriePSl7LMItZ_Srr8WFkHAAJ1tzEbVqCgSEgqF6gjrFmxAQADAgADcwADIAQ",
         {
           caption: message,
           reply_markup: extra,

@@ -25,7 +25,7 @@ module.exports = async (game) => {
     const state = ctx.session.state;
 
     if (state.countRate === 0) {
-      return await ctx.answerCbQuery("Ставко не было", true);
+      return await ctx.answerCbQuery("Ставок не было", true);
     }
 
     const { mainBalance, demoBalance } = await User.findOne({
@@ -204,11 +204,11 @@ module.exports = async (game) => {
           ctx.from.id,
           "AgACAgIAAxkBAAELz8BhDPHr5BzdYkeMyS3w27Z_jbb7NwAC0LUxG9FSaEiPNb0zl31QeAEAAwIAA3MAAyAE",
           {
-            caption: `🎰 SOLOGAME
-Выигрышными комбинациями считаются:
+            caption: `🎰 Автоматы
+Выигрышные комбинации:
 - 777 [x${slotCoef.x3_7}]
-- BBB, GGG, LLL [x${slotCoef.x3}]
-- XXY или YXX [x${slotCoef.x2}]`,
+- 3 в ряд [x${slotCoef.x3}]
+- 2 в ряд [x${slotCoef.x2}]`,
             reply_markup: extra,
           }
         );
@@ -219,11 +219,11 @@ module.exports = async (game) => {
           ctx.from.id,
           "AgACAgIAAxkBAAJGP2EKgoiW-VUkZVWZioc6VzBl3sgvAAKmtDEbwjVRSB0Lf_qKVpvAAQADAgADcwADIAQ",
           {
-            caption: `🎰 SOLOGAME
-Выигрышными комбинациями считаются:
+            caption: `🎰 Автоматы
+Выигрышные комбинации:
 - 777 [x${slotCoef.x3_7}]
-- BBB, GGG, LLL [x${slotCoef.x3}]
-- XXY или YXX [x${slotCoef.x2}]`,
+- 3 в ряд [x${slotCoef.x3}]
+- 2 в ряд [x${slotCoef.x2}]`,
             reply_markup: extra,
           }
         );
@@ -362,11 +362,11 @@ module.exports = async (game) => {
           ctx.from.id,
           "AgACAgIAAxkBAAELz8BhDPHr5BzdYkeMyS3w27Z_jbb7NwAC0LUxG9FSaEiPNb0zl31QeAEAAwIAA3MAAyAE",
           {
-            caption: `🎰 SOLOGAME
-Выигрышными комбинациями считаются:
+            caption: `🎰 Автоматы
+Выигрышные комбинации:
 - 777 [x${slotCoef.x3_7}]
-- BBB, GGG, LLL [x${slotCoef.x3}]
-- XXY или YXX [x${slotCoef.x2}]`,
+- 3 в ряд [x${slotCoef.x3}]
+- 2 в ряд [x${slotCoef.x2}]`,
             reply_markup: extra,
           }
         );
@@ -377,11 +377,11 @@ module.exports = async (game) => {
           ctx.from.id,
           "AgACAgIAAxkBAAJGP2EKgoiW-VUkZVWZioc6VzBl3sgvAAKmtDEbwjVRSB0Lf_qKVpvAAQADAgADcwADIAQ",
           {
-            caption: `🎰 SOLOGAME
-Выигрышными комбинациями считаются:
+            caption: `🎰 Автоматы
+Выигрышные комбинации:
 - 777 [x${slotCoef.x3_7}]
-- BBB, GGG, LLL [x${slotCoef.x3}]
-- XXY или YXX [x${slotCoef.x2}]`,
+- 3 в ряд [x${slotCoef.x3}]
+- 2 в ряд [x${slotCoef.x2}]`,
             reply_markup: extra,
           }
         );
@@ -516,7 +516,7 @@ module.exports = async (game) => {
         }
         ctx.session.state.rateMenu = false;
       } else {
-        // Если хотим бросить еще раз с той же ставкой
+        // Если хотим бросить еще раз с той же Ставокй
         if (state[state.typeBalance] - amountRate < 0) {
           return ctx.reply(
             "У вас недостаточно средств на счету. Пожалуйста, пополните баланс, либо сделайте ставку меньшим размером."

@@ -28,18 +28,29 @@ function mainMenuActions(scene) {
       await ctx.deleteMessage(activeBoard.message_id);
     } catch (error) {}
 
+    const extra = {
+      inline_keyboard: [
+        [
+          { text: "Играть 🎲", callback_data: "playGame 🎲" },
+          { text: "Играть ⚽️", callback_data: "playGame ⚽️" },
+          { text: "Играть 🎰", callback_data: "playGame 🎰" },
+        ],
+      ],
+    };
+
+    const imgId =
+      process.env.DEV !== "true"
+        ? "AgACAgIAAxkBAAEL9IZhFCAwn_RSNa45MTOmnFSmwdGflAACjrYxG5IOoUjHX8Zz0VzrgAEAAwIAA3MAAyAE"
+        : "AgACAgIAAxkBAAJNt2EUIJwUTZttWomM3YAapaRDXrWeAAJ_tzEbVqCgSJKNIiO7FoYrAQADAgADcwADIAQ";
+
     try {
-      ctx.session.state.activeBoard = await ctx.reply(
-        "Выберите solo игру",
-        Extra.markup((m) =>
-          m.inlineKeyboard([
-            [
-              m.callbackButton("Играть 🎲", "playGame 🎲"),
-              m.callbackButton("Играть ⚽️", "playGame ⚽️"),
-              m.callbackButton("Играть 🎰", "playGame 🎰"),
-            ],
-          ])
-        )
+      ctx.session.state.activeBoard = await bot.telegram.sendPhoto(
+        ctx.from.id,
+        imgId,
+        {
+          caption: `Добро пожаловать в одиночный режим! Выберите игру`,
+          reply_markup: extra,
+        }
       );
     } catch (error) {}
   });
