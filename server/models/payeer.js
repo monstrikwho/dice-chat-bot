@@ -7,6 +7,7 @@ const schema = new mongoose.Schema({
   m_amount: Number,
   m_curr: String,
   m_desc: Number,
+  type: String
 });
 
 module.exports = mongoose.model("Payeer", schema);

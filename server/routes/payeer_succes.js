@@ -14,7 +14,7 @@ router.post("/", async (req, res) => {
   const user = await Users.findOne({ userId: req.body.m_desc });
   if (!user) return;
 
-  const order = new Payeer(req.body);
+  const order = new Payeer({ ...req.body, type: "IN" });
   await order.save();
 
   await Users.updateOne(

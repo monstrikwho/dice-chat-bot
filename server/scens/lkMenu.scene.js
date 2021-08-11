@@ -2,12 +2,14 @@ const Scene = require("telegraf/scenes/base");
 
 const User = require("../models/user");
 const MainStats = require("../models/mainstats");
+const Payeer = require("../models/payeer");
 
 const { bot } = require("../init/startBot");
 const { mainMenuActions } = require("./mainMenu.scene");
 const { getProfileBalance, outMoney } = require("../helpers/qiwiMethods");
 
 const axios = require("axios");
+const moment = require("moment");
 const isNumber = require("is-number");
 const querystring = require("querystring");
 axios.defaults.headers.common["Content-Type"] =
@@ -179,6 +181,11 @@ lkMenu.action(/(?:in50₽|in100₽|in250₽|in500₽)/, async (ctx) => {
     .then((res) => res.data.url)
     .catch((err) => console.log(err.message));
 
+  await MainStats.updateOne(
+    {},
+    { $inc: { "orderStats.lastNumberOrder": 111 } }
+  );
+
   try {
     await ctx.deleteMessage(ctx.session.state.activeBoard.message_id);
   } catch (error) {}
@@ -252,7 +259,7 @@ lkMenu.on("text", async (ctx) => {
           apiPass: 1234,
           action: "invoiceCreate",
           m_shop: 1405684803,
-          m_orderid: orderStats.lastNumberOrder + 222,
+          m_orderid: orderStats.lastNumberOrder + 111,
           m_amount: amount,
           m_curr: "RUB",
           m_desc: ctx.from.id,
@@ -260,6 +267,11 @@ lkMenu.on("text", async (ctx) => {
       )
       .then((res) => res.data.url)
       .catch((err) => console.log(err.message));
+
+    await MainStats.updateOne(
+      {},
+      { $inc: { "orderStats.lastNumberOrder": 111 } }
+    );
 
     try {
       await ctx.deleteMessage(activeBoard.message_id);
@@ -619,7 +631,7 @@ lkMenu.action("✅ Подтвердить", async (ctx) => {
       )
       .then(async (res) => {
         if (!res.data.errors) {
-          const { outPercent } = await MainStats.findOne();
+          const { outPercent, orderStats } = await MainStats.findOne();
           const { mainBalance } = await User.findOne({ userId: ctx.from.id });
 
           const amount = outAmount * (1 + outPercent / 100);
@@ -628,6 +640,21 @@ lkMenu.action("✅ Подтвердить", async (ctx) => {
             { userId: ctx.from.id },
             { mainBalance: +(mainBalance - amount).toFixed(2) }
           );
+
+          await MainStats.updateOne(
+            {},
+            { $inc: { "orderStats.lastNumberOrder": 222 } }
+          );
+
+          const order = new Payeer({
+            m_operation_id: orderStats.lastNumberOrder + 222,
+            m_amount: amount,
+            m_desc: ctx.from.id,
+            m_operation_date: moment().format("DD.MM.YYYY HH:mm:ss"),
+            m_curr: "RUB",
+            type: "OUT",
+          });
+          await order.save();
 
           await ctx.reply(
             `Операция прошла успешно! 
