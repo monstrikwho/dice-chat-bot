@@ -257,7 +257,6 @@ async function outCash(txnId, amount, userId, provider) {
   await MainStats.updateOne(
     {},
     {
-      "orderStats.lastNumberOrder": txnId,
       $inc: {
         "orderStats.amountOutMoney": amount,
         "orderStats.countOutOrder": 1,

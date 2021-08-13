@@ -8,7 +8,6 @@ const { footballGame } = require("./football.scene");
 const { slotGame } = require("./slotGame.scene");
 const { pvpAllGames } = require("./pvpAllGames.scene");
 const { lkMenu } = require("./lkMenu.scene");
-const { outMoney } = require("./outMoney.scene");
 const {
   sendMailing,
   editPhoto,
@@ -29,7 +28,6 @@ function setupScenes(bot) {
     slotGame,
     pvpAllGames,
     lkMenu,
-    outMoney,
     sendMailing,
     editPhoto,
     editVideo,

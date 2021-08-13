@@ -2,19 +2,12 @@ const { Router } = require("express");
 const router = Router();
 
 const { bot } = require("../init/startBot");
-const MainStats = require("../models/mainstats");
 
 const fs = require("fs");
 const moment = require("moment");
 const nodeHtmlToImage = require("node-html-to-image");
 
 const pushPhoto = async (txnId, amount) => {
-  function getRandomInt(min, max) {
-    min = Math.ceil(min);
-    max = Math.floor(max);
-    return Math.floor(Math.random() * (max - min)) + min;
-  }
-  // Отпарвляем photo ордерa в паблик
   await nodeHtmlToImage({
     output: `./images/${txnId}.png`,
     html: `<html><head>
@@ -84,7 +77,7 @@ const pushPhoto = async (txnId, amount) => {
         </div>
         <div class="number-order">
           <div class="name">UID:</div>
-          <div class="no">${getRandomInt(364984576, 727186107)}</div>
+          <div class="no">${randomInteger(364984576, 727186107)}</div>
         </div>
         <div class="amount">${amount}P</div>
       </div>
@@ -103,24 +96,20 @@ const pushPhoto = async (txnId, amount) => {
     .catch(async (err) => {
       console.log(err.message);
     });
-
-  await MainStats.updateOne({}, { "orderStats.lastNumberOrder": txnId });
 };
 
 router.post("/", async (req, res) => {
-  // const amount = req.query.amount;
   const amount = req.body.amount;
-
   if (!amount) {
-    res.send({ status: false });
-    return;
+    return res.send({ status: false });
   }
-
-  const { orderStats } = await MainStats.findOne();
-
-  pushPhoto(+orderStats.lastNumberOrder + 12345, amount);
-
+  pushPhoto(randomInteger(123123123, 987987987), amount);
   res.send({ status: true });
 });
+
+function randomInteger(min, max) {
+  let rand = min + Math.random() * (max + 1 - min);
+  return Math.floor(rand);
+}
 
 module.exports = router;

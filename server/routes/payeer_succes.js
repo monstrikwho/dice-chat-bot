@@ -1,11 +1,8 @@
 const { Router } = require("express");
 const router = Router();
-const Extra = require("telegraf/extra");
-const Markup = require("telegraf/markup");
 
 const { bot } = require("../init/startBot");
 const Users = require("../models/user");
-const MainStats = require("../models/mainstats");
 const Payeer = require("../models/payeer");
 
 router.post("/", async (req, res) => {

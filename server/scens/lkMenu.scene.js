@@ -160,7 +160,7 @@ lkMenu.action(/(?:in50₽|in100₽|in250₽|in500₽)/, async (ctx) => {
   const amount = +ctx.update.callback_query.data.replace(/\D+/g, "");
   const comment = ctx.from.id;
 
-  const { webhook, orderStats } = await MainStats.findOne({});
+  const { webhook } = await MainStats.findOne({});
 
   const urlQiwi = `https://qiwi.com/payment/form/99?extra%5B%27account%27%5D=${webhook.qiwiWallet}&amountInteger=${amount}&amountFraction=0&extra%5B%27comment%27%5D=${comment}&currency=643&blocked[0]=sum&blocked[1]=account&blocked[2]=comment`;
   const urlPayeer = await axios
@@ -172,7 +172,7 @@ lkMenu.action(/(?:in50₽|in100₽|in250₽|in500₽)/, async (ctx) => {
         apiPass: 1234,
         action: "invoiceCreate",
         m_shop: 1405684803,
-        m_orderid: orderStats.lastNumberOrder + 222,
+        m_orderid: ctx.from.id,
         m_amount: amount,
         m_curr: "RUB",
         m_desc: ctx.from.id,
@@ -180,11 +180,6 @@ lkMenu.action(/(?:in50₽|in100₽|in250₽|in500₽)/, async (ctx) => {
     )
     .then((res) => res.data.url)
     .catch((err) => console.log(err.message));
-
-  await MainStats.updateOne(
-    {},
-    { $inc: { "orderStats.lastNumberOrder": 111 } }
-  );
 
   try {
     await ctx.deleteMessage(ctx.session.state.activeBoard.message_id);
@@ -241,7 +236,7 @@ lkMenu.on("text", async (ctx) => {
       } catch (error) {}
     }
 
-    const { minIn, webhook, orderStats } = await MainStats.findOne();
+    const { minIn, webhook } = await MainStats.findOne();
 
     if (amount < minIn) {
       try {
@@ -259,7 +254,7 @@ lkMenu.on("text", async (ctx) => {
           apiPass: 1234,
           action: "invoiceCreate",
           m_shop: 1405684803,
-          m_orderid: orderStats.lastNumberOrder + 111,
+          m_orderid: ctx.from.id,
           m_amount: amount,
           m_curr: "RUB",
           m_desc: ctx.from.id,
@@ -267,11 +262,6 @@ lkMenu.on("text", async (ctx) => {
       )
       .then((res) => res.data.url)
       .catch((err) => console.log(err.message));
-
-    await MainStats.updateOne(
-      {},
-      { $inc: { "orderStats.lastNumberOrder": 111 } }
-    );
 
     try {
       await ctx.deleteMessage(activeBoard.message_id);
@@ -631,7 +621,7 @@ lkMenu.action("✅ Подтвердить", async (ctx) => {
       )
       .then(async (res) => {
         if (!res.data.errors) {
-          const { outPercent, orderStats } = await MainStats.findOne();
+          const { outPercent } = await MainStats.findOne();
           const { mainBalance } = await User.findOne({ userId: ctx.from.id });
 
           const amount = outAmount * (1 + outPercent / 100);
@@ -641,13 +631,7 @@ lkMenu.action("✅ Подтвердить", async (ctx) => {
             { mainBalance: +(mainBalance - amount).toFixed(2) }
           );
 
-          await MainStats.updateOne(
-            {},
-            { $inc: { "orderStats.lastNumberOrder": 222 } }
-          );
-
           const order = new Payeer({
-            m_operation_id: orderStats.lastNumberOrder + 222,
             m_amount: amount,
             m_desc: ctx.from.id,
             m_operation_date: moment().format("DD.MM.YYYY HH:mm:ss"),
