@@ -404,7 +404,7 @@ lkMenu.hears(/BTC_CHANGE_BOT/g, async (ctx) => {
   await ctx.reply("Чек отправлен в обработку");
 });
 
-lkMenu.on("photo", async (ctx) => {
+lkMenu.on("text", async (ctx) => {
   const {
     activeView,
     activeBoard,
