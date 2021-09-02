@@ -2,9 +2,18 @@ const Scene = require("telegraf/scenes/base");
 const Extra = require("telegraf/extra");
 const Markup = require("telegraf/markup");
 const { bot } = require("../init/startBot");
+const User = require("../models/user");
 
 const showMainMenu = new Scene("showMainMenu");
 showMainMenu.enter(async (ctx) => {
+  // const { rules } = await User.findOne({ userId: ctx.from.id });
+
+  // if (!rules) {
+  //   await ctx.reply(
+  //     "Соглашение с правилами",
+  //     Extra.markup(Markup.keyboard([["✅ Соглашаюсь"]]).resize())
+  //   );
+  // } else {
   ctx.session.state = {};
   try {
     await ctx.reply(
@@ -12,16 +21,34 @@ showMainMenu.enter(async (ctx) => {
       Extra.markup(
         Markup.keyboard([
           ["👤 Соло", "👥 ПвП"],
+          // ["👤 Соло", "👥 ПвП", "Спорт"],
           ["📱 Личный кабинет", "💬 Чат", "ℹ️ Инфо"],
         ]).resize()
       )
     );
   } catch (error) {}
+  // }
 });
 
 mainMenuActions(showMainMenu);
 
 function mainMenuActions(scene) {
+  scene.hears("✅ Соглашаюсь", async (ctx) => {
+    await User.updateOne({ userId: ctx.from.id }, { rules: true });
+    ctx.session.state = {};
+    try {
+      await ctx.reply(
+        "Вы вошли в главное меню",
+        Extra.markup(
+          Markup.keyboard([
+            ["👤 Соло", "👥 ПвП", "Спорт"],
+            ["📱 Личный кабинет", "💬 Чат", "ℹ️ Инфо"],
+          ]).resize()
+        )
+      );
+    } catch (error) {}
+  });
+
   scene.hears("👤 Соло", async (ctx) => {
     const activeBoard = ctx.session.state.activeBoard;
     try {
@@ -93,13 +120,13 @@ function mainMenuActions(scene) {
     return await ctx.scene.enter("lkMenu");
   });
 
-  // scene.hears("Спорт", async (ctx) => {
-  //   const activeBoard = ctx.session.state.activeBoard;
-  //   try {
-  //     await ctx.deleteMessage(activeBoard.message_id);
-  //   } catch (error) {}
-  //   return await ctx.scene.enter("sportMenu");
-  // });
+  scene.hears("Спорт", async (ctx) => {
+    const activeBoard = ctx.session.state.activeBoard;
+    try {
+      await ctx.deleteMessage(activeBoard.message_id);
+    } catch (error) {}
+    return await ctx.scene.enter("sportMenu");
+  });
 
   scene.hears("ℹ️ Инфо", async (ctx) => {
     const activeBoard = ctx.session.state.activeBoard;

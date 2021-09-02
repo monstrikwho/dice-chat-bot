@@ -14,4 +14,4 @@ const schema = new Schema({
   time: String,
 });
 
-module.exports = model("SportFootballGames", schema);
+module.exports = model("TennisGames", schema);

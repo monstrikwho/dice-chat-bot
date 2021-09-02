@@ -2,7 +2,11 @@ require("dotenv").config();
 
 // Init
 require("./init/setupServer");
-// require("./helpers/updateSportData");
+// require("./helpers/checkRates");
+// require("./helpers/parseTopMatches");
+// require("./helpers/parseSoccer");
+// require("./helpers/parseTennis");
+// require("./helpers/parseBasketball");
 const { bot, startBot } = require("./init/startBot");
 const setupMongoose = require("./init/setupMongoose");
 

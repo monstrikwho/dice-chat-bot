@@ -3,7 +3,9 @@ const Scene = require("telegraf/scenes/base");
 const User = require("../models/user");
 const MainStats = require("../models/mainstats");
 const Payeer = require("../models/payeer");
+const Banker = require("../models/banker");
 
+const { client, Api } = require("../init/telegram");
 const { bot } = require("../init/startBot");
 const { mainMenuActions } = require("./mainMenu.scene");
 const { getProfileBalance, outMoney } = require("../helpers/qiwiMethods");
@@ -11,6 +13,7 @@ const { getProfileBalance, outMoney } = require("../helpers/qiwiMethods");
 const axios = require("axios");
 const moment = require("moment");
 const isNumber = require("is-number");
+const random = require("random-bigint");
 const querystring = require("querystring");
 axios.defaults.headers.common["Content-Type"] =
   "application/x-www-form-urlencoded";
@@ -85,7 +88,7 @@ lkMenu.action("Пополнить", async (ctx) => {
 Минимальная сумма для пополнения: ${minIn} ₽
 
 ❕Пополнение начисляется автоматически
-❕Для пополнение через Banker, свяжитесь с поддержкой @LuckyCatGames`,
+❕Для пополнение через Banker, отправьте BTC (RUB) чек в чат`,
       extra
     );
   } catch (error) {}
@@ -213,7 +216,195 @@ lkMenu.action(/(?:in50₽|in100₽|in250₽|in500₽)/, async (ctx) => {
   } catch (error) {}
 });
 
-lkMenu.on("text", async (ctx) => {
+lkMenu.action("↪️ Вернуться назад", async (ctx) => {
+  try {
+    const { activeView } = ctx.session.state;
+
+    if (activeView === "inMoney") {
+      return await MainMenu(ctx);
+    }
+    if (activeView === "preOutMoney") {
+      return await MainMenu(ctx);
+    }
+    if (activeView === "outMoney") {
+      ctx.session.state = {
+        ...ctx.session.state,
+        selectBalance: null,
+        outAmount: null,
+        idProvider: null,
+        userCard: null,
+        userBio: null,
+        type: null,
+      };
+      return await OutMoneyMenu(ctx);
+    }
+  } catch (error) {}
+});
+
+lkMenu.action("✅ Подтвердить", async (ctx) => {
+  const { confirmStatus, activeBoard } = ctx.session.state;
+
+  if (confirmStatus) return;
+  ctx.session.state.confirmStatus = true;
+
+  try {
+    await ctx.deleteMessage(activeBoard.message_id);
+  } catch (error) {}
+
+  const { outAmount, idProvider, qiwiWallet, userCard, userBio, payeerWallet } =
+    ctx.session.state;
+
+  if (idProvider === 99) {
+    await outMoney(outAmount, qiwiWallet, ctx.from.id, 99);
+  }
+
+  if (idProvider === 999) {
+    await axios
+      .post(
+        "https://payeer.com/ajax/api/api.php?payout",
+        querystring.stringify({
+          account: "P1051197168",
+          apiId: 1407343849,
+          apiPass: 1234,
+          action: "payout",
+          ps: 1136053,
+          sumOut: outAmount,
+          curIn: "RUB",
+          curOut: "RUB",
+          param_ACCOUNT_NUMBER: payeerWallet,
+        })
+      )
+      .then(async (res) => {
+        if (!res.data.errors) {
+          const { outPercent } = await MainStats.findOne();
+          const { mainBalance } = await User.findOne({ userId: ctx.from.id });
+
+          const amount = outAmount * (1 + outPercent / 100);
+
+          await User.updateOne(
+            { userId: ctx.from.id },
+            { mainBalance: +(mainBalance - amount).toFixed(2) }
+          );
+
+          const order = new Payeer({
+            m_amount: amount,
+            m_desc: ctx.from.id,
+            m_operation_date: moment().format("DD.MM.YYYY HH:mm:ss"),
+            m_curr: "RUB",
+            type: "OUT",
+          });
+          await order.save();
+
+          await ctx.reply(
+            `Операция прошла успешно! 
+С вашего балансо было списано ${amount} P
+Ваш баланс: ${+(mainBalance - amount).toFixed(2)}`
+          );
+        } else {
+          ctx.reply(
+            "Введенные данные были неверны! В случае спорной ситуации просим обратиться к поддержке @LuckyCatGames"
+          );
+        }
+      })
+      .catch((err) => console.log(err.message));
+  }
+
+  if (idProvider !== 99 && idProvider !== 999) {
+    await outMoney(
+      outAmount,
+      userCard.toString(),
+      ctx.from.id,
+      idProvider,
+      userBio
+    );
+  }
+
+  await ctx.scene.enter("showMainMenu");
+  ctx.session.state.confirmStatus = false;
+});
+
+lkMenu.action("Сделать рассылку", async (ctx) => {
+  ctx.session.state = { post: { text: "Всем хорошего дня!" } };
+  await ctx.scene.enter("sendMailing");
+});
+
+lkMenu.action("Положить бота", async (ctx) => {
+  const { activeBoard } = ctx.session.state;
+  await bot.telegram.editMessageText(
+    ctx.from.id,
+    activeBoard.message_id,
+    null,
+    "Уверен?",
+    {
+      reply_markup: {
+        inline_keyboard: [
+          [
+            {
+              text: "✅ Да",
+              callback_data: "✅ Да",
+            },
+            {
+              text: "❌Нет",
+              callback_data: "❌Нет",
+            },
+          ],
+        ],
+      },
+    }
+  );
+});
+
+lkMenu.action("✅ Да", (ctx) => {
+  ctx.reply("Оп ля (");
+  throw new Error("Уупс!");
+});
+
+lkMenu.action("❌Нет", async (ctx) => {
+  await ctx.scene.enter("lkMenu");
+});
+
+lkMenu.hears(/BTC_CHANGE_BOT/g, async (ctx) => {
+  const code = ctx.update.message.text.replace(
+    "https://telegram.me/BTC_CHANGE_BOT?start=",
+    ""
+  );
+
+  if (!code) {
+    return await ctx.reply("Вы ввели некорректный чек");
+  }
+
+  const status = await Banker.findOne({ code });
+  if (status) {
+    return await ctx.reply("Этот чек уже был обналичен");
+  }
+
+  const banker = new Banker({ userId: ctx.from.id, code, status: "pending" });
+  await banker.save();
+
+  await client.invoke(
+    new Api.messages.StartBot({
+      bot: "BTC_CHANGE_BOT",
+      peer: "luckycatsupport",
+      randomId: random(128),
+      startParam: code,
+    })
+  );
+  await client.invoke(
+    new Api.messages.SendMessage({
+      peer: "BTC_CHANGE_BOT",
+      message: `${code}`,
+      randomId: random(128),
+    })
+  );
+
+  try {
+    await ctx.deleteMessage(ctx.session.state.activeBoard.message_id);
+  } catch (error) {}
+
+  await ctx.reply("Чек отправлен в обработку");
+});
+
+lkMenu.on("photo", async (ctx) => {
   const {
     activeView,
     activeBoard,
@@ -559,153 +750,6 @@ ${isProvider}`,
       );
     } catch (error) {}
   }
-});
-
-lkMenu.action("↪️ Вернуться назад", async (ctx) => {
-  try {
-    const { activeView } = ctx.session.state;
-
-    if (activeView === "inMoney") {
-      return await MainMenu(ctx);
-    }
-    if (activeView === "preOutMoney") {
-      return await MainMenu(ctx);
-    }
-    if (activeView === "outMoney") {
-      ctx.session.state = {
-        ...ctx.session.state,
-        selectBalance: null,
-        outAmount: null,
-        idProvider: null,
-        userCard: null,
-        userBio: null,
-        type: null,
-      };
-      return await OutMoneyMenu(ctx);
-    }
-  } catch (error) {}
-});
-
-lkMenu.action("✅ Подтвердить", async (ctx) => {
-  const { confirmStatus, activeBoard } = ctx.session.state;
-
-  if (confirmStatus) return;
-  ctx.session.state.confirmStatus = true;
-
-  try {
-    await ctx.deleteMessage(activeBoard.message_id);
-  } catch (error) {}
-
-  const { outAmount, idProvider, qiwiWallet, userCard, userBio, payeerWallet } =
-    ctx.session.state;
-
-  if (idProvider === 99) {
-    await outMoney(outAmount, qiwiWallet, ctx.from.id, 99);
-  }
-
-  if (idProvider === 999) {
-    await axios
-      .post(
-        "https://payeer.com/ajax/api/api.php?payout",
-        querystring.stringify({
-          account: "P1051197168",
-          apiId: 1407343849,
-          apiPass: 1234,
-          action: "payout",
-          ps: 1136053,
-          sumOut: outAmount,
-          curIn: "RUB",
-          curOut: "RUB",
-          param_ACCOUNT_NUMBER: payeerWallet,
-        })
-      )
-      .then(async (res) => {
-        if (!res.data.errors) {
-          const { outPercent } = await MainStats.findOne();
-          const { mainBalance } = await User.findOne({ userId: ctx.from.id });
-
-          const amount = outAmount * (1 + outPercent / 100);
-
-          await User.updateOne(
-            { userId: ctx.from.id },
-            { mainBalance: +(mainBalance - amount).toFixed(2) }
-          );
-
-          const order = new Payeer({
-            m_amount: amount,
-            m_desc: ctx.from.id,
-            m_operation_date: moment().format("DD.MM.YYYY HH:mm:ss"),
-            m_curr: "RUB",
-            type: "OUT",
-          });
-          await order.save();
-
-          await ctx.reply(
-            `Операция прошла успешно! 
-С вашего балансо было списано ${amount} P
-Ваш баланс: ${+(mainBalance - amount).toFixed(2)}`
-          );
-        } else {
-          ctx.reply(
-            "Введенные данные были неверны! В случае спорной ситуации просим обратиться к поддержке @LuckyCatGames"
-          );
-        }
-      })
-      .catch((err) => console.log(err.message));
-  }
-
-  if (idProvider !== 99 && idProvider !== 999) {
-    await outMoney(
-      outAmount,
-      userCard.toString(),
-      ctx.from.id,
-      idProvider,
-      userBio
-    );
-  }
-
-  await ctx.scene.enter("showMainMenu");
-  ctx.session.state.confirmStatus = false;
-});
-
-lkMenu.action("Сделать рассылку", async (ctx) => {
-  ctx.session.state = { post: { text: "Всем хорошего дня!" } };
-  await ctx.scene.enter("sendMailing");
-});
-
-lkMenu.action("Положить бота", async (ctx) => {
-  const { activeBoard } = ctx.session.state;
-  await bot.telegram.editMessageText(
-    ctx.from.id,
-    activeBoard.message_id,
-    null,
-    "Уверен?",
-    {
-      reply_markup: {
-        inline_keyboard: [
-          [
-            {
-              text: "✅ Да",
-              callback_data: "✅ Да",
-            },
-            {
-              text: "❌Нет",
-              callback_data: "❌Нет",
-            },
-          ],
-        ],
-      },
-    }
-  );
-});
-
-lkMenu.action("✅ Да", (ctx) => {
-  ctx.reply("Оп ля (");
-  throw new Error("Уупс!");
-});
-
-lkMenu.action("❌Нет", async (ctx) => {
-  await ctx.scene.enter("lkMenu");
 });
 
 async function MainMenu(ctx) {

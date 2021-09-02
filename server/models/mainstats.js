@@ -13,6 +13,7 @@ const schema = new Schema({
   minOut: Object,
   outPercent: Number,
   pvpPercent: Number,
+  sportPercent: Number,
   bonusRefPercent: Number,
   bonusRefDaughter: Number,
   bonusRefFather: Number,

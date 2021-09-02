@@ -18,6 +18,7 @@ const schema = new mongoose.Schema({
   pass: Number,
   regDate: String,
   pvp: Object,
+  rules: Boolean,
 });
 
 module.exports = mongoose.model("Users", schema);
