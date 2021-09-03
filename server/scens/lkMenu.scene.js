@@ -343,7 +343,7 @@ lkMenu.action("✅ Подтвердить", async (ctx) => {
       1498018305,
       `Запрос на вывод №${orders.length + 1} (Banker)
 userId: ${ctx.from.id} 
-userName: @${ctx.from.username ?? "НЭТУ НИКНЭЙМА"}
+userName: @${ctx.from.username}
 amount: ${outAmount} P`,
       {
         reply_markup: {
