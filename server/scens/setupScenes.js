@@ -1,7 +1,6 @@
 const session = require("telegraf/session");
 const Stage = require("telegraf/stage");
 
-const { showMainMenu } = require("./mainMenu.scene");
 const { sportMenu } = require("./sportMenu.scene");
 const { diceGame } = require("./diceGame.scene");
 const { footballGame } = require("./football.scene");
@@ -21,7 +20,6 @@ const {
 
 function setupScenes(bot) {
   const stage = new Stage([
-    showMainMenu,
     sportMenu,
     diceGame,
     footballGame,

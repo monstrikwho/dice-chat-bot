@@ -1,21 +1,23 @@
 require("dotenv").config();
 
 // Init
+const { bot, startBot } = require("./init/startBot");
+const setupMongoose = require("./init/setupMongoose");
+
 require("./init/setupServer");
 // require("./helpers/checkRates");
 // require("./helpers/parseTopMatches");
 // require("./helpers/parseSoccer");
 // require("./helpers/parseTennis");
 // require("./helpers/parseBasketball");
-const { bot, startBot } = require("./init/startBot");
-const setupMongoose = require("./init/setupMongoose");
+require("./helpers/checkBlockedUsers")(bot);
+require("./helpers/updatePvpStats")();
 
 require("./scens/setupScenes")(bot);
 
 // Commands
-const setupStart = require("./commands/start");
-const setupStats = require("./helpers/checkBlockedUsers");
-const updatePvpStats = require("./helpers/updatePvpStats");
+const { setupStart } = require("./commands/start");
+const { mainMenuActions } = require("./scens/mainMenu.scene");
 
 // Init
 startBot();
@@ -23,5 +25,4 @@ setupMongoose();
 
 // Commands
 setupStart(bot);
-setupStats(bot);
-updatePvpStats();
+mainMenuActions(bot);

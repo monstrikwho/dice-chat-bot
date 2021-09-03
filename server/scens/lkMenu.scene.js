@@ -14,7 +14,7 @@ const { bot } = require("../init/startBot");
 const { client, Api } = require("../init/telegram");
 const { mainMenuActions } = require("./mainMenu.scene");
 const { getProfileBalance, outMoney } = require("../helpers/qiwiMethods");
-const setupStart = require("../commands/start");
+const { setupStart } = require("../commands/start");
 
 axios.defaults.headers.common["Content-Type"] =
   "application/x-www-form-urlencoded";
@@ -91,7 +91,7 @@ lkMenu.action("Пополнить", async (ctx) => {
 Минимальная сумма для пополнения: ${minIn} ₽
 
 ❕Пополнение начисляется автоматически
-❕Для пополнение через Banker, отправьте BTC (RUB) чек в чат`,
+❕Для пополнения через chatex напишите @luckycatsupport`,
       extra
     );
   } catch (error) {}
@@ -102,7 +102,7 @@ lkMenu.action("Вывести", async (ctx) => {
 });
 
 const regex =
-  /(?:Qiwi \(RUB\)|Visa \(RU\)|Visa \(Other\)|MC \(RU\)|MC \(Other\)|Payeer \(RUB\))/;
+  /(?:Qiwi \(RUB\)|Visa \(RU\)|Visa \(Other\)|MC \(RU\)|MC \(Other\)|Payeer \(RUB\)|Banker \(RUB\))/;
 
 lkMenu.action(regex, async (ctx) => {
   ctx.session.state.activeView = "outMoney";
@@ -134,6 +134,10 @@ lkMenu.action(regex, async (ctx) => {
   }
   if (type === "Payeer (RUB)") {
     ctx.session.state.idProvider = 999;
+    balance = accessibleBalance.qiwi;
+  }
+  if (type === "Banker (RUB)") {
+    ctx.session.state.idProvider = 9999;
     balance = accessibleBalance.qiwi;
   }
   ctx.session.state.selectBalance = balance;
@@ -263,7 +267,7 @@ lkMenu.action("✅ Подтвердить", async (ctx) => {
   }
 
   if (idProvider === 999) {
-    await axios
+    return await axios
       .post(
         "https://payeer.com/ajax/api/api.php?payout",
         querystring.stringify({
@@ -306,15 +310,58 @@ lkMenu.action("✅ Подтвердить", async (ctx) => {
           );
         } else {
           ctx.reply(
-            "Введенные данные были неверны! В случае спорной ситуации просим обратиться к поддержке @LuckyCatGames"
+            "Введенные данные были неверны! В случае спорной ситуации просим обратиться к поддержке @luckycatsupport"
           );
         }
       })
       .catch((err) => console.log(err.message));
   }
 
+  if (idProvider === 9999) {
+    const orders = await Banker.find();
+    const user = await User.findOne({ userId: ctx.from.id });
+
+    const order = new Banker({
+      id: orders.length + 1,
+      type: "OUT",
+      status: "waiting",
+      userId: ctx.from.id,
+      amount: outAmount,
+      date: moment().format("YYYY-MM-DD"),
+    });
+    await order.save();
+
+    await User.updateOne(
+      { userId: ctx.from.id },
+      { mainBalance: +(user.mainBalance - outAmount).toFixed(2) }
+    );
+
+    await ctx.reply(`Ваша заявка на вывод №${orders.length + 1}
+Сумма: ${outAmount}P`);
+
+    return await bot.telegram.sendMessage(
+      1498018305,
+      `Запрос на вывод №${orders.length + 1} (Banker)
+userId: ${ctx.from.id} 
+userName: @${ctx.from.username ?? "НЭТУ НИКНЭЙМА"}
+amount: ${outAmount} P`,
+      {
+        reply_markup: {
+          inline_keyboard: [
+            [
+              {
+                text: "Выплатить",
+                callback_data: `Выплатить:${orders.length + 1}`,
+              },
+            ],
+          ],
+        },
+      }
+    );
+  }
+
   if (idProvider !== 99 && idProvider !== 999) {
-    await outMoney(
+    return await outMoney(
       outAmount,
       userCard.toString(),
       ctx.from.id,
@@ -509,7 +556,7 @@ lkMenu.on("text", async (ctx) => {
 
     let prizeFound = null;
 
-    if (type !== "") {
+    if (type === "Payeer (RUB)") {
       prizeFound = await axios
         .post(
           "https://payeer.com/ajax/api/api.php?getBalance",
@@ -533,7 +580,7 @@ lkMenu.on("text", async (ctx) => {
           activeBoard.message_id,
           null,
           `На данный момент мы столкнулись с проблемой автоматического вывода. 
-Пожалуйста, напишите в поддержку для вывода в ручном режиме. @LuckyCatGames`,
+Пожалуйста, напишите в поддержку для вывода в ручном режиме. @luckycatsupport`,
           {
             reply_markup: {
               inline_keyboard: [
@@ -561,6 +608,8 @@ lkMenu.on("text", async (ctx) => {
         ? "Кошелек:  ***"
         : idProvider === 999
         ? "Аккаунт:  P***"
+        : idProvider === 9999
+        ? "\n❕Бот пришлет вам чек в ближайшее время."
         : `Карта:  ***
 Держатель:  ***`;
 
@@ -570,6 +619,10 @@ lkMenu.on("text", async (ctx) => {
         `${
           idProvider === 99
             ? "Напишите в чат номер кошелька"
+            : idProvider === 999
+            ? "Напишите в чат ид вашего аккаунта"
+            : idProvider === 9999
+            ? "Подтвердите заявку"
             : "Напишите в чат номер карты"
         }
   
@@ -579,12 +632,23 @@ ${isProvider}`,
         {
           reply_markup: {
             inline_keyboard: [
-              [
-                {
-                  text: "↪️ Вернуться назад",
-                  callback_data: "↪️ Вернуться назад",
-                },
-              ],
+              idProvider === 9999
+                ? [
+                    {
+                      text: "↪️ Вернуться назад",
+                      callback_data: "↪️ Вернуться назад",
+                    },
+                    {
+                      text: "✅ Подтвердить",
+                      callback_data: "✅ Подтвердить",
+                    },
+                  ]
+                : [
+                    {
+                      text: "↪️ Вернуться назад",
+                      callback_data: "↪️ Вернуться назад",
+                    },
+                  ],
             ],
           },
         }
@@ -917,6 +981,13 @@ async function OutMoneyMenu(ctx) {
 
   extra.reply_markup.inline_keyboard.push([
     {
+      text: "Banker (RUB)",
+      callback_data: "Banker (RUB)",
+    },
+  ]);
+
+  extra.reply_markup.inline_keyboard.push([
+    {
       text: "↪️ Вернуться назад",
       callback_data: "↪️ Вернуться назад",
     },
@@ -930,6 +1001,7 @@ async function OutMoneyMenu(ctx) {
       `Ваши доступные способы для вывода:
 QIWI - ${accessibleBalance} ₽
 Payeer (RUB) - ${accessibleBalance} ₽
+Banker (RUB) - ${accessibleBalance} ₽
 Cards (RU) - ${cardsRu} ₽
 Cards (Other) - ${cardsOther} ₽`,
       extra

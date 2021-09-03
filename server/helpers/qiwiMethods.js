@@ -202,7 +202,7 @@ module.exports.outMoney = async (
       return await bot.telegram.sendMessage(
         userId,
         `Проверьте правильность введенных данных или напишите в поддержку для разъяснения ситуации.
-Поддержка: @LuckyCatGames`
+Поддержка: @luckycatsupport`
       );
     });
 };

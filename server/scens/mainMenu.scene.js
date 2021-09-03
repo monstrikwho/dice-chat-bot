@@ -1,55 +1,24 @@
-const Scene = require("telegraf/scenes/base");
-const Extra = require("telegraf/extra");
-const Markup = require("telegraf/markup");
 const { bot } = require("../init/startBot");
+const { commandStart, showMainMenu } = require("../commands/start");
+
 const User = require("../models/user");
-
-const showMainMenu = new Scene("showMainMenu");
-showMainMenu.enter(async (ctx) => {
-  // const { rules } = await User.findOne({ userId: ctx.from.id });
-
-  // if (!rules) {
-  //   await ctx.reply(
-  //     "Соглашение с правилами",
-  //     Extra.markup(Markup.keyboard([["✅ Соглашаюсь"]]).resize())
-  //   );
-  // } else {
-  ctx.session.state = {};
-  try {
-    await ctx.reply(
-      "Вы вошли в главное меню",
-      Extra.markup(
-        Markup.keyboard([
-          ["👤 Соло", "👥 ПвП"],
-          // ["👤 Соло", "👥 ПвП", "Спорт"],
-          ["📱 Личный кабинет", "💬 Чат", "ℹ️ Инфо"],
-        ]).resize()
-      )
-    );
-  } catch (error) {}
-  // }
-});
-
-mainMenuActions(showMainMenu);
+const Banker = require("../models/banker");
 
 function mainMenuActions(scene) {
   scene.hears("✅ Соглашаюсь", async (ctx) => {
+    if (!ctx.session.is_session) {
+      await commandStart(ctx);
+    }
+
     await User.updateOne({ userId: ctx.from.id }, { rules: true });
-    ctx.session.state = {};
-    try {
-      await ctx.reply(
-        "Вы вошли в главное меню",
-        Extra.markup(
-          Markup.keyboard([
-            ["👤 Соло", "👥 ПвП", "Спорт"],
-            ["📱 Личный кабинет", "💬 Чат", "ℹ️ Инфо"],
-          ]).resize()
-        )
-      );
-    } catch (error) {}
+    await showMainMenu(ctx);
   });
 
   scene.hears("👤 Соло", async (ctx) => {
+    if (!ctx.session.is_session) {
+      await commandStart(ctx);
+    }
+
     const activeBoard = ctx.session.state.activeBoard;
     try {
       await ctx.deleteMessage(activeBoard.message_id);
@@ -83,6 +52,10 @@ function mainMenuActions(scene) {
   });
 
   scene.hears("👥 ПвП", async (ctx) => {
+    if (!ctx.session.is_session) {
+      await commandStart(ctx);
+    }
+
     const activeBoard = ctx.session.state.activeBoard;
     try {
       await ctx.deleteMessage(activeBoard.message_id);
@@ -92,6 +65,10 @@ function mainMenuActions(scene) {
   });
 
   scene.action(/(?:playGame)/, async (ctx) => {
+    if (!ctx.session.is_session) {
+      await commandStart(ctx);
+    }
+
     const emoji = ctx.update.callback_query.data.split(" ")[1];
 
     ctx.session.state = {
@@ -117,18 +94,27 @@ function mainMenuActions(scene) {
   });
 
   scene.hears("📱 Личный кабинет", async (ctx) => {
-    return await ctx.scene.enter("lkMenu");
+    if (!ctx.session.is_session) {
+      await commandStart(ctx);
+    }
+    await ctx.scene.enter("lkMenu");
   });
 
   scene.hears("Спорт", async (ctx) => {
+    if (!ctx.session.is_session) {
+      await commandStart(ctx);
+    }
     const activeBoard = ctx.session.state.activeBoard;
     try {
       await ctx.deleteMessage(activeBoard.message_id);
     } catch (error) {}
-    return await ctx.scene.enter("sportMenu");
+    await ctx.scene.enter("sportMenu");
   });
 
   scene.hears("ℹ️ Инфо", async (ctx) => {
+    if (!ctx.session.is_session) {
+      await commandStart(ctx);
+    }
     const activeBoard = ctx.session.state.activeBoard;
     try {
       await ctx.deleteMessage(activeBoard.message_id);
@@ -149,7 +135,7 @@ function mainMenuActions(scene) {
   2) Делаете ставку;
   3) Отправляете смайлик.
   
-  <a href="http://t.me/LuckyCatGames">❓ Поддержка</a>
+  <a href="http://t.me/luckycatsupport">❓ Поддержка</a>
   <a href="http://t.me/joinchat/P0el-xuDN6g-ZsY7decv7A">💬 Чат для общения с игроками</a>
   <a href="http://t.me/luckycat_orders">💳 Чат, в котором публикуются платежи</a>`,
         {
@@ -160,24 +146,32 @@ function mainMenuActions(scene) {
     } catch (error) {}
   });
 
-  scene.hears("💬 Чат", async (ctx) => {
+  scene.hears("💬 Чат / Поддержка", async (ctx) => {
+    if (!ctx.session.is_session) {
+      await commandStart(ctx);
+    }
     const activeBoard = ctx.session.state.activeBoard;
     try {
       await ctx.deleteMessage(activeBoard.message_id);
     } catch (error) {}
 
     try {
-      ctx.reply(
-        `Вы можете общаться с игроками в нашем общем чате
-    <a href="http://t.me/joinchat/P0el-xuDN6g-ZsY7decv7A">💬 Чат для общения с игроками</a>`,
+      await ctx.reply(
+        `<a href="tg://user?id=1498018305">👨‍💻 Поддержка</a>
+<a href="http://t.me/joinchat/P0el-xuDN6g-ZsY7decv7A">💬 Чат для общения с игроками</a>`,
         {
           parse_mode: "HTML",
+          disable_web_page_preview: true,
           reply_markup: {
             inline_keyboard: [
               [
                 {
                   text: "Перейти в чат",
                   url: "http://t.me/joinchat/P0el-xuDN6g-ZsY7decv7A",
+                },
+                {
+                  text: "Написать в поддержку",
+                  url: "http://t.me/luckycatsupport",
                 },
               ],
             ],
@@ -186,6 +180,66 @@ function mainMenuActions(scene) {
       );
     } catch (error) {}
   });
+
+  scene.action(/Выплатить/g, async (ctx) => {
+    if (!ctx.session.is_session) {
+      await commandStart(ctx);
+    }
+
+    if (ctx.from.id !== 1498018305) return;
+
+    const orderId = ctx.update.callback_query.data.split(":")[1];
+
+    ctx.session.m_order_id = orderId;
+    ctx.session.m_message_id = ctx.update.callback_query.message.message_id;
+
+    await ctx.reply(`Отправьте ссылку на чек для заказа №${orderId}
+ОБЯЗАТЕЛЬНО нужно добавить точку перед ссылкой
+.https://telegram...`);
+  });
+
+  scene.hears(/\.https\:\/\/telegram\.me\/BTC_CHANGE_BOT/g, async (ctx) => {
+    if (!ctx.session.is_session) {
+      return await ctx.reply("Сессия была потеряна. Выберите заявку занаво!");
+    }
+
+    if (ctx.from.id !== 1498018305) return;
+
+    const code = ctx.update.message.text.split("https://")[1];
+
+    const orderId = ctx.session.m_order_id;
+    const messageId = ctx.session.m_message_id;
+    const order = await Banker.findOne({ id: orderId });
+
+    if (order.status === "succes") {
+      return await ctx.reply("Заявка уже была обработана!");
+    }
+
+    await Banker.updateOne(
+      { id: orderId },
+      {
+        order: "succes",
+        code: code.replace("https://telegram.me/BTC_CHANGE_BOT?start=", ""),
+      }
+    );
+
+    await bot.telegram.sendMessage(
+      order.userId,
+      `Ваш чек на сумму: ${order.amount} P
+https://${code}`
+    );
+
+    await bot.telegram.editMessageText(
+      1498018305,
+      messageId,
+      null,
+      `Заявка №${orderId} обработана
+Вывод на сумму ${order.amount} P успешно проведен
+Чек: https://${code}
+🟢 ВЫПЛАЧЕНО`,
+      { disable_web_page_preview: true }
+    );
+  });
 }
 
-module.exports = { showMainMenu, mainMenuActions };
+module.exports = { mainMenuActions };

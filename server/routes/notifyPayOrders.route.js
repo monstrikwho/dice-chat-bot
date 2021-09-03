@@ -36,7 +36,7 @@ async function processing(data) {
       await bot.telegram.sendMessage(
         comment,
         `Платеж №${txnId} не был завершен. Пожалуйста, свяжитесь с поддержкой, для уточнения статуса операции. 
-Поддержка: @LuckyCatGames`
+Поддержка: @luckycatsupport`
       );
       await Users.updateOne({ comment }, { $inc: { mainBalance: amount } });
       await bot.telegram.sendMessage(

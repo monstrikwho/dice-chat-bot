@@ -1,13 +1,11 @@
-const { bot } = require("../init/startBot");
-const User = require("../models/user");
-
 const Scene = require("telegraf/scenes/base");
-const Extra = require("telegraf/extra");
-const Markup = require("telegraf/markup");
 
+const { bot } = require("../init/startBot");
+const { setupStart } = require("../commands/start");
 const extraBoard = require("../helpers/footballExtra");
 const actionsBord = require("../helpers/footballActions");
-const setupStart = require("../commands/start");
+
+const User = require("../models/user");
 
 const footballGame = new Scene("footballGame");
 footballGame.enter(async (ctx) => {

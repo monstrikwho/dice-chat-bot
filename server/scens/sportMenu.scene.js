@@ -6,7 +6,7 @@ const moment = require("moment");
 const isNumber = require("is-number");
 
 const { bot } = require("../init/startBot");
-const setupStart = require("../commands/start");
+const { setupStart } = require("../commands/start");
 
 const User = require("../models/user");
 const MainStats = require("../models/mainstats");

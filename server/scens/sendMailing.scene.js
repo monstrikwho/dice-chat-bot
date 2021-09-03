@@ -3,7 +3,7 @@ const Extra = require("telegraf/extra");
 const Markup = require("telegraf/markup");
 
 const { bot } = require("../init/startBot");
-const setupStart = require("../commands/start");
+const { setupStart } = require("../commands/start");
 
 const User = require("../models/user");
 const MainStats = require("../models/mainstats");

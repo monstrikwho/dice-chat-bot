@@ -1,10 +1,12 @@
 const mongoose = require("mongoose");
 
 const schema = new mongoose.Schema({
-  userId: Number,
-  code: String,
-  amount: Number,
+  id: Number,
+  type: String,
   status: String,
+  userId: Number,
+  amount: Number,
+  code: String,
 });
 
 module.exports = mongoose.model("Banker_orders", schema);

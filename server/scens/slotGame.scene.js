@@ -1,13 +1,12 @@
 const Scene = require("telegraf/scenes/base");
 
 const { bot } = require("../init/startBot");
+const { setupStart } = require("../commands/start");
+const extraBoard = require("../helpers/slotExtra");
+const actionsBord = require("../helpers/slotActions");
 
 const User = require("../models/user");
 const MainStats = require("../models/mainstats");
-
-const extraBoard = require("../helpers/slotExtra");
-const actionsBord = require("../helpers/slotActions");
-const setupStart = require("../commands/start");
 
 const slotGame = new Scene("slotGame");
 slotGame.enter(async (ctx) => {
