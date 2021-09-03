@@ -1,4 +1,3 @@
-const setupScenes = require("../scens/setupScenes");
 const moment = require("moment");
 
 const User = require("../models/user");
@@ -6,7 +5,6 @@ const MainStats = require("../models/mainstats");
 
 async function setupStart(bot) {
   // Setup scens
-  setupScenes(bot);
 
   async function saveAdsStats(ads, adsName) {
     if (ads[adsName]) {

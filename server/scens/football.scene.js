@@ -7,6 +7,7 @@ const Markup = require("telegraf/markup");
 
 const extraBoard = require("../helpers/footballExtra");
 const actionsBord = require("../helpers/footballActions");
+const setupStart = require("../commands/start");
 
 const footballGame = new Scene("footballGame");
 footballGame.enter(async (ctx) => {
@@ -57,6 +58,7 @@ footballGame.enter(async (ctx) => {
 });
 
 // Подключаем actions
+setupStart(footballGame);
 actionsBord(footballGame);
 
 module.exports = { footballGame };

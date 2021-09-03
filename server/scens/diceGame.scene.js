@@ -5,6 +5,7 @@ const Scene = require("telegraf/scenes/base");
 
 const extraBoard = require("../helpers/diceExtra");
 const actionsBord = require("../helpers/diceActions");
+const setupStart = require("../commands/start");
 
 const diceGame = new Scene("diceGame");
 diceGame.enter(async (ctx) => {
@@ -64,6 +65,7 @@ diceGame.enter(async (ctx) => {
 });
 
 // Подключаем actions
+setupStart(diceGame);
 actionsBord(diceGame);
 
 module.exports = { diceGame };

@@ -10,6 +10,8 @@ require("./init/setupServer");
 const { bot, startBot } = require("./init/startBot");
 const setupMongoose = require("./init/setupMongoose");
 
+require("./scens/setupScenes")(bot);
+
 // Commands
 const setupStart = require("./commands/start");
 const setupStats = require("./helpers/checkBlockedUsers");

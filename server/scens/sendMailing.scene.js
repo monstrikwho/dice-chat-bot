@@ -2,11 +2,16 @@ const Scene = require("telegraf/scenes/base");
 const Extra = require("telegraf/extra");
 const Markup = require("telegraf/markup");
 
+const { bot } = require("../init/startBot");
+const setupStart = require("../commands/start");
+
 const User = require("../models/user");
 const MainStats = require("../models/mainstats");
-const { bot } = require("../init/startBot");
 
 const sendMailing = new Scene("sendMailing");
+
+setupStart(sendMailing);
+
 sendMailing.enter(async (ctx) => {
   const state = ctx.session.state;
   let post = state.post;

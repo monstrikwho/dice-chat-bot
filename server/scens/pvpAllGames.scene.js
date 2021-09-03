@@ -216,6 +216,12 @@ function mainExtra(boardGames, boardCountPage, uid) {
         ],
         [
           {
+            text: "📈 Статистика",
+            callback_data: "📈 Статистика",
+          },
+        ],
+        [
+          {
             text: "Создать 🎲",
             callback_data: "Создать 🎲",
           },
@@ -268,6 +274,12 @@ function mainExtra(boardGames, boardCountPage, uid) {
     ],
     [
       {
+        text: "📈 Статистика",
+        callback_data: "📈 Статистика",
+      },
+    ],
+    [
+      {
         text: "Создать 🎲",
         callback_data: "Создать 🎲",
       },
@@ -288,10 +300,6 @@ function mainExtra(boardGames, boardCountPage, uid) {
       {
         text: "Создать 🎯",
         callback_data: "Создать 🎯",
-      },
-      {
-        text: "📈 Статистика",
-        callback_data: "📈 Статистика",
       },
     ]
   );

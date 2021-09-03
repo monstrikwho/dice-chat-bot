@@ -4,7 +4,9 @@ const Scene = require("telegraf/scenes/base");
 
 const moment = require("moment");
 const isNumber = require("is-number");
+
 const { bot } = require("../init/startBot");
+const setupStart = require("../commands/start");
 
 const User = require("../models/user");
 const MainStats = require("../models/mainstats");
@@ -15,6 +17,9 @@ const TennisGames = require("../models/tennisGames");
 const BasketballGames = require("../models/basketballGames");
 
 const sportMenu = new Scene("sportMenu");
+
+setupStart(sportMenu);
+
 sportMenu.enter(async (ctx) => {
   try {
     const typeMatch = "live";

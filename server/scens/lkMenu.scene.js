@@ -1,3 +1,8 @@
+const axios = require("axios");
+const moment = require("moment");
+const isNumber = require("is-number");
+const random = require("random-bigint");
+const querystring = require("querystring");
 const Scene = require("telegraf/scenes/base");
 
 const User = require("../models/user");
@@ -5,20 +10,18 @@ const MainStats = require("../models/mainstats");
 const Payeer = require("../models/payeer");
 const Banker = require("../models/banker");
 
-const { client, Api } = require("../init/telegram");
 const { bot } = require("../init/startBot");
+const { client, Api } = require("../init/telegram");
 const { mainMenuActions } = require("./mainMenu.scene");
 const { getProfileBalance, outMoney } = require("../helpers/qiwiMethods");
+const setupStart = require("../commands/start");
 
-const axios = require("axios");
-const moment = require("moment");
-const isNumber = require("is-number");
-const random = require("random-bigint");
-const querystring = require("querystring");
 axios.defaults.headers.common["Content-Type"] =
   "application/x-www-form-urlencoded";
 
 const lkMenu = new Scene("lkMenu");
+
+setupStart(lkMenu);
 mainMenuActions(lkMenu);
 
 lkMenu.enter(async (ctx) => {
@@ -100,6 +103,7 @@ lkMenu.action("Вывести", async (ctx) => {
 
 const regex =
   /(?:Qiwi \(RUB\)|Visa \(RU\)|Visa \(Other\)|MC \(RU\)|MC \(Other\)|Payeer \(RUB\))/;
+
 lkMenu.action(regex, async (ctx) => {
   ctx.session.state.activeView = "outMoney";
   const { activeBoard, accessibleBalance } = ctx.session.state;

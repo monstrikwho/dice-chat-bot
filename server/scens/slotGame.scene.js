@@ -7,6 +7,7 @@ const MainStats = require("../models/mainstats");
 
 const extraBoard = require("../helpers/slotExtra");
 const actionsBord = require("../helpers/slotActions");
+const setupStart = require("../commands/start");
 
 const slotGame = new Scene("slotGame");
 slotGame.enter(async (ctx) => {
@@ -65,6 +66,7 @@ slotGame.enter(async (ctx) => {
 });
 
 // Подключаем actions
+setupStart(slotGame);
 actionsBord(slotGame);
 
 module.exports = { slotGame };
