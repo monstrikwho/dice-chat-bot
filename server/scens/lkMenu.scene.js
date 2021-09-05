@@ -464,7 +464,7 @@ lkMenu.on("text", async (ctx) => {
     if (status_promo.users.indexOf(ctx.from.id) !== -1) {
       return await ctx.reply("Вы уже использовали этот промокод");
     }
-    await Spins.updateOne(
+    await Promocodes.updateOne(
       { name: msg },
       { $inc: { count: -1 }, users: [...status_promo.users, ctx.from.id] }
     );
