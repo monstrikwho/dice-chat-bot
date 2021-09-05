@@ -188,7 +188,8 @@ function mainMenuActions(scene) {
       await commandStart(ctx);
     }
 
-    if (ctx.from.id !== 1498018305) return;
+    const user = await User.findOne({ userId: ctx.from.id });
+    if (user.userRights !== "moder") return;
 
     const orderId = ctx.update.callback_query.data.split(":")[1];
 
@@ -303,46 +304,12 @@ https://${code}`
       await ctx.deleteMessage(activeBoard.message_id);
     } catch (error) {}
 
-    const extra = {
-      reply_markup: {
-        inline_keyboard: [
-          [
-            {
-              text: "15P",
-              callback_data: "promo_15",
-            },
-            {
-              text: "25₽",
-              callback_data: "promo_25",
-            },
-            {
-              text: "50₽",
-              callback_data: "promo_50",
-            },
-            {
-              text: "100₽",
-              callback_data: "promo_100",
-            },
-            {
-              text: "150₽",
-              callback_data: "promo_150",
-            },
-          ],
-          [
-            {
-              text: "❌",
-              callback_data: "❌Нет",
-            },
-          ],
-        ],
-      },
-    };
-
     try {
       ctx.session.m_activeMsg = await bot.telegram.sendMessage(
         ctx.from.id,
-        "Выберите сумму промокода",
-        extra
+        `ПРИМЕР:  P:NAME 50/100
+(50 активаций/100 Р)
+(можно ввести в любом месте)`
       );
     } catch (error) {}
   });
@@ -360,186 +327,119 @@ https://${code}`
       await ctx.deleteMessage(activeBoard.message_id);
     } catch (error) {}
 
-    const extra = {
-      reply_markup: {
-        inline_keyboard: [
-          [
-            {
-              text: "15P",
-              callback_data: "spin_15",
-            },
-            {
-              text: "25₽",
-              callback_data: "spin_25",
-            },
-            {
-              text: "50₽",
-              callback_data: "spin_50",
-            },
-            {
-              text: "100₽",
-              callback_data: "spin_100",
-            },
-            {
-              text: "150₽",
-              callback_data: "spin_150",
-            },
-          ],
-          [
-            {
-              text: "❌",
-              callback_data: "❌Нет",
-            },
-          ],
-        ],
-      },
-    };
-
     try {
       ctx.session.m_activeMsg = await bot.telegram.sendMessage(
         ctx.from.id,
-        "Выберите сумму фриспина",
-        extra
+        `S:NAME 50/100
+(50 активаций/100 Р)
+(можно ввести в любом месте)`
       );
     } catch (error) {}
   });
 
-  scene.action("Юзеры", async (ctx) => {
-    if (!ctx.session.is_session) {
-      await commandStart(ctx);
-    }
-  });
-
-  scene.action(/promo/, async (ctx) => {
+  scene.hears("Юзеры", async (ctx) => {
     if (!ctx.session.is_session) {
       await commandStart(ctx);
     }
 
-    ctx.session.m_amount = +ctx.update.callback_query.data.split("promo_")[1];
-
-    const extra = {
-      reply_markup: {
-        inline_keyboard: [
-          [
-            {
-              text: "❌",
-              callback_data: "❌Нет",
-            },
-          ],
-        ],
-      },
-    };
-
-    await bot.telegram.editMessageText(
-      ctx.from.id,
-      ctx.session.m_activeMsg.message_id,
-      null,
-      'Введите название и кол-во промокодов в формате "P:{PROMO_NAME}{COUNT}"',
-      extra
-    );
-  });
-
-  scene.action(/spin/, async (ctx) => {
-    if (!ctx.session.is_session) {
-      await commandStart(ctx);
-    }
-
-    ctx.session.m_amount = +ctx.update.callback_query.data.split("spin_")[1];
-
-    const extra = {
-      reply_markup: {
-        inline_keyboard: [
-          [
-            {
-              text: "❌",
-              callback_data: "❌Нет",
-            },
-          ],
-        ],
-      },
-    };
-
-    await bot.telegram.editMessageText(
-      ctx.from.id,
-      ctx.session.m_activeMsg.message_id,
-      null,
-      'Введите название и кол-во спинов в формате "S:{SPIN_NAME}{COUNT}"',
-      extra
-    );
+    const user = await User.findOne({ userId: ctx.from.id });
+    if (user.userRights !== "moder") return;
   });
 
   scene.hears(/P:/, async (ctx) => {
-    const promoName = ctx.update.message.text.split(":")[1];
-    const promo_count = +promoName.replace(/\D+/g, "");
-
     try {
-      await ctx.deleteMessage(ctx.session.m_activeMsg.message_id);
-    } catch (error) {}
+      const promoName = ctx.update.message.text.split(":")[1].split(" ")[0];
+      const promo_count = +ctx.update.message.text
+        .split(":")[1]
+        .split(" ")[1]
+        .split("/")[0];
+      const promo_amount = +ctx.update.message.text
+        .split(":")[1]
+        .split(" ")[1]
+        .split("/")[1];
 
-    const promo = await Promocodes.findOne({ name: promoName });
+      try {
+        await ctx.deleteMessage(ctx.session.m_activeMsg.message_id);
+      } catch (error) {}
 
-    if (!promo) {
-      const newPromo = new Promocodes({
-        name: promoName,
-        amount: ctx.session.m_amount,
-        count: promo_count,
-        users: [],
-      });
-      await newPromo.save();
-    }
+      const promo = await Promocodes.findOne({ name: promoName });
 
-    if (promo && promo.count === 0) {
-      await Promocodes.updateOne(
-        { name: promoName },
-        { amount: ctx.session.m_amount, count: promo_count, users: [] }
+      if (!promo) {
+        const newPromo = new Promocodes({
+          name: promoName,
+          amount: promo_amount,
+          count: promo_count,
+          users: [],
+        });
+        await newPromo.save();
+      }
+
+      if (promo && promo.count === 0) {
+        await Promocodes.updateOne(
+          { name: promoName },
+          { amount: promo_amount, count: promo_count, users: [] }
+        );
+      }
+
+      if (promo && promo.count !== 0) {
+        return ctx.reply("Промокод с таким названием уже существует");
+      }
+
+      await bot.telegram.sendMessage(
+        ctx.from.id,
+        `Промокод ${promoName} был успешно создан на ${promo_count} активаций сумма ${promo_amount} P`
       );
+    } catch (error) {
+      await ctx.reply("Проверьте правильность введеных данных");
     }
-
-    if (promo && promo.count !== 0) {
-      return ctx.reply("Промокод с таким названием уже существует");
-    }
-
-    await bot.telegram.sendMessage(
-      ctx.from.id,
-      `Промокод ${promoName} был успешно создан на ${promo_count} активаций`
-    );
   });
 
   scene.hears(/S:/, async (ctx) => {
-    const spinName = ctx.update.message.text.split(":")[1];
-    const spin_count = +spinName.replace(/\D+/g, "");
-
     try {
-      await ctx.deleteMessage(ctx.session.m_activeMsg.message_id);
-    } catch (error) {}
+      const spinName = ctx.update.message.text.split(":")[1].split(" ")[0];
+      const spin_count = +ctx.update.message.text
+        .split(":")[1]
+        .split(" ")[1]
+        .split("/")[0];
+      const spin_amount = +ctx.update.message.text
+        .split(":")[1]
+        .split(" ")[1]
+        .split("/")[1];
 
-    const spin = await Spins.findOne({ name: spinName });
+      try {
+        await ctx.deleteMessage(ctx.session.m_activeMsg.message_id);
+      } catch (error) {}
 
-    if (!spin) {
-      const newSpin = new Spins({
-        name: spinName,
-        amount: ctx.session.m_amount,
-        count: spin_count,
-        users: [],
-      });
-      await newSpin.save();
-    }
+      const spin = await Spins.findOne({ name: spinName });
 
-    if (spin && spin.count === 0) {
-      await Spins.updateOne(
-        { name: spinName },
-        { amount: ctx.session.m_amount, count: spin_count, users: [] }
+      if (!spin) {
+        const newSpin = new Spins({
+          name: spinName,
+          amount: spin_amount,
+          count: spin_count,
+          users: [],
+        });
+        await newSpin.save();
+      }
+
+      if (spin && spin.count === 0) {
+        await Spins.updateOne(
+          { name: spinName },
+          { amount: spin_amount, count: spin_count, users: [] }
+        );
+      }
+
+      if (spin && spin.count !== 0) {
+        return ctx.reply("Спин с таким названием уже существует");
+      }
+
+      await bot.telegram.sendMessage(
+        ctx.from.id,
+        `Спин ${spinName} был успешно создан на ${spin_count} активаций сумма ${spin_amount} P`
       );
+    } catch (error) {
+      await ctx.reply("Проверьте правильность введеных данных");
     }
-
-    if (spin && spin.count !== 0) {
-      return ctx.reply("Спин с таким названием уже существует");
-    }
-
-    await bot.telegram.sendMessage(
-      ctx.from.id,
-      `Спин ${spinName} был успешно создан на ${spin_count} активаций`
-    );
   });
 }
 
