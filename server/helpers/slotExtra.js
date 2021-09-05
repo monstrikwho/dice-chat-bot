@@ -21,6 +21,19 @@ module.exports = async (state) => {
     }
   };
 
+  if (state.spins > 0) {
+    return {
+      inline_keyboard: [
+        [
+          {
+            text: `Крутить freespin ${state.spins}₽ 🎰`,
+            callback_data: `Крутить фриспин`,
+          },
+        ],
+      ],
+    };
+  }
+
   return {
     inline_keyboard: [
       [

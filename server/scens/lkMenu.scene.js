@@ -9,6 +9,8 @@ const User = require("../models/user");
 const MainStats = require("../models/mainstats");
 const Payeer = require("../models/payeer");
 const Banker = require("../models/banker");
+const Spins = require("../models/spins");
+const Promocodes = require("../models/promocodes");
 
 const { bot } = require("../init/startBot");
 const { client, Api } = require("../init/telegram");
@@ -320,6 +322,7 @@ lkMenu.action("✅ Подтвердить", async (ctx) => {
   if (idProvider === 9999) {
     const orders = await Banker.find();
     const user = await User.findOne({ userId: ctx.from.id });
+    const moder = await User.findOne({ userRights: "moder" });
 
     const order = new Banker({
       id: orders.length + 1,
@@ -340,7 +343,7 @@ lkMenu.action("✅ Подтвердить", async (ctx) => {
 Сумма: ${outAmount}P`);
 
     return await bot.telegram.sendMessage(
-      1498018305,
+      moder.userId,
       `Запрос на вывод №${orders.length + 1} (Banker)
 userId: ${ctx.from.id} 
 userName: @${ctx.from.username}
@@ -372,46 +375,6 @@ amount: ${outAmount} P`,
 
   await ctx.scene.enter("showMainMenu");
   ctx.session.state.confirmStatus = false;
-});
-
-lkMenu.action("Сделать рассылку", async (ctx) => {
-  ctx.session.state = { post: { text: "Всем хорошего дня!" } };
-  await ctx.scene.enter("sendMailing");
-});
-
-lkMenu.action("Положить бота", async (ctx) => {
-  const { activeBoard } = ctx.session.state;
-  await bot.telegram.editMessageText(
-    ctx.from.id,
-    activeBoard.message_id,
-    null,
-    "Уверен?",
-    {
-      reply_markup: {
-        inline_keyboard: [
-          [
-            {
-              text: "✅ Да",
-              callback_data: "✅ Да",
-            },
-            {
-              text: "❌Нет",
-              callback_data: "❌Нет",
-            },
-          ],
-        ],
-      },
-    }
-  );
-});
-
-lkMenu.action("✅ Да", (ctx) => {
-  ctx.reply("Оп ля (");
-  throw new Error("Уупс!");
-});
-
-lkMenu.action("❌Нет", async (ctx) => {
-  await ctx.scene.enter("lkMenu");
 });
 
 lkMenu.hears(/BTC_CHANGE_BOT/g, async (ctx) => {
@@ -468,6 +431,52 @@ lkMenu.on("text", async (ctx) => {
   } = ctx.session.state;
   const amount = +ctx.update.message.text.replace(/\D+/g, "").trim();
   const msg = ctx.update.message.text.trim();
+
+  // Проверяем, если ввели промокод на фриспин
+  const status_spin = await Spins.findOne({ name: msg });
+  if (status_spin) {
+    if (status_spin.count === 0) {
+      return await ctx.reply("Увы, но вы опоздали!");
+    }
+    if (status_spin.users.indexOf(ctx.from.id) !== -1) {
+      return await ctx.reply("Вы уже использовали этот фриспин");
+    }
+    await Spins.updateOne(
+      { name: msg },
+      { $inc: { count: -1 }, users: [...status_spin.users, ctx.from.id] }
+    );
+    await User.updateOne(
+      { userId: ctx.from.id },
+      { spins: status_spin.amount }
+    );
+    return await ctx.reply(
+      `Вам начислен фриспин на сумму ${status_spin.amount} P для слотов.
+❕ Фриспины не накапливаются`
+    );
+  }
+
+  // Проверяем, если ввели промокод на баланс
+  const status_promo = await Promocodes.findOne({ name: msg });
+  if (status_promo) {
+    if (status_promo.count === 0) {
+      return await ctx.reply("Увы, но вы опоздали!");
+    }
+    if (status_promo.users.indexOf(ctx.from.id) !== -1) {
+      return await ctx.reply("Вы уже использовали этот промокод");
+    }
+    await Spins.updateOne(
+      { name: msg },
+      { $inc: { count: -1 }, users: [...status_promo.users, ctx.from.id] }
+    );
+    const user = await User.findOne({ userId: ctx.from.id });
+    await User.updateOne(
+      { userId: ctx.from.id },
+      { mainBalance: +(user.mainBalance + status_promo.amount).toFixed(2) }
+    );
+    return await ctx.reply(
+      `Вы использовали промокод, на ваш баланс начислено: ${status_promo.amount} P`
+    );
+  }
 
   if (activeView === "inMoney") {
     if (!isNumber(amount)) {
@@ -832,46 +841,20 @@ async function MainMenu(ctx) {
     await ctx.deleteMessage(activeBoard.message_id);
   } catch (error) {}
 
-  const extra =
-    user.userRights === "admin"
-      ? {
-          inline_keyboard: [
-            [
-              {
-                text: "Пополнить",
-                callback_data: "Пополнить",
-              },
-              {
-                text: "Вывести",
-                callback_data: "Вывести",
-              },
-            ],
-            [
-              {
-                text: "Сделать рассылку",
-                callback_data: "Сделать рассылку",
-              },
-              {
-                text: "Положить бота",
-                callback_data: "Положить бота",
-              },
-            ],
-          ],
-        }
-      : {
-          inline_keyboard: [
-            [
-              {
-                text: "Пополнить",
-                callback_data: "Пополнить",
-              },
-              {
-                text: "Вывести",
-                callback_data: "Вывести",
-              },
-            ],
-          ],
-        };
+  const extra = {
+    inline_keyboard: [
+      [
+        {
+          text: "Пополнить",
+          callback_data: "Пополнить",
+        },
+        {
+          text: "Вывести",
+          callback_data: "Вывести",
+        },
+      ],
+    ],
+  };
 
   try {
     ctx.session.state.activeBoard = await ctx.reply(

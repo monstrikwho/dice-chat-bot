@@ -10,7 +10,7 @@ const MainStats = require("../models/mainstats");
 
 const slotGame = new Scene("slotGame");
 slotGame.enter(async (ctx) => {
-  const { demoBalance, mainBalance } = await User.findOne({
+  const { demoBalance, mainBalance, spins } = await User.findOne({
     userId: ctx.from.id,
   });
   const { slotCoef } = await MainStats.findOne();
@@ -26,6 +26,7 @@ slotGame.enter(async (ctx) => {
     rateMenu: true,
     demoBalance,
     mainBalance,
+    spins,
   };
   ctx.session.state = initState;
 

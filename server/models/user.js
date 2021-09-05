@@ -19,6 +19,7 @@ const schema = new mongoose.Schema({
   regDate: String,
   pvp: Object,
   rules: Boolean,
+  spins: Number,
 });
 
 module.exports = mongoose.model("Users", schema);

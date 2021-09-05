@@ -3,6 +3,8 @@ const { commandStart, showMainMenu } = require("../commands/start");
 
 const User = require("../models/user");
 const Banker = require("../models/banker");
+const Spins = require("../models/spins");
+const Promocodes = require("../models/promocodes");
 
 function mainMenuActions(scene) {
   scene.hears("✅ Соглашаюсь", async (ctx) => {
@@ -238,6 +240,305 @@ https://${code}`
 Чек: https://${code}
 🟢 ВЫПЛАЧЕНО`,
       { disable_web_page_preview: true }
+    );
+  });
+
+  scene.hears("Сделать рассылку", async (ctx) => {
+    if (!ctx.session.is_session) {
+      await commandStart(ctx);
+    }
+
+    const user = await User.findOne({ userId: ctx.from.id });
+    if (user.userRights !== "moder") return;
+
+    ctx.session.state = { post: { text: "Всем хорошего дня!" } };
+    await ctx.scene.enter("sendMailing");
+  });
+
+  scene.hears("Положить бота", async (ctx) => {
+    if (!ctx.session.is_session) {
+      await commandStart(ctx);
+    }
+
+    const user = await User.findOne({ userId: ctx.from.id });
+    if (user.userRights !== "moder") return;
+
+    await bot.telegram.sendMessage(ctx.from.id, "Уверен?", {
+      reply_markup: {
+        inline_keyboard: [
+          [
+            {
+              text: "✅ Да",
+              callback_data: "✅ Да",
+            },
+            {
+              text: "❌Нет",
+              callback_data: "❌Нет",
+            },
+          ],
+        ],
+      },
+    });
+  });
+
+  scene.action("✅ Да", (ctx) => {
+    ctx.reply("Оп ля (");
+    throw new Error("Уупс!");
+  });
+
+  scene.action("❌Нет", async (ctx) => {
+    await ctx.deleteMessage(ctx.update.callback_query.message.message_id);
+  });
+
+  scene.hears("Создать промокод", async (ctx) => {
+    if (!ctx.session.is_session) {
+      await commandStart(ctx);
+    }
+
+    const user = await User.findOne({ userId: ctx.from.id });
+    if (user.userRights !== "moder") return;
+
+    try {
+      const { activeBoard } = ctx.session.state;
+      await ctx.deleteMessage(activeBoard.message_id);
+    } catch (error) {}
+
+    const extra = {
+      reply_markup: {
+        inline_keyboard: [
+          [
+            {
+              text: "15P",
+              callback_data: "promo_15",
+            },
+            {
+              text: "25₽",
+              callback_data: "promo_25",
+            },
+            {
+              text: "50₽",
+              callback_data: "promo_50",
+            },
+            {
+              text: "100₽",
+              callback_data: "promo_100",
+            },
+            {
+              text: "150₽",
+              callback_data: "promo_150",
+            },
+          ],
+          [
+            {
+              text: "❌",
+              callback_data: "❌Нет",
+            },
+          ],
+        ],
+      },
+    };
+
+    try {
+      ctx.session.m_activeMsg = await bot.telegram.sendMessage(
+        ctx.from.id,
+        "Выберите сумму промокода",
+        extra
+      );
+    } catch (error) {}
+  });
+
+  scene.hears("Создать фриспин", async (ctx) => {
+    if (!ctx.session.is_session) {
+      await commandStart(ctx);
+    }
+
+    const user = await User.findOne({ userId: ctx.from.id });
+    if (user.userRights !== "moder") return;
+
+    try {
+      const { activeBoard } = ctx.session.state;
+      await ctx.deleteMessage(activeBoard.message_id);
+    } catch (error) {}
+
+    const extra = {
+      reply_markup: {
+        inline_keyboard: [
+          [
+            {
+              text: "15P",
+              callback_data: "spin_15",
+            },
+            {
+              text: "25₽",
+              callback_data: "spin_25",
+            },
+            {
+              text: "50₽",
+              callback_data: "spin_50",
+            },
+            {
+              text: "100₽",
+              callback_data: "spin_100",
+            },
+            {
+              text: "150₽",
+              callback_data: "spin_150",
+            },
+          ],
+          [
+            {
+              text: "❌",
+              callback_data: "❌Нет",
+            },
+          ],
+        ],
+      },
+    };
+
+    try {
+      ctx.session.m_activeMsg = await bot.telegram.sendMessage(
+        ctx.from.id,
+        "Выберите сумму фриспина",
+        extra
+      );
+    } catch (error) {}
+  });
+
+  scene.action("Юзеры", async (ctx) => {
+    if (!ctx.session.is_session) {
+      await commandStart(ctx);
+    }
+  });
+
+  scene.action(/promo/, async (ctx) => {
+    if (!ctx.session.is_session) {
+      await commandStart(ctx);
+    }
+
+    ctx.session.m_amount = +ctx.update.callback_query.data.split("promo_")[1];
+
+    const extra = {
+      reply_markup: {
+        inline_keyboard: [
+          [
+            {
+              text: "❌",
+              callback_data: "❌Нет",
+            },
+          ],
+        ],
+      },
+    };
+
+    await bot.telegram.editMessageText(
+      ctx.from.id,
+      ctx.session.m_activeMsg.message_id,
+      null,
+      'Введите название и кол-во промокодов в формате "P:{PROMO_NAME}{COUNT}"',
+      extra
+    );
+  });
+
+  scene.action(/spin/, async (ctx) => {
+    if (!ctx.session.is_session) {
+      await commandStart(ctx);
+    }
+
+    ctx.session.m_amount = +ctx.update.callback_query.data.split("spin_")[1];
+
+    const extra = {
+      reply_markup: {
+        inline_keyboard: [
+          [
+            {
+              text: "❌",
+              callback_data: "❌Нет",
+            },
+          ],
+        ],
+      },
+    };
+
+    await bot.telegram.editMessageText(
+      ctx.from.id,
+      ctx.session.m_activeMsg.message_id,
+      null,
+      'Введите название и кол-во спинов в формате "S:{SPIN_NAME}{COUNT}"',
+      extra
+    );
+  });
+
+  scene.hears(/P:/, async (ctx) => {
+    const promoName = ctx.update.message.text.split(":")[1];
+    const promo_count = +promoName.replace(/\D+/g, "");
+
+    try {
+      await ctx.deleteMessage(ctx.session.m_activeMsg.message_id);
+    } catch (error) {}
+
+    const promo = await Promocodes.findOne({ name: promoName });
+
+    if (!promo) {
+      const newPromo = new Promocodes({
+        name: promoName,
+        amount: ctx.session.m_amount,
+        count: promo_count,
+        users: [],
+      });
+      await newPromo.save();
+    }
+
+    if (promo && promo.count === 0) {
+      await Promocodes.updateOne(
+        { name: promoName },
+        { amount: ctx.session.m_amount, count: promo_count, users: [] }
+      );
+    }
+
+    if (promo && promo.count !== 0) {
+      return ctx.reply("Промокод с таким названием уже существует");
+    }
+
+    await bot.telegram.sendMessage(
+      ctx.from.id,
+      `Промокод ${promoName} был успешно создан на ${promo_count} активаций`
+    );
+  });
+
+  scene.hears(/S:/, async (ctx) => {
+    const spinName = ctx.update.message.text.split(":")[1];
+    const spin_count = +spinName.replace(/\D+/g, "");
+
+    try {
+      await ctx.deleteMessage(ctx.session.m_activeMsg.message_id);
+    } catch (error) {}
+
+    const spin = await Spins.findOne({ name: spinName });
+
+    if (!spin) {
+      const newSpin = new Spins({
+        name: spinName,
+        amount: ctx.session.m_amount,
+        count: spin_count,
+        users: [],
+      });
+      await newSpin.save();
+    }
+
+    if (spin && spin.count === 0) {
+      await Spins.updateOne(
+        { name: spinName },
+        { amount: ctx.session.m_amount, count: spin_count, users: [] }
+      );
+    }
+
+    if (spin && spin.count !== 0) {
+      return ctx.reply("Спин с таким названием уже существует");
+    }
+
+    await bot.telegram.sendMessage(
+      ctx.from.id,
+      `Спин ${spinName} был успешно создан на ${spin_count} активаций`
     );
   });
 }

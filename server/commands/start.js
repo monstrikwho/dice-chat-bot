@@ -84,9 +84,16 @@ async function saveUser(ctx, startDemoBalance, bonus, isRef, constRef) {
 }
 
 async function commandStart(ctx) {
-  if (!ctx.startPayload) {
+  if (typeof ctx.startPayload === "undefined") {
     ctx.session.state = {};
     ctx.session.is_session = true;
+
+    const selectUser = await User.findOne({ userId: ctx.from.id });
+    if (selectUser.userRights === "moder") {
+      ctx.session.state = {};
+      return await showModerMenu(ctx);
+    }
+
     return await showMainMenu(ctx);
   }
 
@@ -140,6 +147,10 @@ async function commandStart(ctx) {
   if (!selectUser) {
     saveUser(ctx, startDemoBalance, bonus, isRef, constRef);
   } else {
+    if (selectUser.userRights === "moder") {
+      ctx.session.state = {};
+      return await showModerMenu(ctx);
+    }
     updateUser(ctx, selectUser);
     return await showMainMenu(ctx);
   }
@@ -176,6 +187,20 @@ async function showMainMenu(ctx) {
           ["👤 Соло", "👥 ПвП"],
           // ["👤 Соло", "👥 ПвП", "Спорт"],
           ["📱 Личный кабинет", "💬 Чат / Поддержка", "ℹ️ Инфо"],
+        ]).resize()
+      )
+    );
+  } catch (error) {}
+}
+
+async function showModerMenu(ctx) {
+  try {
+    await ctx.reply(
+      "👋",
+      Extra.markup(
+        Markup.keyboard([
+          ["Создать промокод", "Создать фриспин"],
+          ["Положить бота", "Сделать рассылку"],
         ]).resize()
       )
     );
