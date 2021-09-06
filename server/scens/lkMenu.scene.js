@@ -373,7 +373,9 @@ amount: ${outAmount} P`,
     );
   }
 
-  await ctx.scene.enter("showMainMenu");
+  try {
+    await ctx.deleteMessage(ctx.update.callback_query.message.message_id);
+  } catch (error) {}
   ctx.session.state.confirmStatus = false;
 });
 
