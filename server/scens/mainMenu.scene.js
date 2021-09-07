@@ -38,7 +38,7 @@ function mainMenuActions(scene) {
 
     const imgId =
       process.env.DEV !== "true"
-        ? "AgACAgIAAxkBAAEL9IZhFCAwn_RSNa45MTOmnFSmwdGflAACjrYxG5IOoUjHX8Zz0VzrgAEAAwIAA3MAAyAE"
+        ? "AgACAgIAAxkBAANKYTdyeAusiXQfo8HpR3AY9nx0UiYAAnS_MRv4AAG4SZDgVukdIoJaAQADAgADcwADIAQ"
         : "AgACAgIAAxkBAAJNt2EUIJwUTZttWomM3YAapaRDXrWeAAJ_tzEbVqCgSJKNIiO7FoYrAQADAgADcwADIAQ";
 
     try {
@@ -137,9 +137,9 @@ function mainMenuActions(scene) {
   2) Делаете ставку;
   3) Отправляете смайлик.
   
-  <a href="http://t.me/luckycatsupport">❓ Поддержка</a>
+  <a href="tg://user?id=1498018305">👨‍💻 Поддержка</a>
   <a href="http://t.me/joinchat/P0el-xuDN6g-ZsY7decv7A">💬 Чат для общения с игроками</a>
-  <a href="http://t.me/luckycat_orders">💳 Чат, в котором публикуются платежи</a>`,
+  <a href="http://t.me/sts_orders">💳 Чат, в котором публикуются платежи</a>`,
         {
           parse_mode: "HTML",
           disable_web_page_preview: true,
@@ -173,7 +173,7 @@ function mainMenuActions(scene) {
                 },
                 {
                   text: "Написать в поддержку",
-                  url: "http://t.me/luckycatsupport",
+                  url: "http://t.me/STSSUPPORT",
                 },
               ],
             ],

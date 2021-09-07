@@ -473,7 +473,7 @@ async function showMainView(ctx) {
     try {
       ctx.session.state.activeBoard = await bot.telegram.sendPhoto(
         ctx.from.id,
-        "AgACAgIAAxkBAAEL9HVhFB5W9ILOCVJFT-gson8OqqhtlgACirYxG5IOoUj2Qmct7xCdOAEAAwIAA3MAAyAE",
+        "AgACAgIAAxkBAANdYTd0X6LjdLlJ6VmbSwMnIeb0MkYAAoO_MRv4AAG4SbFGf9lKb6w2AQADAgADcwADIAQ",
         {
           caption: message,
           reply_markup: extra,

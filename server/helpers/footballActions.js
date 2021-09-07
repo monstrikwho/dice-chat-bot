@@ -230,7 +230,7 @@ module.exports = async (game) => {
       try {
         ctx.session.state.activeBoard = await bot.telegram.sendPhoto(
           ctx.from.id,
-          "AgACAgIAAxkBAAELz75hDPFbFqOoq19HcyfQRZxetgYazAACyrUxG9FSaEhnM091tDxpEwEAAwIAA3MAAyAE",
+          "AgACAgIAAxkBAANZYTd0NxxIv3ZJ0xvRRzYp22YQ_JYAAoK_MRv4AAG4SWxA89c4jp9TAQADAgADcwADIAQ",
           {
             caption: `⚽️ Футбол`,
             reply_markup: extra,
@@ -374,7 +374,7 @@ module.exports = async (game) => {
       try {
         ctx.session.state.activeBoard = await bot.telegram.sendPhoto(
           ctx.from.id,
-          "AgACAgIAAxkBAAELz75hDPFbFqOoq19HcyfQRZxetgYazAACyrUxG9FSaEhnM091tDxpEwEAAwIAA3MAAyAE",
+          "AgACAgIAAxkBAANZYTd0NxxIv3ZJ0xvRRzYp22YQ_JYAAoK_MRv4AAG4SWxA89c4jp9TAQADAgADcwADIAQ",
           {
             caption: `⚽️ Футбол`,
             reply_markup: extra,

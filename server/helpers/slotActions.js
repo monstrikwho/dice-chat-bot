@@ -202,7 +202,7 @@ module.exports = async (game) => {
       try {
         ctx.session.state.activeBoard = await bot.telegram.sendPhoto(
           ctx.from.id,
-          "AgACAgIAAxkBAAELz8BhDPHr5BzdYkeMyS3w27Z_jbb7NwAC0LUxG9FSaEiPNb0zl31QeAEAAwIAA3MAAyAE",
+          "AgACAgIAAxkBAANYYTd0CVLBEnm9AAF-gYZUkcj40n2ZAAKBvzEb-AABuEl0QHAIWg_XBgEAAwIAA3MAAyAE",
           {
             caption: `🎰 Автоматы
 Выигрышные комбинации:
@@ -443,7 +443,7 @@ module.exports = async (game) => {
       try {
         ctx.session.state.activeBoard = await bot.telegram.sendPhoto(
           ctx.from.id,
-          "AgACAgIAAxkBAAELz8BhDPHr5BzdYkeMyS3w27Z_jbb7NwAC0LUxG9FSaEiPNb0zl31QeAEAAwIAA3MAAyAE",
+          "AgACAgIAAxkBAANYYTd0CVLBEnm9AAF-gYZUkcj40n2ZAAKBvzEb-AABuEl0QHAIWg_XBgEAAwIAA3MAAyAE",
           {
             caption: `🎰 Автоматы
 Выигрышные комбинации:

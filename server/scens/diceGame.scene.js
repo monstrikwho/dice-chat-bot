@@ -43,7 +43,7 @@ diceGame.enter(async (ctx) => {
     try {
       ctx.session.state.activeBoard = await bot.telegram.sendPhoto(
         ctx.from.id,
-        "AgACAgIAAxkBAAELz79hDPGuFqx3mgMfflJ26-8unGYkuwACzLUxG9FSaEiIso4qsA3wJAEAAwIAA3MAAyAE",
+        "AgACAgIAAxkBAANTYTdzkFGEw1O88AS-e2u8EBLI800AAn-_MRv4AAG4SSPCrwtbiQAB8AEAAwIAA3MAAyAE",
         {
           caption: `🎲 Кости`,
           reply_markup: extra,
