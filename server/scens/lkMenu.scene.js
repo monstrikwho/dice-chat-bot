@@ -339,12 +339,12 @@ lkMenu.action("✅ Подтвердить", async (ctx) => {
       { mainBalance: +(user.mainBalance - outAmount).toFixed(2) }
     );
 
-    await ctx.reply(`Ваша заявка на вывод №${orders.length + 1}
+    await ctx.reply(`Ваша заявка на вывод #b${orders.length + 1}
 Сумма: ${outAmount}P`);
 
     return await bot.telegram.sendMessage(
       moder.userId,
-      `Запрос на вывод №${orders.length + 1} (Banker)
+      `Запрос на вывод #b${orders.length + 1} (Banker)
 userId: ${ctx.from.id} 
 userName: @${ctx.from.username}
 amount: ${outAmount} P`,
@@ -394,7 +394,12 @@ lkMenu.hears(/BTC_CHANGE_BOT/g, async (ctx) => {
     return await ctx.reply("Этот чек уже был обналичен");
   }
 
-  const banker = new Banker({ userId: ctx.from.id, code, status: "pending" });
+  const banker = new Banker({
+    userId: ctx.from.id,
+    code,
+    status: "pending",
+    type: "IN",
+  });
   await banker.save();
 
   await client.invoke(

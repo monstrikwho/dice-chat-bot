@@ -346,6 +346,17 @@ https://${code}`
     if (user.userRights !== "moder") return;
   });
 
+  scene.hears("Заявки банкир", async (ctx) => {
+    if (!ctx.session.is_session) {
+      await commandStart(ctx);
+    }
+
+    const orders = await Banker.find({ status: "waiting" });
+
+    await ctx.reply(`Необработанные заявки:
+${orders.map((item) => `#b${item.id}`).join("\n")}`);
+  });
+
   scene.hears(/P:/, async (ctx) => {
     try {
       const promoName = ctx.update.message.text.split(":")[1].split(" ")[0];
