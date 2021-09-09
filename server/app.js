@@ -10,13 +10,14 @@ require("./init/setupServer");
 // require("./helpers/parseSoccer");
 // require("./helpers/parseTennis");
 // require("./helpers/parseBasketball");
-require("./helpers/checkBlockedUsers")(bot);
+// require("./helpers/checkBlockedUsers")(bot);
 require("./helpers/updatePvpStats")();
 
 require("./scens/setupScenes")(bot);
 
 // Commands
 const { setupStart } = require("./commands/start");
+// const weekDonations = require("./commands/weekDonations");
 const { mainMenuActions } = require("./scens/mainMenu.scene");
 
 // Init
@@ -25,4 +26,5 @@ setupMongoose();
 
 // Commands
 setupStart(bot);
+// weekDonations(bot);
 mainMenuActions(bot);

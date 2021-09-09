@@ -273,7 +273,6 @@ sendMailing.action("💵 Отправить пост", async (ctx) => {
 
   removeInterval();
   await ctx.reply(`Рассылка завершена.`);
-  await ctx.scene.enter("showMainMenu");
 });
 
 //

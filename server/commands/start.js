@@ -208,8 +208,18 @@ async function showModerMenu(ctx) {
   } catch (error) {}
 }
 
+const rateLimmiter = {};
+
 async function setupStart(bot) {
-  bot.start(async (ctx) => await commandStart(ctx));
+  bot.start(async (ctx) => {
+    const now = Math.floor(Date.now() / 1000);
+
+    if (!rateLimmiter[now]) rateLimmiter[now] = 1;
+    if (rateLimmiter[now]) rateLimmiter[now]++;
+    if (rateLimmiter[now] > 10) return;
+
+    await commandStart(ctx);
+  });
 }
 
 module.exports = { setupStart, commandStart, showMainMenu };
