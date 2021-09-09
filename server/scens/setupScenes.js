@@ -11,9 +11,6 @@ const {
   sendMailing,
   editPhoto,
   editVideo,
-  editAnimation,
-  editAudio,
-  editVoice,
   editDocument,
   editMessage,
 } = require("./sendMailing.scene");
@@ -29,9 +26,6 @@ function setupScenes(bot) {
     sendMailing,
     editPhoto,
     editVideo,
-    editAnimation,
-    editAudio,
-    editVoice,
     editDocument,
     editMessage,
   ]);

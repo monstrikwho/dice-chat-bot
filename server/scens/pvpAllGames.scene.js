@@ -465,7 +465,7 @@ async function showMainView(ctx) {
   const extra = mainExtra(boardGames, boardCountPage, ctx.from.id);
   const message = `Добро пожаловать в ПвП игры! 
 Присоединитесь к существующему лобби или создайте свое.
-Так же заходите в наш чат с игроками - @luckycatchat
+Так же заходите в наш чат с игроками - @stsbetchat
 
 Страница: ${boardGames.length === 0 ? 0 : boardCountPage}/${boardMaxPages}`;
 
