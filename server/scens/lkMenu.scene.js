@@ -144,6 +144,8 @@ lkMenu.action(regex, async (ctx) => {
   }
   ctx.session.state.selectBalance = balance;
 
+  const { minOut } = await MainStats.findOne({});
+
   try {
     await bot.telegram.editMessageText(
       ctx.from.id,
@@ -152,7 +154,8 @@ lkMenu.action(regex, async (ctx) => {
       `Напишите в чат сумму
 
 Вывод на ${type}
-Ваш доступный для вывода баланс: ${balance}`,
+Минимальная сумма для вывода: ${minOut.qiwi} P
+Ваш доступный для вывода баланс: ${balance} P`,
       {
         reply_markup: {
           inline_keyboard: [
@@ -559,6 +562,14 @@ lkMenu.on("text", async (ctx) => {
         return await ctx.reply(
           "Вы ввели некоректное число. Попробуйте еще раз."
         );
+      } catch (error) {}
+    }
+
+    const { minOut } = await MainStats.findOne();
+
+    if (amount < minOut.qiwi) {
+      try {
+        return await ctx.reply(`Минимальная сумма для вывода ${minOut.qiwi} ₽`);
       } catch (error) {}
     }
 
