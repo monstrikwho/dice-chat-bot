@@ -173,6 +173,7 @@ async function commandStart(ctx) {
 }
 
 async function showMainMenu(ctx) {
+  // const { rules } = await User.findOne({ userId: ctx.from.id });
   // if (!rules) {
   //   await ctx.reply(
   //     "Соглашение с правилами",
@@ -184,13 +185,13 @@ async function showMainMenu(ctx) {
       "👋",
       Extra.markup(
         Markup.keyboard([
-          ["👤 Соло", "👥 ПвП"],
-          // ["👤 Соло", "👥 ПвП", "Спорт"],
+          ["👤 Соло", "👥 ПвП", "🏆 Спорт"],
           ["📱 Личный кабинет", "💬 Чат / Поддержка", "ℹ️ Инфо"],
         ]).resize()
       )
     );
   } catch (error) {}
+  // }
 }
 
 async function showModerMenu(ctx) {

@@ -102,7 +102,10 @@ function mainMenuActions(scene) {
     await ctx.scene.enter("lkMenu");
   });
 
-  scene.hears("Спорт", async (ctx) => {
+  scene.hears("🏆 Спорт", async (ctx) => {
+    return await ctx.reply(
+      "Раздел находится в разработке и заработает в ближайшие дни"
+    );
     if (!ctx.session.is_session) {
       await commandStart(ctx);
     }
