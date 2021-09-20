@@ -173,8 +173,6 @@ async function reqTopPreMatch() {
           (item) => !item.home.match(/Esports/)
         );
 
-        console.log(data.remain_requests);
-
         if (sport_type === "soccer") {
           sortArr("Argentina Torneo A");
           sortArr("Argentina Liga Profesional");

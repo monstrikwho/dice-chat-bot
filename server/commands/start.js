@@ -59,6 +59,7 @@ async function saveUser(ctx, startDemoBalance, bonus, isRef, constRef) {
     isRef,
     refCash: 0,
     countRef: 0,
+    rules: false,
     isBlocked: false,
     btnStart: true,
     pvp: {
