@@ -5,11 +5,9 @@ const { bot, startBot } = require("./init/startBot");
 const setupMongoose = require("./init/setupMongoose");
 
 require("./init/setupServer");
-// require("./helpers/checkRates");
-// require("./helpers/parseTopMatches");
-// require("./helpers/parseSoccer");
-// require("./helpers/parseTennis");
-// require("./helpers/parseBasketball");
+require("./helpers/checkRates");
+require("./helpers/parseTopMatches");
+require("./helpers/parseMatches");
 // require("./helpers/checkBlockedUsers")(bot);
 require("./helpers/updatePvpStats")();
 

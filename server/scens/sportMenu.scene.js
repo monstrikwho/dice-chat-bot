@@ -6,25 +6,31 @@ const moment = require("moment");
 const isNumber = require("is-number");
 
 const { bot } = require("../init/startBot");
-const { setupStart } = require("../commands/start");
+const { setupStart, showMainMenu } = require("../commands/start");
+const { mainMenuActions } = require("./mainMenu.scene");
 
 const User = require("../models/user");
 const MainStats = require("../models/mainstats");
 const SportRates = require("../models/sportRates");
-const SportsTopGames = require("../models/sportsTopGames");
-const SportFootballGames = require("../models/sportFootballGames");
+const ActiveGames = require("../models/activeGames");
 const TennisGames = require("../models/tennisGames");
 const BasketballGames = require("../models/basketballGames");
+const FootballGames = require("../models/footballGames");
+
+const { reqTennis } = require("../helpers/parseTennis");
+const { reqFootball } = require("../helpers/parseSoccer");
+const { reqBasketball } = require("../helpers/parseBasketball");
 
 const sportMenu = new Scene("sportMenu");
 
 setupStart(sportMenu);
+mainMenuActions(sportMenu);
 
 sportMenu.enter(async (ctx) => {
   try {
     const typeMatch = "live";
     await ctx.reply(
-      `Какие-нибудь правила`,
+      `Выберите тип спорта`,
       Extra.markup(
         Markup.keyboard([
           ["🔥 Live", "⭐️ Pre-match"],
@@ -33,8 +39,7 @@ sportMenu.enter(async (ctx) => {
       )
     );
     const activeBoard = await ctx.reply(
-      `${typeMatch === "live" ? "🔥 Live match" : "⭐️ Pre-match"}
-Выберите тип спорта`,
+      `${typeMatch === "live" ? "🔥 Live match" : "⭐️ Pre-match"}`,
       Extra.markup((m) =>
         m.inlineKeyboard([
           [
@@ -42,6 +47,7 @@ sportMenu.enter(async (ctx) => {
             m.callbackButton("Теннис", "Теннис"),
             m.callbackButton("Баскетбол", "Баскетбол"),
           ],
+          [m.callbackButton("Мои ставки", "Мои ставки")],
         ])
       )
     );
@@ -79,12 +85,23 @@ sportMenu.action("Баскетбол", async (ctx) => {
   await gameView(ctx);
 });
 
+sportMenu.action("Мои ставки", async (ctx) => {
+  await ratesView(ctx);
+});
+
 sportMenu.action(/(?:game_id)/, async (ctx) => {
-  const { interval } = ctx.session.sport;
+  const { interval, game_id } = ctx.session.sport;
+
   clearInterval(interval);
+
   try {
     await ctx.answerCbQuery();
   } catch (error) {}
+
+  if (game_id) {
+    await ActiveGames.deleteOne({ game_id });
+  }
+
   await gameIdView(ctx);
 });
 
@@ -92,6 +109,10 @@ sportMenu.action("Вернуться", async (ctx) => {
   const { activeView } = ctx.session.sport;
 
   if (activeView === "mainView") return;
+
+  if (activeView === "ratesView") {
+    await mainView(ctx);
+  }
 
   if (activeView === "gameView") {
     const { interval } = ctx.session.sport;
@@ -111,21 +132,30 @@ sportMenu.action("Вернуться", async (ctx) => {
 });
 
 sportMenu.hears("🏡 Вернуться на главную", async (ctx) => {
-  const { activeBoard, interval } = ctx.session.sport;
+  const { activeBoard, interval, game_id } = ctx.session.sport;
   clearInterval(interval);
+
   try {
     await ctx.deleteMessage(activeBoard.message_id);
   } catch (error) {}
-  await ctx.scene.enter("showMainMenu");
+  if (game_id) {
+    await ActiveGames.deleteOne({ game_id });
+  }
+
+  await showMainMenu(ctx);
 });
 
 sportMenu.hears("🔥 Live", async (ctx) => {
-  const { activeBoard, activeView, typeMatch } = ctx.session.sport;
+  const { activeBoard, activeView, typeMatch, game_id } = ctx.session.sport;
 
   // Удаляем сообщение "🔥 Live"
   try {
     await ctx.deleteMessage(ctx.update.message.message_id);
   } catch (error) {}
+
+  if (game_id) {
+    await ActiveGames.deleteOne({ game_id });
+  }
 
   if (typeMatch === "live") return;
   ctx.session.sport.typeMatch = "live";
@@ -145,6 +175,7 @@ sportMenu.hears("🔥 Live", async (ctx) => {
               m.callbackButton("Теннис", "Теннис"),
               m.callbackButton("Баскетбол", "Баскетбол"),
             ],
+            [m.callbackButton("Мои ставки", "Мои ставки")],
           ])
         )
       );
@@ -157,12 +188,16 @@ sportMenu.hears("🔥 Live", async (ctx) => {
 });
 
 sportMenu.hears("⭐️ Pre-match", async (ctx) => {
-  const { activeBoard, activeView, typeMatch } = ctx.session.sport;
+  const { activeBoard, activeView, typeMatch, game_id } = ctx.session.sport;
 
   // Удаляем сообщение "⭐️ Pre-match"
   try {
     await ctx.deleteMessage(ctx.update.message.message_id);
   } catch (error) {}
+
+  if (game_id) {
+    await ActiveGames.deleteOne({ game_id });
+  }
 
   if (typeMatch === "pre") return;
   ctx.session.sport.typeMatch = "pre";
@@ -182,6 +217,7 @@ sportMenu.hears("⭐️ Pre-match", async (ctx) => {
               m.callbackButton("Теннис", "Теннис"),
               m.callbackButton("Баскетбол", "Баскетбол"),
             ],
+            [m.callbackButton("Мои ставки", "Мои ставки")],
           ])
         )
       );
@@ -217,7 +253,7 @@ sportMenu.action("🗑 Очистить ставки", async (ctx) => {
   editMessage(ctx);
 });
 
-sportMenu.action("Поставить", async (ctx) => {
+sportMenu.action("💰 Поставить", async (ctx) => {
   const { rate, sumAmount, mainBalance, game, typeSport } = ctx.session.sport;
 
   if (sumAmount === 0) {
@@ -232,6 +268,8 @@ sportMenu.action("Поставить", async (ctx) => {
   const sportRate = new SportRates({
     rate_id: rates.length + 1,
     game_id: game.game_id,
+    home: game.home,
+    away: game.away,
     userId: ctx.from.id,
     status: "active",
     typeSport,
@@ -322,8 +360,7 @@ async function mainView(ctx) {
       ctx.from.id,
       activeBoard.message_id,
       null,
-      `${typeMatch === "live" ? "🔥 Live match" : "⭐️ Pre-match"}
-Выберите тип спорта`,
+      `${typeMatch === "live" ? "🔥 Live match" : "⭐️ Pre-match"}`,
       Extra.markup((m) =>
         m.inlineKeyboard([
           [
@@ -331,6 +368,7 @@ async function mainView(ctx) {
             m.callbackButton("Теннис", "Теннис"),
             m.callbackButton("Баскетбол", "Баскетбол"),
           ],
+          [m.callbackButton("Мои ставки", "Мои ставки")],
         ])
       )
     );
@@ -339,7 +377,11 @@ async function mainView(ctx) {
 
 async function gameView(ctx) {
   ctx.session.sport.activeView = "gameView";
-  const { activeBoard, typeMatch, typeSport } = ctx.session.sport;
+  const { activeBoard, typeMatch, typeSport, game_id } = ctx.session.sport;
+
+  if (game_id) {
+    await ActiveGames.deleteOne({ game_id });
+  }
 
   editMessage();
 
@@ -347,13 +389,21 @@ async function gameView(ctx) {
     await ctx.answerCbQuery();
   }
 
-  const intervalId = setInterval(editMessage, 1000 * 15);
+  const intervalId = setInterval(editMessage, 1000 * 10);
   ctx.session.sport.interval = intervalId;
 
   async function editMessage() {
-    const { topGames } = await SportsTopGames.findOne({
-      sport: `${typeSport}_${typeMatch}`,
-    });
+    const time_status = typeMatch === "live" ? 1 : 0;
+    let games = [];
+    if (typeSport === "soccer") {
+      games = await FootballGames.find({ time_status });
+    }
+    if (typeSport === "basketball") {
+      games = await BasketballGames.find({ time_status });
+    }
+    if (typeSport === "tennis") {
+      games = await TennisGames.find({ time_status });
+    }
     try {
       await bot.telegram.editMessageText(
         ctx.from.id,
@@ -366,7 +416,7 @@ async function gameView(ctx) {
 Время обновления: ${moment().format("HH:mm:ss")}`,
         Extra.markup((m) =>
           m.inlineKeyboard([
-            ...topGames.map((item) => {
+            ...games.map((item) => {
               const date =
                 item.time.split(".")[0] + "." + item.time.split(".")[1];
               return [
@@ -382,10 +432,248 @@ async function gameView(ctx) {
           ])
         )
       );
-    } catch (error) {
-      console.log(error);
+    } catch (error) {}
+  }
+}
+
+async function ratesView(ctx) {
+  ctx.session.sport.activeView = "ratesView";
+  const { activeBoard } = ctx.session.sport;
+
+  const rates = await SportRates.find({ userId: ctx.from.id })
+    .sort({ _id: -1 })
+    .limit(10);
+
+  const ratesMsg = rates
+    .map((item) => {
+      let rates = "";
+      const typeSport = item.typeSport;
+
+      for (let [key, value] of Object.entries(item.rates)) {
+        rates = rates.concat(
+          `- ${parseNameOdds(typeSport, key)}  [x${
+            item.odds[key]
+          }]  💰 ${value} P\n`
+        );
+      }
+
+      if (typeSport === "soccer") {
+        return `#${item.rate_id} ⚽️
+${item.home} - ${item.away}
+Статус: ${
+          item.status === "cashout"
+            ? `Расчитано\nВыигрыш: ${item.result.cash} P`
+            : "Ожидание"
+        }
+Ваши ставки: 
+${rates}`;
+      }
+      if (typeSport === "basketball") {
+        return `#${item.rate_id} 🏀
+${item.home} - ${item.away}
+Статус: ${
+          item.status === "cashout"
+            ? `Расчитано\nВыигрыш: ${item.result.cash} P`
+            : "Ожидание"
+        }
+Ваши ставки: 
+${rates}`;
+      }
+      if (typeSport === "tennis") {
+        return `#${item.rate_id} 🎾
+${item.home} - ${item.away}
+Статус: ${
+          item.status === "cashout"
+            ? `Расчитано\nВыигрыш: ${item.result.cash} P`
+            : "Ожидание"
+        }
+Ваши ставки: 
+${rates}`;
+      }
+    })
+    .join("\n");
+
+  try {
+    await bot.telegram.editMessageText(
+      ctx.from.id,
+      activeBoard.message_id,
+      null,
+      `Ваши последние 10 ставок
+
+${ratesMsg}`,
+      Extra.markup((m) =>
+        m.inlineKeyboard([[m.callbackButton("Вернуться", "Вернуться")]])
+      )
+    );
+  } catch (error) {}
+}
+
+function parseNameOdds(typeSport, key) {
+  if (typeSport === "soccer") {
+    if (key === "p1") return "П1 (М)";
+    if (key === "draw") return "Х (М)";
+    if (key === "p2") return "П2 (М)";
+    if (key === "FH_p1") return "П1 (FH)";
+    if (key === "FH_draw") return "X (FH)";
+    if (key === "FH_p2") return "П2 (FH)";
+    if (key === "SH_p1") return "П1 (SH)";
+    if (key === "SH_draw") return "X (SH)";
+    if (key === "SH_p2") return "П2 (SH)";
+    if (key === "even") return "Чет";
+    if (key === "odd") return "Нечет";
+    if (key === "BTS_yes") return "Обе забьют (M) ДА";
+    if (key === "BTS_no") return "Обе забьют (M) НЕТ";
+    if (key === "BTS1H_yes") return "Обе забьют (FH) ДА";
+    if (key === "BTS1H_no") return "Обе забьют (FH) НЕТ";
+    if (key === "BTS2H_yes") return "Обе забьют (SH) ДА";
+    if (key === "BTS2H_no") return "Обе забьют (SH) НЕТ";
+  }
+  if (typeSport === "basketball") {
+    if (
+      key.match(/(?:gl|spread)/g) &&
+      key.match(/(?:gl|spread)/g).length === 2
+    ) {
+      const keyArr = key.split("_");
+      const numbTeam = keyArr[1].replace("t", "");
+      return `Фора K${numbTeam} ${keyArr[3]}`;
+    }
+    if (key.match(/(?:gl|total)/g) && key.match(/(?:gl|total)/g).length === 2) {
+      const keyArr = key.split("_");
+      const total = keyArr[3].replace(/o|u/, "");
+      const type = keyArr[3].match(/o|u/)[0].toUpperCase();
+      return `Тотал ${total}${type.replace("O", "Б").replace("U", "М")}`;
+    }
+    if (
+      key.match(/(?:gl|moneyline)/g) &&
+      key.match(/(?:gl|moneyline)/g).length === 2
+    ) {
+      const keyArr = key.split("_");
+      const numbTeam = keyArr[1].replace("t", "");
+      return `П${numbTeam} (М)`;
+    }
+    if (
+      key.match(/(?:fsth|spread)/g) &&
+      key.match(/(?:fsth|spread)/g).length === 2
+    ) {
+      const keyArr = key.split("_");
+      const numbTeam = keyArr[1].replace("t", "");
+      return `Фора (FH) K${numbTeam} ${keyArr[3]}`;
+    }
+    if (
+      key.match(/(?:fsth|total)/g) &&
+      key.match(/(?:fsth|total)/g).length === 2
+    ) {
+      const keyArr = key.split("_");
+      const total = keyArr[3].replace(/o|u/, "");
+      const type = keyArr[3].match(/o|u/)[0].toUpperCase();
+      return `Тотал (FH) ${total}${type.replace("O", "Б").replace("U", "М")}`;
+    }
+    if (
+      key.match(/(?:fsth|moneyline)/g) &&
+      key.match(/(?:fsth|moneyline)/g).length === 2
+    ) {
+      const keyArr = key.split("_");
+      const numbTeam = keyArr[1].replace("t", "");
+      return `П${numbTeam} (FH)`;
+    }
+    if (
+      key.match(/(?:sndh|spread)/g) &&
+      key.match(/(?:sndh|spread)/g).length === 2
+    ) {
+      const keyArr = key.split("_");
+      const numbTeam = keyArr[1].replace("t", "");
+      return `Фора (SH) K${numbTeam} ${keyArr[3]}`;
+    }
+    if (
+      key.match(/(?:sndh|total)/g) &&
+      key.match(/(?:sndh|total)/g).length === 2
+    ) {
+      const keyArr = key.split("_");
+      const total = keyArr[3].replace(/o|u/, "");
+      const type = keyArr[3].match(/o|u/)[0].toUpperCase();
+      return `Тотал (SH) ${total}${type.replace("O", "Б").replace("U", "М")}`;
+    }
+    if (
+      key.match(/(?:sndh|moneyline)/g) &&
+      key.match(/(?:sndh|moneyline)/g).length === 2
+    ) {
+      const keyArr = key.split("_");
+      const numbTeam = keyArr[1].replace("t", "");
+      return `П${numbTeam} (SH)`;
+    }
+    if (key.match(/(?:HSH_fh)/g)) {
+      return `Больше всего очков (FH)`;
+    }
+    if (key.match(/(?:HSH_sh)/g)) {
+      return `Больше всего очков (SH)`;
+    }
+    if (key.match(/(?:HSH_tie)/g)) {
+      return `Больше всего очков (Tie)`;
+    }
+    if (key.match(/(?:odd)/g)) {
+      const type = key.replace("odd_", "");
+      return `Нечет ${type}`;
+    }
+    if (key.match(/(?:even)/g)) {
+      const type = key.replace("even_", "");
+      return `Чет ${type}`;
     }
   }
+  if (typeSport === "tennis") {
+    if (key === "tw_p1_match") return "П1 (Матч)";
+    if (key === "tw_p2_match") return "П2 (Матч)";
+    if (key === "tw_p1_set1") return "П1 (сет 1)";
+    if (key === "tw_p2_set1") return "П2 (сет 1)";
+    if (key === "tw_p1_set2") return "П1 (сет 2)";
+    if (key === "tw_p2_set2") return "П2 (сет 2)";
+    if (key === "tw_p1_set3") return "П1 (сет 3)";
+    if (key === "tw_p2_set3") return "П2 (сет 3)";
+    if (key.match(/tgs1_over/)) {
+      const total = key.replace("tgs1_over_", "");
+      return `ТG (сет 1) ${total}Б`;
+    }
+    if (key.match(/tgs1_under/)) {
+      const total = key.replace("tgs1_under_", "");
+      return `ТG (сет 1) ${total}M`;
+    }
+    if (key.match(/tgs2_over/)) {
+      const total = key.replace("tgs2_over_", "");
+      return `ТG (сет 2) ${total}Б`;
+    }
+    if (key.match(/tgs2_under/)) {
+      const total = key.replace("tgs2_under_", "");
+      return `ТG (сет 2) ${total}M`;
+    }
+    if (key.match(/tgs3_over/)) {
+      const total = key.replace("tgs3_over_", "");
+      return `ТG (сет 3) ${total}Б`;
+    }
+    if (key.match(/tgs3_under/)) {
+      const total = key.replace("tgs3_under_", "");
+      return `ТG (сет 3) ${total}M`;
+    }
+    if (key.match(/tgm_over/)) {
+      const total = key.replace("tgm_over_", "");
+      return `ТG (Матч) ${total}Б`;
+    }
+    if (key.match(/tgm_under/)) {
+      const total = key.replace("tgm_under_", "");
+      return `ТG (Матч) ${total}M`;
+    }
+    if (key.match(/sb_p1_2-0/)) return "Счет 2-0 П1";
+    if (key.match(/sb_p2_2-0/)) return "Счет 2-0 П2";
+    if (key.match(/sb_p1_2-1/)) return "Счет 2-1 П1";
+    if (key.match(/sb_p2_2-1/)) return "Счет 2-1 П2";
+    if (key.match(/TS2/)) return "Тотал сетов 2";
+    if (key.match(/TS3/)) return "Тотал сетов 3";
+    if (key.match(/MTGOE_odd/)) return "Тотал геймов НЕЧЕТ";
+    if (key.match(/MTGOE_even/)) return "Тотал геймов ЧЕТ";
+    if (key === "S2W_p1") return "П1 (сет 2)";
+    if (key === "S2W_p2") return "П2 (сет 2)";
+    if (key === "S3W_p1") return "П1 (сет 3)";
+    if (key === "S3W_p2") return "П2 (сет 3)";
+  }
+  return key;
 }
 
 const vld = async (ctx, action) => {
@@ -443,7 +731,7 @@ const soccerExtra = (game, ctx) => {
     ],
   };
 
-  if (game.odds.p1) {
+  if (game.odds && game.odds.p1) {
     extra.inline_keyboard.push([
       {
         text: `П1 (М) - ${game.odds.p1}`,
@@ -460,7 +748,7 @@ const soccerExtra = (game, ctx) => {
     ]);
   }
 
-  if (game.odds.FH_p1) {
+  if (game.odds && game.odds.FH_p1) {
     extra.inline_keyboard.push([
       {
         text: `П1 (FH) - ${game.odds.FH_p1}`,
@@ -477,7 +765,7 @@ const soccerExtra = (game, ctx) => {
     ]);
   }
 
-  if (game.odds.SH_p1) {
+  if (game.odds && game.odds.SH_p1) {
     extra.inline_keyboard.push([
       {
         text: `П1 (SH) - ${game.odds.SH_p1}`,
@@ -494,7 +782,7 @@ const soccerExtra = (game, ctx) => {
     ]);
   }
 
-  if (game.odds.odd) {
+  if (game.odds && game.odds.odd) {
     extra.inline_keyboard.push([
       {
         text: `Чет - ${game.odds.even}`,
@@ -507,7 +795,7 @@ const soccerExtra = (game, ctx) => {
     ]);
   }
 
-  if (game.odds.BTS_yes) {
+  if (game.odds && game.odds.BTS_yes) {
     extra.inline_keyboard.push([
       {
         text: `Обе забьют (M) ДА - ${game.odds.BTS_yes}`,
@@ -520,7 +808,7 @@ const soccerExtra = (game, ctx) => {
     ]);
   }
 
-  if (game.odds.BTS1H_yes) {
+  if (game.odds && game.odds.BTS1H_yes) {
     extra.inline_keyboard.push([
       {
         text: `Обе забьют (FH) ДА - ${game.odds.BTS1H_yes}`,
@@ -533,7 +821,7 @@ const soccerExtra = (game, ctx) => {
     ]);
   }
 
-  if (game.odds.BTS2H_yes) {
+  if (game.odds && game.odds.BTS2H_yes) {
     extra.inline_keyboard.push([
       {
         text: `Обе забьют (SH) ДА - ${game.odds.BTS2H_yes}`,
@@ -546,11 +834,11 @@ const soccerExtra = (game, ctx) => {
     ]);
   }
 
-  if (game.odds.totals) {
+  if (game.odds && game.odds.totals) {
     const objArr = [];
     for (let [key, value] of Object.entries(game.odds.totals)) {
       objArr.push({
-        text: `Total ${key} - ${value}`,
+        text: `Тотал ${key.replace("O", "Б").replace("U", "М")} - ${value}`,
         callback_data: `T${key.match(/O|U/g)[0]}:${key}`,
         weight: +key.match(/\d/g).join(""),
       });
@@ -566,8 +854,8 @@ const soccerExtra = (game, ctx) => {
       callback_data: "🗑 Очистить ставки",
     },
     {
-      text: "Поставить",
-      callback_data: "Поставить",
+      text: "💰 Поставить",
+      callback_data: "💰 Поставить",
     },
   ]);
 
@@ -645,7 +933,7 @@ const basketBallExtra = (game, ctx) => {
     ],
   };
 
-  if (Object.keys(game.odds).length !== 0) {
+  if (game.odds && Object.keys(game.odds).length !== 0) {
     const gl_spread = [];
     const gl_total = [];
     const gl_moneyline = [];
@@ -678,7 +966,9 @@ const basketBallExtra = (game, ctx) => {
         const total = keyArr[3].replace(/o|u/, "");
         const type = keyArr[3].match(/o|u/)[0].toUpperCase();
         gl_total.push({
-          text: `Тотал ${total}${type} - ${value}`,
+          text: `Тотал ${total}${type
+            .replace("O", "Б")
+            .replace("U", "М")} - ${value}`,
           callback_data: key,
         });
       }
@@ -690,7 +980,7 @@ const basketBallExtra = (game, ctx) => {
         const keyArr = key.split("_");
         const numbTeam = keyArr[1].replace("t", "");
         gl_moneyline.push({
-          text: `П${numbTeam} (M) - ${value}`,
+          text: `П${numbTeam} (М) - ${value}`,
           callback_data: key,
         });
       }
@@ -715,7 +1005,9 @@ const basketBallExtra = (game, ctx) => {
         const total = keyArr[3].replace(/o|u/, "");
         const type = keyArr[3].match(/o|u/)[0].toUpperCase();
         fsth_total.push({
-          text: `Тотал (FH) ${total}${type} - ${value}`,
+          text: `Тотал (FH) ${total}${type
+            .replace("O", "Б")
+            .replace("U", "М")} - ${value}`,
           callback_data: key,
         });
       }
@@ -752,7 +1044,9 @@ const basketBallExtra = (game, ctx) => {
         const total = keyArr[3].replace(/o|u/, "");
         const type = keyArr[3].match(/o|u/)[0].toUpperCase();
         sndh_total.push({
-          text: `Тотал (SH) ${total}${type} - ${value}`,
+          text: `Тотал (SH) ${total}${type
+            .replace("O", "Б")
+            .replace("U", "М")} - ${value}`,
           callback_data: key,
         });
       }
@@ -771,21 +1065,21 @@ const basketBallExtra = (game, ctx) => {
 
       if (key.match(/(?:HSH_fh)/g)) {
         HSH.push({
-          text: `High score (FH) - ${value}`,
+          text: `Больше всего очков (FH) - ${value}`,
           callback_data: key,
         });
       }
 
       if (key.match(/(?:HSH_sh)/g)) {
         HSH.push({
-          text: `High score (SH) - ${value}`,
+          text: `Больше всего очков (SH) - ${value}`,
           callback_data: key,
         });
       }
 
       if (key.match(/(?:HSH_tie)/g)) {
         HSH.push({
-          text: `High score (Tie) - ${value}`,
+          text: `Больше всего очков (Tie) - ${value}`,
           callback_data: key,
         });
       }
@@ -796,7 +1090,7 @@ const basketBallExtra = (game, ctx) => {
           odd_even[type] = {};
         }
         odd_even[type].odd = {
-          text: `Odd ${type} - ${value}`,
+          text: `Нечет ${type} - ${value}`,
           callback_data: key,
         };
       }
@@ -804,7 +1098,7 @@ const basketBallExtra = (game, ctx) => {
       if (key.match(/(?:even)/g)) {
         const type = key.replace("even_", "");
         odd_even[type].even = {
-          text: `Even ${type} - ${value}`,
+          text: `Чет ${type} - ${value}`,
           callback_data: key,
         };
       }
@@ -833,8 +1127,8 @@ const basketBallExtra = (game, ctx) => {
       callback_data: "🗑 Очистить ставки",
     },
     {
-      text: "Поставить",
-      callback_data: "Поставить",
+      text: "💰 Поставить",
+      callback_data: "💰 Поставить",
     },
   ]);
 
@@ -923,16 +1217,16 @@ const tennisExtra = (game, ctx) => {
     ],
   };
 
-  if (Object.keys(game.odds).length !== 0) {
+  if (game.odds && Object.keys(game.odds).length !== 0) {
     for (let [key, value] of Object.entries(game.odds)) {
       if (key === "tw_p1_match") {
         extra.inline_keyboard.push([
           {
-            text: `П1 (M) - ${value}`,
+            text: `П1 (Матч) - ${value}`,
             callback_data: key,
           },
           {
-            text: `П2 (M) - ${game.odds[key.replace("1", "2")]}`,
+            text: `П2 (Матч) - ${game.odds[key.replace("1", "2")]}`,
             callback_data: key.replace("1", "2"),
           },
         ]);
@@ -981,11 +1275,11 @@ const tennisExtra = (game, ctx) => {
         const total = key.replace("tgs1_over_", "");
         extra.inline_keyboard.push([
           {
-            text: `TG (set1) ${total}O - ${value}`,
+            text: `ТG (сет 1) ${total}Б - ${value}`,
             callback_data: key,
           },
           {
-            text: `TG (set1) ${total}U - ${
+            text: `ТG (сет 1) ${total}М - ${
               game.odds[key.replace("over", "under")]
             }`,
             callback_data: key.replace("over", "under"),
@@ -994,14 +1288,14 @@ const tennisExtra = (game, ctx) => {
       }
 
       if (key.match(/tgs2_over/)) {
-        const total = key.replace("tgs1_over_", "");
+        const total = key.replace("tgs2_over_", "");
         extra.inline_keyboard.push([
           {
-            text: `TG (set3) ${total}O - ${value}`,
+            text: `ТG (сет 2) ${total}Б - ${value}`,
             callback_data: key,
           },
           {
-            text: `TG (set2) ${total}U - ${
+            text: `ТG (сет 2) ${total}М - ${
               game.odds[key.replace("over", "under")]
             }`,
             callback_data: key.replace("over", "under"),
@@ -1010,14 +1304,14 @@ const tennisExtra = (game, ctx) => {
       }
 
       if (key.match(/tgs3_over/)) {
-        const total = key.replace("tgs1_over_", "");
+        const total = key.replace("tgs3_over_", "");
         extra.inline_keyboard.push([
           {
-            text: `TG (set3) ${total}O - ${value}`,
+            text: `ТG (сет 3) ${total}Б - ${value}`,
             callback_data: key,
           },
           {
-            text: `TG (set3) ${total}U - ${
+            text: `ТG (сет 3) ${total}М - ${
               game.odds[key.replace("over", "under")]
             }`,
             callback_data: key.replace("over", "under"),
@@ -1029,11 +1323,11 @@ const tennisExtra = (game, ctx) => {
         const total = key.replace("tgm_over_", "");
         extra.inline_keyboard.push([
           {
-            text: `TG (M) ${total}O - ${value}`,
+            text: `ТG (Матч) ${total}Б - ${value}`,
             callback_data: key,
           },
           {
-            text: `TG (M) ${total}U - ${
+            text: `ТG (Матч) ${total}М - ${
               game.odds[key.replace("over", "under")]
             }`,
             callback_data: key.replace("over", "under"),
@@ -1042,30 +1336,30 @@ const tennisExtra = (game, ctx) => {
       }
 
       if (key.match(/sb_p1_2-0/)) {
-        if (game.odds[key.replace("1", "2")]) {
+        if (game.odds[key.replace("p1", "p2")]) {
           extra.inline_keyboard.push([
             {
-              text: `Score 2-0 П1 - ${value}`,
+              text: `Счет 2-0 П1 - ${value}`,
               callback_data: key,
             },
             {
-              text: `Score 2-0 П2 - ${game.odds[key.replace("1", "2")]}`,
-              callback_data: key.replace("1", "2"),
+              text: `Счет 2-0 П2 - ${game.odds[key.replace("p1", "p2")]}`,
+              callback_data: key.replace("p1", "p2"),
             },
           ]);
         }
       }
 
       if (key.match(/sb_p1_2-1/)) {
-        if (game.odds[key.replace("1", "2")]) {
+        if (game.odds[key.replace("p1", "p2")]) {
           extra.inline_keyboard.push([
             {
-              text: `Score 2-1 П1 - ${value}`,
+              text: `Счет 2-1 П1 - ${value}`,
               callback_data: key,
             },
             {
-              text: `Score 2-1 П2 - ${game.odds[key.replace("1", "2")]}`,
-              callback_data: key.replace("1", "2"),
+              text: `Счет 2-1 П2 - ${game.odds[key.replace("p1", "p2")]}`,
+              callback_data: key.replace("p1", "p2"),
             },
           ]);
         }
@@ -1107,12 +1401,12 @@ const tennisExtra = (game, ctx) => {
         if (game.odds.S2W_p2) {
           extra.inline_keyboard.push([
             {
-              text: `Сет 2 win P1 - ${value}`,
+              text: `П1 (сет 2) - ${value}`,
               callback_data: key,
             },
             {
-              text: `Сет 2 win P2 - ${game.odds.S2W_p2}`,
-              callback_data: key.replace("1", "2"),
+              text: `П2 (сет 2) - ${game.odds.S2W_p2}`,
+              callback_data: key.replace("p1", "p2"),
             },
           ]);
         }
@@ -1122,12 +1416,12 @@ const tennisExtra = (game, ctx) => {
         if (game.odds.S3W_p2) {
           extra.inline_keyboard.push([
             {
-              text: `Сет 3 win P1 - ${value}`,
+              text: `П1 (сет 3) - ${value}`,
               callback_data: key,
             },
             {
-              text: `Сет 3 win P2 - ${game.odds.S3W_p2}`,
-              callback_data: key.replace("1", "2"),
+              text: `П2 (сет 3) - ${game.odds.S3W_p2}`,
+              callback_data: key.replace("p1", "p2"),
             },
           ]);
         }
@@ -1141,8 +1435,8 @@ const tennisExtra = (game, ctx) => {
       callback_data: "🗑 Очистить ставки",
     },
     {
-      text: "Поставить",
-      callback_data: "Поставить",
+      text: "💰 Поставить",
+      callback_data: "💰 Поставить",
     },
   ]);
 
@@ -1196,14 +1490,44 @@ const tennisExtra = (game, ctx) => {
 
 async function gameIdView(ctx) {
   ctx.session.sport.activeView = "gameIdView";
+
+  if (ctx.session.actionStatus) return;
+  ctx.session.actionStatus = true;
+
   const game_id = ctx.update.callback_query.data.split(":")[1];
   ctx.session.sport.game_id = game_id;
+
+  const { typeMatch, typeSport } = ctx.session.sport;
+
+  const status = await ActiveGames.findOne({ game_id });
+  if (!status) {
+    const game = new ActiveGames({
+      game_id,
+      typeSport,
+      typeMatch,
+    });
+    await game.save();
+  }
+
+  if (typeSport === "tennis") {
+    const game = await TennisGames.findOne({ game_id });
+    await reqTennis(typeMatch, game);
+  }
+  if (typeSport === "soccer") {
+    const game = await FootballGames.findOne({ game_id });
+    await reqFootball(typeMatch, game);
+  }
+  if (typeSport === "basketball") {
+    const game = await BasketballGames.findOne({ game_id });
+    await reqBasketball(typeMatch, game);
+  }
 
   editMessage(ctx);
   const intervalId = setInterval(() => {
     editMessage(ctx);
   }, 5000);
   ctx.session.sport.interval = intervalId;
+  ctx.session.actionStatus = false;
 }
 
 async function editMessage(ctx) {
@@ -1214,7 +1538,7 @@ async function editMessage(ctx) {
   let extra = null;
 
   if (typeSport === "soccer") {
-    game = await SportFootballGames.findOne({ game_id });
+    game = await FootballGames.findOne({ game_id });
     extra = soccerExtra(game, ctx);
   }
 
@@ -1228,8 +1552,13 @@ async function editMessage(ctx) {
     extra = basketBallExtra(game, ctx);
   }
 
-  if (!game) {
-    await ctx.answerCbQuery("Данных об игре нету, либо она закончилась.", true);
+  if (!game || game.time_status === 3) {
+    try {
+      await ctx.answerCbQuery(
+        "Данных об игре нету, либо она закончилась.",
+        true
+      );
+    } catch (error) {}
     clearInterval(interval);
     return gameView(ctx);
   }
@@ -1240,7 +1569,11 @@ async function editMessage(ctx) {
 
   for (let [key, value] of Object.entries(rate)) {
     if (value && value !== 0 && game.odds[key]) {
-      rates = rates.concat(`- ${key}  [x${game.odds[key]}]  💰 ${value} P\n`);
+      rates = rates.concat(
+        `- ${parseNameOdds(typeSport, key)}  [x${
+          game.odds[key]
+        }]  💰 ${value} P\n`
+      );
     } else {
       ctx.session.sport.mainBalance += value;
       ctx.session.sport.rate[key] = 0;
@@ -1252,18 +1585,16 @@ async function editMessage(ctx) {
       ctx.from.id,
       activeBoard.message_id,
       null,
-      `${game.home} ↔️ ${game.away}
-Счет: 0 ↔️ 0
+      `${game.home} - ${game.away}
 
 Ваш баланс: ${ctx.session.sport.mainBalance} Р
 
 Сумма ставки: ${valueRate} P
 Ваши ставки:
 ${rates}
-❕ Нажмите кнопку "Поставить", чтобы ваши ставки были приняты.
+❕ Нажмите кнопку "💰 Поставить", чтобы ваши ставки были приняты.
 
-Время обновления: ${moment().format("HH:mm:ss")}
-В базе от: ${game.parse_time}`,
+Время обновления: ${moment().format("HH:mm:ss")}`,
       {
         reply_markup: extra,
       }

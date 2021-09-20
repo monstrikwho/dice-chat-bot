@@ -3,41 +3,26 @@ const moment = require("moment");
 const { create, all } = require("mathjs");
 const math = create(all);
 
-const SportsTopGames = require("../models/sportsTopGames");
-const BasketballGames = require("../models/basketballGames");
 const MainStats = require("../models/mainstats");
+const BasketballGames = require("../models/basketballGames");
 
 const login = "iceinblood";
 const token = "54811-x38emPLqcLOEFLV";
 
-setInterval(() => parseSoccer("live"), 1000 * 7 * 1);
-setInterval(() => parseSoccer("pre"), 1000 * 60 * 2);
-
-async function parseSoccer(type) {
-  const { topGames } = await SportsTopGames.findOne({
-    sport: `basketball_${type}`,
-  });
-
-  for (let y = 0; y < topGames.length; y++) {
-    const game = topGames[y];
-    req(type, game);
-  }
-
-  async function req(type, game) {
-    await axios
-      .get(
-        `https://spoyer.ru/api/get.php?login=${login}&token=${token}&task=${type}odds&bookmaker=bet365&game_id=${game.game_id}`
-      )
-      .then(async ({ data }) => {
-        if (type === "live") {
-          basketballLiveGames(data, game);
-        }
-        if (type === "pre") {
-          basketballPreGames(data, game);
-        }
-      })
-      .catch((err) => console.log(err.message));
-  }
+async function reqBasketball(type, game) {
+  await axios
+    .get(
+      `https://spoyer.ru/api/get.php?login=${login}&token=${token}&task=${type}odds&bookmaker=bet365&game_id=${game.game_id}`
+    )
+    .then(async ({ data }) => {
+      if (type === "live") {
+        await basketballLiveGames(data, game);
+      }
+      if (type === "pre") {
+        await basketballPreGames(data, game);
+      }
+    })
+    .catch((err) => {});
 }
 
 async function basketballLiveGames(data, game) {
@@ -396,3 +381,5 @@ async function basketballPreGames(data, game) {
     }
   );
 }
+
+module.exports = { reqBasketball };

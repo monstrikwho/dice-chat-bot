@@ -1,7 +1,10 @@
 const { Schema, model } = require("mongoose");
 
 const schema = new Schema({
-  game_id: Number,
+  game_id: {
+    type: Number,
+    unique: true,
+  },
   time_status: Number,
   league: String,
   home: String,
@@ -14,4 +17,4 @@ const schema = new Schema({
   time: String,
 });
 
-module.exports = model("SportFootballGames", schema);
+module.exports = model("FootballGames", schema);

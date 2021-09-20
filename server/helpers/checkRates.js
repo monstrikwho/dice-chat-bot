@@ -3,7 +3,7 @@ const axios = require("axios");
 
 const User = require("../models/user");
 const SportRates = require("../models/sportRates");
-const SportFootballGames = require("../models/sportFootballGames");
+const SportFootballGames = require("../models/footballGames");
 const BasketballGames = require("../models/basketballGames");
 const TennisGames = require("../models/tennisGames");
 
@@ -12,11 +12,17 @@ const sports = ["soccer", "basketball", "tennis"];
 const login = "iceinblood";
 const token = "54811-x38emPLqcLOEFLV";
 
-setInterval(checkResGames, 1000 * 60 * 1);
+const chunks = 10;
+
+setInterval(checkResGames, 1000 * 60 * 5);
 async function checkResGames() {
-  const footballGames = await SportFootballGames.find({ time_status: [0, 1] });
-  const basketballGames = await BasketballGames.find({ time_status: [0, 1] });
-  const tennisGames = await TennisGames.find({ time_status: [0, 1] });
+  const footballGames = await SportFootballGames.find({
+    time_status: [0, 1, 4],
+  });
+  const basketballGames = await BasketballGames.find({
+    time_status: [0, 1, 4],
+  });
+  const tennisGames = await TennisGames.find({ time_status: [0, 1, 4] });
 
   const games = [...footballGames, ...basketballGames, ...tennisGames];
 
@@ -29,6 +35,8 @@ async function checkResGames() {
       .then(async ({ data }) => {
         const results = data.results && data.results[0];
         if (!results) return;
+
+        if (game.time_status === 4 && results.time_status !== "3") return;
 
         if (results.time_status === "3" && results.sport_id === "1") {
           return await SportFootballGames.updateOne(
@@ -50,29 +58,38 @@ async function checkResGames() {
         }
 
         if (results.sport_id === "1") {
-          return await SportFootballGames.updateOne(
-            { game_id },
-            { time_status: results.time_status }
-          );
+          const activeGames = await SportFootballGames.find({ time_status: 1 });
+          if (activeGames.length < chunks) {
+            await SportFootballGames.updateOne(
+              { game_id },
+              { time_status: results.time_status }
+            );
+          }
         }
         if (results.sport_id === "18") {
-          return await BasketballGames.updateOne(
-            { game_id },
-            { time_status: results.time_status }
-          );
+          const activeGames = await BasketballGames.find({ time_status: 1 });
+          if (activeGames.length < chunks) {
+            await BasketballGames.updateOne(
+              { game_id },
+              { time_status: results.time_status }
+            );
+          }
         }
         if (results.sport_id === "13") {
-          return await TennisGames.updateOne(
-            { game_id },
-            { time_status: results.time_status }
-          );
+          const activeGames = await TennisGames.find({ time_status: 1 });
+          if (activeGames.length < chunks) {
+            await TennisGames.updateOne(
+              { game_id },
+              { time_status: results.time_status }
+            );
+          }
         }
       })
-      .catch((err) => console.log(err.message));
+      .catch((err) => {});
   }
 }
 
-setInterval(checkSportRates, 1000 * 60 * 1);
+setInterval(checkSportRates, 1000 * 60 * 5);
 async function checkSportRates() {
   for (let type_sport of sports) {
     const rates = await SportRates.find({
@@ -654,8 +671,8 @@ async function calcBid(userId, rate_id, rates, odds, game, type_sport) {
   if (winSum > 0) {
     await bot.telegram.sendMessage(
       userId,
-      `Ваш выигрыш составил ${+winSum.toFixed(2)} P
-Ваш баланс: ${+(mainBalance + winSum).toFixed(2)} P`
+      `Ваша ставка #${rate_id} выиграла 
+Ваш выигрыш составил ${+winSum.toFixed(2)} P`
     );
     await SportRates.updateOne(
       { rate_id },
@@ -672,11 +689,7 @@ async function calcBid(userId, rate_id, rates, odds, game, type_sport) {
   }
 
   if (winSum === 0) {
-    await bot.telegram.sendMessage(
-      userId,
-      `Ваша ставка проиграла
-Ваш баланс: ${+(mainBalance + winSum).toFixed(2)} P`
-    );
+    await bot.telegram.sendMessage(userId, `Ваша ставка #${rate_id} проиграла`);
     await SportRates.updateOne(
       { rate_id },
       {

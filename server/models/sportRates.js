@@ -6,6 +6,8 @@ const schema = new Schema({
   userId: Number,
   status: String,
   typeSport: String,
+  home: String,
+  away: String,
   rates: Object,
   odds: Object,
   sumAmount: Number,

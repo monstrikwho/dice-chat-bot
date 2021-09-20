@@ -103,9 +103,6 @@ function mainMenuActions(scene) {
   });
 
   scene.hears("🏆 Спорт", async (ctx) => {
-    return await ctx.reply(
-      "Раздел находится в разработке и заработает в ближайшие дни"
-    );
     if (!ctx.session.is_session) {
       await commandStart(ctx);
     }

@@ -3,41 +3,26 @@ const moment = require("moment");
 const { create, all } = require("mathjs");
 const math = create(all);
 
-const SportsTopGames = require("../models/sportsTopGames");
-const TennisGames = require("../models/tennisGames");
 const MainStats = require("../models/mainstats");
+const TennisGames = require("../models/tennisGames");
 
 const login = "iceinblood";
 const token = "54811-x38emPLqcLOEFLV";
 
-setInterval(() => parseTennis("live"), 1000 * 7 * 1);
-setInterval(() => parseTennis("pre"), 1000 * 60 * 2);
-
-async function parseTennis(type) {
-  const { topGames } = await SportsTopGames.findOne({
-    sport: `tennis_${type}`,
-  });
-
-  for (let y = 0; y < topGames.length; y++) {
-    const game = topGames[y];
-    req(type, game);
-  }
-
-  async function req(type, game) {
-    await axios
-      .get(
-        `https://spoyer.ru/api/get.php?login=${login}&token=${token}&task=${type}odds&bookmaker=bet365&game_id=${game.game_id}`
-      )
-      .then(async ({ data }) => {
-        if (type === "live") {
-          tennisLiveGames(data, game);
-        }
-        if (type === "pre") {
-          tennisPreGames(data, game);
-        }
-      })
-      .catch((err) => console.log(err.message));
-  }
+async function reqTennis(type, game) {
+  await axios
+    .get(
+      `https://spoyer.ru/api/get.php?login=${login}&token=${token}&task=${type}odds&bookmaker=bet365&game_id=${game.game_id}`
+    )
+    .then(async ({ data }) => {
+      if (type === "live") {
+        await tennisLiveGames(data, game);
+      }
+      if (type === "pre") {
+        await tennisPreGames(data, game);
+      }
+    })
+    .catch((err) => {});
 }
 
 async function tennisLiveGames(data, game) {
@@ -474,3 +459,5 @@ async function tennisPreGames(data, game) {
     }
   );
 }
+
+module.exports = { reqTennis };

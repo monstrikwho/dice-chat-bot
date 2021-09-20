@@ -3,41 +3,26 @@ const moment = require("moment");
 const { create, all } = require("mathjs");
 const math = create(all);
 
-const SportsTopGames = require("../models/sportsTopGames");
-const SportFootballGames = require("../models/sportFootballGames");
 const MainStats = require("../models/mainstats");
+const FootballGames = require("../models/footballGames");
 
 const login = "iceinblood";
 const token = "54811-x38emPLqcLOEFLV";
 
-setInterval(() => parseSoccer("live"), 1000 * 7 * 1);
-setInterval(() => parseSoccer("pre"), 1000 * 60 * 2);
-
-async function parseSoccer(type) {
-  const { topGames } = await SportsTopGames.findOne({
-    sport: `soccer_${type}`,
-  });
-
-  for (let y = 0; y < topGames.length; y++) {
-    const game = topGames[y];
-    req(type, game);
-  }
-
-  async function req(type, game) {
-    await axios
-      .get(
-        `https://spoyer.ru/api/get.php?login=${login}&token=${token}&task=${type}odds&bookmaker=bet365&game_id=${game.game_id}`
-      )
-      .then(async ({ data }) => {
-        if (type === "live") {
-          soccerLiveGames(data, game);
-        }
-        if (type === "pre") {
-          soccerPreGames(data, game);
-        }
-      })
-      .catch((err) => console.log(err.message));
-  }
+async function reqFootball(type, game) {
+  await axios
+    .get(
+      `https://spoyer.ru/api/get.php?login=${login}&token=${token}&task=${type}odds&bookmaker=bet365&game_id=${game.game_id}`
+    )
+    .then(async ({ data }) => {
+      if (type === "live") {
+        await soccerLiveGames(data, game);
+      }
+      if (type === "pre") {
+        await soccerPreGames(data, game);
+      }
+    })
+    .catch((err) => {});
 }
 
 async function soccerLiveGames(data, game) {
@@ -225,7 +210,7 @@ async function soccerLiveGames(data, game) {
     odds = { ...odds, ...totals };
   }
 
-  await SportFootballGames.updateOne(
+  await FootballGames.updateOne(
     { game_id: +game.game_id },
     {
       odds,
@@ -269,7 +254,6 @@ async function soccerPreGames(data, game) {
   let BTS2H_yes = null;
   let BTS2H_no = null;
 
-  let MG = {};
   let totals = {};
 
   if (main && main["full_time_result"]) {
@@ -381,7 +365,7 @@ async function soccerPreGames(data, game) {
     odds = { ...odds, ...totals };
   }
 
-  await SportFootballGames.updateOne(
+  await FootballGames.updateOne(
     { game_id: +game.game_id },
     {
       odds,
@@ -389,3 +373,5 @@ async function soccerPreGames(data, game) {
     }
   );
 }
+
+module.exports = { reqFootball };

@@ -1,7 +1,10 @@
 const { Schema, model } = require("mongoose");
 
 const schema = new Schema({
-  game_id: Number,
+  game_id: {
+    type: Number,
+    unique: true,
+  },
   time_status: Number,
   league: String,
   home: String,
