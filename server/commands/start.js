@@ -174,25 +174,25 @@ async function commandStart(ctx) {
 }
 
 async function showMainMenu(ctx) {
-  const user = await User.findOne({ userId: ctx.from.id });
-  if (!user.rules) {
+  // const user = await User.findOne({ userId: ctx.from.id });
+  // if (!user.rules) {
+  //   await ctx.reply(
+  //     "Соглашение с правилами",
+  //     Extra.markup(Markup.keyboard([["✅ Соглашаюсь"]]).resize())
+  //   );
+  // } else {
+  try {
     await ctx.reply(
-      "Соглашение с правилами",
-      Extra.markup(Markup.keyboard([["✅ Соглашаюсь"]]).resize())
+      "👋",
+      Extra.markup(
+        Markup.keyboard([
+          ["👤 Соло", "👥 ПвП", "🏆 Спорт"],
+          ["📱 Личный кабинет", "💬 Чат / Поддержка", "ℹ️ Инфо"],
+        ]).resize()
+      )
     );
-  } else {
-    try {
-      await ctx.reply(
-        "👋",
-        Extra.markup(
-          Markup.keyboard([
-            ["👤 Соло", "👥 ПвП", "🏆 Спорт"],
-            ["📱 Личный кабинет", "💬 Чат / Поддержка", "ℹ️ Инфо"],
-          ]).resize()
-        )
-      );
-    } catch (error) {}
-  }
+  } catch (error) {}
+  // }
 }
 
 async function showModerMenu(ctx) {
