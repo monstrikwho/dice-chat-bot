@@ -174,8 +174,8 @@ async function commandStart(ctx) {
 }
 
 async function showMainMenu(ctx) {
-  const { rules } = await User.findOne({ userId: ctx.from.id });
-  if (!rules) {
+  const user = await User.findOne({ userId: ctx.from.id });
+  if (!user.rules) {
     await ctx.reply(
       "Соглашение с правилами",
       Extra.markup(Markup.keyboard([["✅ Соглашаюсь"]]).resize())
