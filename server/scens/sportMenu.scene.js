@@ -385,9 +385,9 @@ async function gameView(ctx) {
 
   editMessage();
 
-  if (ctx.update.callback_query) {
+  try {
     await ctx.answerCbQuery();
-  }
+  } catch (error) {}
 
   const intervalId = setInterval(editMessage, 1000 * 10);
   ctx.session.sport.interval = intervalId;
