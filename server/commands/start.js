@@ -5,7 +5,8 @@ const Markup = require("telegraf/markup");
 const User = require("../models/user");
 const MainStats = require("../models/mainstats");
 
-async function saveAdsStats(ads, adsName) {
+async function saveAdsStats(adsName) {
+  const { ads } = await MainStats.findOne({});
   if (ads[adsName]) {
     ads[adsName] = ads[adsName] + 1;
     await MainStats.updateOne({}, { ads });
@@ -110,34 +111,23 @@ async function commandStart(ctx) {
   let bonus = 0;
 
   // Определяем тип ссылки
-  let payloadType =
-    startPayload.indexOf("ref") !== -1
-      ? "ref"
-      : startPayload.indexOf("ads") !== -1
-      ? "ads"
-      : "other";
+  let payloadType = startPayload.indexOf("ref") !== -1 ? "ref" : "other";
 
-  // Если переход был по реф. ссылке
-  if (payloadType !== "other") {
-    // Если это реферальная ссылка
-    if (payloadType === "ref") {
-      const refUserId = startPayload.replace("ref", "");
-      if (+refUserId === ctx.from.id) return;
-      const status = await User.findOne({ userId: refUserId });
-      if (status) {
-        isRef = refUserId;
-        bonus = bonusRefDaughter;
-        updateRefUsers(isRef, bonusRefFather);
-      }
+  // Если это реферальная ссылка
+  if (payloadType === "ref") {
+    const refUserId = startPayload.replace("ref", "");
+    if (+refUserId === ctx.from.id) return;
+    const status = await User.findOne({ userId: refUserId });
+    if (status) {
+      isRef = refUserId;
+      bonus = bonusRefDaughter;
+      updateRefUsers(isRef, bonusRefFather);
     }
+  }
 
-    // Сохраняем статистику рекламыы
-    if (payloadType === "ads") {
-      const { ads } = await MainStats.findOne({});
-      const adsName = startPayload.replace("ads-", "");
-      // Save ads stats
-      saveAdsStats(ads, adsName);
-    }
+  // Сохраняем статистику рекламыы
+  if (payloadType === "other") {
+    saveAdsStats(startPayload);
   }
 
   ctx.session.state = {};
