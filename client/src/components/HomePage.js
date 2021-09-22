@@ -185,7 +185,6 @@ export default function HomePage() {
           <Card.Header>Статистика по пользователям</Card.Header>
           <Card.Body>
             <Card.Text>Кол-во юзеров: {data.usersStats.countUsers}</Card.Text>
-            <Card.Text>BtnStart: {data.usersStats.countBtnStart}</Card.Text>
             <Card.Text>
               Заблокированных: {data.usersStats.countUsersBlocked}
             </Card.Text>
@@ -199,19 +198,19 @@ export default function HomePage() {
               <tbody>
                 <tr>
                   <td>Кол-во игр</td>
-                  <td>{data.gamesStats.mainGame.dice.countGame}</td>
+                  <td>{data.gamesStats.mainBalance.dice.countGame}</td>
                 </tr>
                 <tr>
                   <td>Кол-во выигранных</td>
-                  <td>{data.gamesStats.mainGame.dice.countWinGame}</td>
+                  <td>{data.gamesStats.mainBalance.dice.countWinGame}</td>
                 </tr>
                 <tr>
                   <td>Общая сумма ставок</td>
-                  <td>{data.gamesStats.mainGame.dice.countAmount}</td>
+                  <td>{data.gamesStats.mainBalance.dice.countAmount}</td>
                 </tr>
                 <tr>
                   <td>Общая сумма выигрыша</td>
-                  <td>{data.gamesStats.mainGame.dice.countWinAmount}</td>
+                  <td>{data.gamesStats.mainBalance.dice.countWinAmount}</td>
                 </tr>
               </tbody>
             </Table>
@@ -221,19 +220,19 @@ export default function HomePage() {
               <tbody>
                 <tr>
                   <td>Кол-во игр</td>
-                  <td>{data.gamesStats.mainGame.slot.countGame}</td>
+                  <td>{data.gamesStats.mainBalance.slot.countGame}</td>
                 </tr>
                 <tr>
                   <td>Кол-во выигранных</td>
-                  <td>{data.gamesStats.mainGame.slot.countWinGame}</td>
+                  <td>{data.gamesStats.mainBalance.slot.countWinGame}</td>
                 </tr>
                 <tr>
                   <td>Общая сумма ставок</td>
-                  <td>{data.gamesStats.mainGame.slot.countAmount}</td>
+                  <td>{data.gamesStats.mainBalance.slot.countAmount}</td>
                 </tr>
                 <tr>
                   <td>Общая сумма выигрыша</td>
-                  <td>{data.gamesStats.mainGame.slot.countWinAmount}</td>
+                  <td>{data.gamesStats.mainBalance.slot.countWinAmount}</td>
                 </tr>
               </tbody>
             </Table>
@@ -243,19 +242,19 @@ export default function HomePage() {
               <tbody>
                 <tr>
                   <td>Кол-во игр</td>
-                  <td>{data.gamesStats.mainGame.football.countGame}</td>
+                  <td>{data.gamesStats.mainBalance.football.countGame}</td>
                 </tr>
                 <tr>
                   <td>Кол-во выигранных</td>
-                  <td>{data.gamesStats.mainGame.football.countWinGame}</td>
+                  <td>{data.gamesStats.mainBalance.football.countWinGame}</td>
                 </tr>
                 <tr>
                   <td>Общая сумма ставок</td>
-                  <td>{data.gamesStats.mainGame.football.countAmount}</td>
+                  <td>{data.gamesStats.mainBalance.football.countAmount}</td>
                 </tr>
                 <tr>
                   <td>Общая сумма выигрыша</td>
-                  <td>{data.gamesStats.mainGame.football.countWinAmount}</td>
+                  <td>{data.gamesStats.mainBalance.football.countWinAmount}</td>
                 </tr>
               </tbody>
             </Table>
