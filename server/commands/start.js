@@ -102,7 +102,7 @@ async function commandStart(ctx) {
   // Откидываем возможность запуска бота в пабликах
   if (+ctx.chat.id < 0) return;
 
-  const startPayload = ctx.startPayload;
+  let startPayload = ctx.startPayload;
 
   const { constRef, bonusRefDaughter, bonusRefFather, startDemoBalance } =
     await MainStats.findOne({});
@@ -127,7 +127,11 @@ async function commandStart(ctx) {
 
   // Сохраняем статистику рекламыы
   if (payloadType === "other") {
-    saveAdsStats(startPayload);
+    if (startPayload.length < 1) {
+      saveAdsStats("none");
+    } else {
+      saveAdsStats(startPayload);
+    }
   }
 
   ctx.session.state = {};

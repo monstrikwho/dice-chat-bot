@@ -116,7 +116,7 @@ async function inCash(txnId, amount, userId) {
     }
   );
 
-  if (user.isRef !== 0) {
+  if (user.isRef && user.isRef !== 0) {
     // Начисляем процент пополениня пригласившему реферала
     const { mainBalance, refCash } = await User.findOne({ userId: user.isRef });
     await User.updateOne(
