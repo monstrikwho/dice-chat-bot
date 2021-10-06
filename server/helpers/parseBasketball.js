@@ -233,7 +233,7 @@ async function basketballPreGames(data, game) {
     const interval = main["game_lines"].length / 3;
     main["game_lines"].map((item, i) => {
       if (!item.name) return;
-      const isTotal = item.name === "Total" ?? false;
+      const isTotal = item.name === "Total";
       GL[i] = {
         name: item.name,
         team1: {
@@ -264,7 +264,7 @@ async function basketballPreGames(data, game) {
     const interval = main["1st_half"].length / 3;
     main["1st_half"].map((item, i) => {
       if (!item.name) return;
-      const isTotal = item.name === "Total" ?? false;
+      const isTotal = item.name === "Total";
       FstH[i] = {
         name: item.name,
         team1: {
@@ -293,7 +293,7 @@ async function basketballPreGames(data, game) {
     const interval = main["2nd_half"].length / 3;
     main["2nd_half"].map((item, i) => {
       if (!item.name) return;
-      const isTotal = item.name === "Total" ?? false;
+      const isTotal = item.name === "Total";
       SndH[i] = {
         name: item.name,
         team1: {
