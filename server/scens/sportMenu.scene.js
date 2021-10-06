@@ -450,11 +450,13 @@ async function ratesView(ctx) {
       const typeSport = item.typeSport;
 
       for (let [key, value] of Object.entries(item.rates)) {
-        rates = rates.concat(
-          `- ${parseNameOdds(typeSport, key)}  [x${
-            item.odds[key]
-          }]  💰 ${value} P\n`
-        );
+        try {
+          rates = rates.concat(
+            `- ${parseNameOdds(typeSport, key)}  [x${
+              item.odds[key]
+            }]  💰 ${value} P\n`
+          );
+        } catch (error) {}
       }
 
       if (typeSport === "soccer") {
