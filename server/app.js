@@ -8,7 +8,7 @@ require("./init/setupServer");
 require("./helpers/checkRates");
 require("./helpers/parseTopMatches");
 require("./helpers/parseMatches");
-// require("./helpers/checkBlockedUsers")(bot);
+require("./helpers/checkBlockedUsers")(bot);
 require("./helpers/updatePvpStats")();
 
 require("./scens/setupScenes")(bot);
