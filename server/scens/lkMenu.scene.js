@@ -92,8 +92,7 @@ lkMenu.action("Пополнить", async (ctx) => {
       `Выберите либо введите в чат сумму пополнения
 Минимальная сумма для пополнения: ${minIn} ₽
 
-❕Пополнение начисляется автоматически
-❕Для пополнения через chatex напишите @luckycatsupport`,
+❕Пополнение начисляется автоматически`,
       extra
     );
   } catch (error) {}
@@ -982,12 +981,12 @@ async function OutMoneyMenu(ctx) {
     ]);
   }
 
-  extra.reply_markup.inline_keyboard.push([
-    {
-      text: "Banker (RUB)",
-      callback_data: "Banker (RUB)",
-    },
-  ]);
+  // extra.reply_markup.inline_keyboard.push([
+  //   {
+  //     text: "Banker (RUB)",
+  //     callback_data: "Banker (RUB)",
+  //   },
+  // ]);
 
   extra.reply_markup.inline_keyboard.push([
     {
@@ -1004,7 +1003,6 @@ async function OutMoneyMenu(ctx) {
       `Ваши доступные способы для вывода:
 QIWI - ${accessibleBalance} ₽
 Payeer (RUB) - ${accessibleBalance} ₽
-Banker (RUB) - ${accessibleBalance} ₽
 Cards (RU) - ${cardsRu} ₽
 Cards (Other) - ${cardsOther} ₽`,
       extra

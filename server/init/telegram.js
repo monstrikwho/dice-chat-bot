@@ -14,7 +14,7 @@ const client = new TelegramClient(stringSession, apiId, apiHash, {
   connectionRetries: 5,
 });
 
-(async function run() {
+async function run() {
   await client.start({
     phoneNumber: async () => await input.text("Please enter your number: "),
     password: async () => await input.text("Please enter your password: "),
@@ -100,6 +100,4 @@ const client = new TelegramClient(stringSession, apiId, apiHash, {
       }
     }
   }
-})();
-
-module.exports = { client, Api };
+}
